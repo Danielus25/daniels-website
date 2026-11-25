@@ -327,7 +327,6 @@ function renderTourney(){
   $('duplicateToggle').setAttribute('aria-pressed',String(!!tourneyState.duplicateGames));
   $('toggleCalls').textContent=tourneyState.callsOn?'🔔 CALLS ON':'🔕 CALLS OFF';
   $('toggleGuesses').textContent='🧠 GUESSES: '+(tourneyState.guessesOn?'ON':'OFF');
-  $('toggleEntries').textContent=tourneyState.open?'Close entries':'Open entries';
   $('entryStatus').textContent=tourneyState.open?'OPEN':'CLOSED';
   $('playerCount').textContent=tourneyState.players.length+' / '+tourneyState.limit+' players';
   $('openSpots').textContent=Math.max(0,tourneyState.limit-tourneyState.players.length)+' open spots';
