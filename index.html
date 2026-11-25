@@ -4,43 +4,133 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#080d18">
-<meta name="description" content="Daniel's casino links and community hub.">
-<title>Danielus25 | Casino Hub</title>
+<meta name="description" content="Danielus25 stream hub, casino links, tournaments and community tools.">
+<title>Danielus25 | Stream Hub</title>
 <style>
 :root{--bg:#070b14;--panel:#101a2a;--line:#24415c;--orange:#ff7628;--blue:#29baff;--white:#f4f8ff;--muted:#aabbd0}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 12% 8%,#123b5b80,transparent 35%),radial-gradient(ellipse at 88% 12%,#6b2a1380,transparent 34%),var(--bg);color:var(--white);font-family:system-ui,-apple-system,Segoe UI,sans-serif;overflow-x:hidden}
-a{color:inherit;text-decoration:none}.wrap{max-width:1120px;margin:auto;padding:20px}
-header{position:sticky;top:0;z-index:5;background:#070b14eF;backdrop-filter:blur(14px);border-bottom:1px solid #24415c}.nav{max-width:1120px;margin:auto;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:1000;letter-spacing:.06em}.brand span{background:linear-gradient(90deg,var(--orange),var(--blue));background-clip:text;color:transparent}.nav a:last-child{border:1px solid #315674;border-radius:999px;padding:8px 13px;font-weight:800;font-size:.85rem}
-.hero{position:relative;text-align:center;padding:84px 10px 52px;isolation:isolate}.hero h1{font-size:clamp(2.7rem,8vw,6rem);line-height:.95;margin:14px 0;background:linear-gradient(100deg,#ff8a38 8%,#fff 48%,#35c5ff 90%);background-clip:text;color:transparent;filter:drop-shadow(0 0 22px #168acb55)}.eyebrow{font-size:.75rem;font-weight:950;letter-spacing:.25em;color:var(--blue);text-transform:uppercase}.hero p{max-width:650px;margin:18px auto;color:var(--muted);line-height:1.7}
-.flame-field{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none;opacity:.7}.flame{position:absolute;bottom:-100px;width:190px;height:310px;border-radius:55% 45% 48% 52%/65% 65% 35% 35%;filter:blur(24px);transform:rotate(18deg);animation:flicker 3s ease-in-out infinite alternate}.flame.orange{left:7%;background:radial-gradient(ellipse at 50% 75%,#ff6b1caa,transparent 67%)}.flame.blue{right:8%;background:radial-gradient(ellipse at 50% 75%,#1cbaffaa,transparent 67%);animation-delay:-1.4s}@keyframes flicker{0%{transform:translateY(16px) rotate(13deg) scale(.88);opacity:.45}100%{transform:translateY(-18px) rotate(-12deg) scale(1.12);opacity:.9}}
-.section-head{text-align:center;margin:12px 0 22px}.section-head h2{margin:0;color:var(--blue);font-size:clamp(1.4rem,4vw,2rem)}.section-head p{color:var(--muted);margin:8px 0}
-.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}.card{position:relative;overflow:hidden;min-height:210px;padding:23px;border:1px solid var(--line);border-radius:21px;background:linear-gradient(145deg,#14243a,#0c1422);box-shadow:0 15px 36px #0006;display:flex;flex-direction:column;align-items:flex-start}.card:before{content:"";position:absolute;right:-65px;top:-75px;width:160px;height:160px;border-radius:50%;filter:blur(40px);opacity:.3;background:var(--accent)}.card.orange{--accent:var(--orange)}.card.blue{--accent:var(--blue)}.card h3{position:relative;margin:10px 0 7px;font-size:1.25rem}.card p{position:relative;color:var(--muted);font-size:.92rem;line-height:1.55;margin:0}.card .icon{font-size:2rem}.card .status{position:relative;margin-top:auto;padding-top:18px;color:#d4eaff;font-size:.75rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.placeholder{opacity:.82;border-style:dashed}.note{margin:22px 0 8px;padding:18px 20px;border:1px solid #315674;border-radius:18px;background:linear-gradient(100deg,#ff762817,#29baff17);text-align:center;color:#d5e5f5;line-height:1.6}.note strong{color:#fff}.footer{text-align:center;color:#8193a9;padding:30px 0 18px;font-size:.82rem}
-@media(max-width:780px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding:62px 8px 38px}}@media(max-width:540px){.wrap{padding:13px}.cards{grid-template-columns:1fr}.nav{padding:12px 14px}.hero{padding-top:54px}.card{min-height:175px}}
-@media(prefers-reduced-motion:reduce){.flame{animation:none}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 12% 8%,#123b5b80,transparent 35%),radial-gradient(ellipse at 88% 12%,#6b2a1380,transparent 34%),var(--bg);color:var(--white);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+a{color:inherit;text-decoration:none}button{font:inherit}.wrap{max-width:1180px;margin:auto;padding:20px}
+header{position:sticky;top:0;z-index:10;background:#070b14ed;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top{max-width:1180px;margin:auto;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px}.brand{font-weight:1000;letter-spacing:.06em;white-space:nowrap}.brand span{background:linear-gradient(90deg,var(--orange),var(--blue));background-clip:text;color:transparent}.kick{border:1px solid #315674;border-radius:999px;padding:8px 13px;font-weight:850;font-size:.82rem;white-space:nowrap}
+.tabs{max-width:1180px;margin:auto;padding:0 14px 12px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin}.tab{flex:0 0 auto;border:1px solid #28435c;background:#101a2a;color:#c5d5e7;border-radius:999px;padding:9px 14px;font-size:.82rem;font-weight:850;cursor:pointer}.tab[aria-selected=true]{background:linear-gradient(100deg,#a94718,#14577c);border-color:#68b8e5;color:white;box-shadow:0 0 18px #168acb33}
+.hero{text-align:center;padding:58px 10px 38px}.eyebrow{font-size:.75rem;font-weight:950;letter-spacing:.25em;color:var(--blue);text-transform:uppercase}.hero h1{font-size:clamp(2.5rem,7vw,5.4rem);line-height:.98;margin:14px 0;background:linear-gradient(100deg,#ff8a38 8%,#fff 48%,#35c5ff 90%);background-clip:text;color:transparent;filter:drop-shadow(0 0 22px #168acb55)}.hero p{max-width:680px;margin:16px auto;color:var(--muted);line-height:1.7}
+.page{display:none;animation:fade .2s ease}.page.active{display:block}@keyframes fade{from{opacity:.45;transform:translateY(5px)}to{opacity:1;transform:none}}
+.heading{text-align:center;margin:12px 0 24px}.heading h2{margin:0;color:var(--blue);font-size:clamp(1.45rem,4vw,2rem)}.heading p{color:var(--muted);margin:8px 0}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{position:relative;overflow:hidden;padding:22px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#14243a,#0c1422);box-shadow:0 15px 36px #0005;min-height:155px}.card:before{content:"";position:absolute;right:-65px;top:-75px;width:160px;height:160px;border-radius:50%;filter:blur(40px);opacity:.25;background:var(--accent,var(--blue));pointer-events:none}.card.orange{--accent:var(--orange)}.card.blue{--accent:var(--blue)}.card h3{position:relative;margin:8px 0}.card p{position:relative;color:var(--muted);font-size:.92rem;line-height:1.55;margin:0}.icon{font-size:1.8rem;position:relative}.visit{display:inline-block;margin-top:15px;color:#d8efff;font-size:.78rem;font-weight:950;letter-spacing:.08em}
+.panel{border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#14243a,#0c1422);padding:24px;margin:0 auto;max-width:850px}.panel h3{margin:0 0 8px}.panel p,.muted{color:var(--muted);line-height:1.65}.feature-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}.feature{border:1px solid #29445e;background:#0a1422;border-radius:13px;padding:14px;color:#d9e8f8}.feature b{display:block;margin-bottom:5px}.feature small{color:var(--muted);line-height:1.5;display:block}
+.pill{display:inline-block;border:1px solid #315674;color:#9bdcff;border-radius:999px;padding:5px 10px;font-size:.72rem;font-weight:900;letter-spacing:.07em}.notice{margin:24px 0 8px;padding:17px 20px;border:1px solid #315674;border-radius:17px;background:linear-gradient(100deg,#ff762817,#29baff17);text-align:center;color:#d5e5f5;line-height:1.6}.notice strong{color:#fff}.footer{text-align:center;color:#8193a9;padding:30px 0 18px;font-size:.82rem}
+@media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.top{padding:12px 14px}}@media(max-width:540px){.wrap{padding:13px}.cards,.feature-list{grid-template-columns:1fr}.hero{padding:45px 8px 28px}.panel{padding:18px}.tab{padding:8px 12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<header><nav class="nav"><a class="brand" href="./">🔥 <span>DANIELUS25</span></a><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end"><a href="https://kick.com/danielus25" target="_blank" rel="noopener noreferrer">FOLLOW ON KICK ↗</a><a href="#casinos">CASINO LINKS ↓</a></div></nav></header>
+<header>
+  <div class="top"><a class="brand" href="#" data-home>🔥 <span>DANIELUS25</span></a><a class="kick" href="https://kick.com/danielus25" target="_blank" rel="noopener noreferrer">FOLLOW ON KICK ↗</a></div>
+  <nav class="tabs" role="tablist" aria-label="Website sections">
+    <button class="tab" role="tab" aria-selected="true" data-tab="home">HOME</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="casinos">CASINOS</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="tournaments">TOURNAMENTS</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="predictions">PREDICTIONS</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="bonus">BONUS HUNTS</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="slots">SLOT CALLS</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="balance">GUESS THE BALANCE</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="randomizer">RANDOMIZER</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="giveaways">GIVEAWAYS</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="obs">OBS TOOLS</button>
+  </nav>
+</header>
 <main class="wrap">
-<section class="hero">
-<div class="flame-field" aria-hidden="true"><i class="flame orange"></i><i class="flame blue"></i></div>
-<div class="eyebrow">⚡ ORANGE HEAT · BLUE FIRE ⚡</div>
-<h1>WELCOME TO<br>DANIELUS25</h1>
-<p>All my casino links together in one place. Find the platforms I use, check out my promos, and come hang out.</p>
-</section>
-<section id="casinos">
-<div class="section-head"><h2>MY CASINO LINKS</h2><p>Choose a platform below.</p></div>
-<div class="cards">
-<a class="card orange" href="https://rainbet.com/?r=danielus" target="_blank" rel="noopener noreferrer"><div class="icon">🎰</div><h3>Rainbet</h3><p>Join Rainbet using Danielus25's referral link.</p><span class="status">VISIT RAINBET ↗</span></a>
-<a class="card blue" href="https://hype.bet/Danielus25" target="_blank" rel="noopener noreferrer"><div class="icon">🔥</div><h3>Hype.bet</h3><p>Join Hype.bet using Daniel's referral link.</p><span class="status">VISIT HYPE.BET ↗</span></a>
-<a class="card orange" href="https://degen.com/r/DanielusSlots" target="_blank" rel="noopener noreferrer"><div class="icon">💎</div><h3>Degen</h3><p>Join Degen using DanielusSlots' referral link.</p><span class="status">VISIT DEGEN ↗</span></a>
-<a class="card blue" href="https://shuffle.com/?r=2ajANevFJb" target="_blank" rel="noopener noreferrer"><div class="icon">🎲</div><h3>Shuffle</h3><p>Join Shuffle using Daniel's referral link.</p><span class="status">VISIT SHUFFLE ↗</span></a>
-<a class="card orange" href="https://chancer2.com/ref/danielus25" target="_blank" rel="noopener noreferrer"><div class="icon">🍀</div><h3>Chancer2</h3><p>Join Chancer2 using Danielus25's referral link.</p><span class="status">VISIT CHANCER2 ↗</span></a>
-</div>
-</section>
-<div class="note"><strong>18+ only.</strong> Gambling involves risk. Set limits, never chase losses, and only participate where legal.</div>
-<footer class="footer">© <span id="year"></span> Danielus25 · All rights reserved</footer>
+  <section class="hero">
+    <div class="eyebrow">⚡ ORANGE HEAT · BLUE FIRE ⚡</div>
+    <h1>WELCOME TO<br>DANIELUS25</h1>
+    <p>One home for the stream, casino links, tournaments, bonus hunts, slot calls, and community games. Pick a section below and come hang out.</p>
+  </section>
+
+  <section class="page active" id="home" role="tabpanel">
+    <div class="heading"><h2>THE STREAM HUB</h2><p>Everything in one place. Choose where you want to go.</p></div>
+    <div class="cards">
+      <a class="card orange" href="#" data-go="casinos"><div class="icon">🎰</div><h3>Casino Links</h3><p>All five casino platforms together in one tab.</p><span class="visit">OPEN CASINOS →</span></a>
+      <a class="card blue" href="#" data-go="tournaments"><div class="icon">🏆</div><h3>Tournaments</h3><p>Player entries, brackets, match results, and winners.</p><span class="visit">OPEN TOURNAMENTS →</span></a>
+      <a class="card orange" href="#" data-go="predictions"><div class="icon">🔮</div><h3>Bracket Predictions</h3><p>Viewers predict winners and earn points for correct picks.</p><span class="visit">MAKE PICKS →</span></a>
+      <a class="card blue" href="#" data-go="bonus"><div class="icon">💰</div><h3>Bonus Hunts</h3><p>Track bonuses, costs, payouts, and profit.</p><span class="visit">OPEN BONUS HUNTS →</span></a>
+      <a class="card orange" href="#" data-go="slots"><div class="icon">🎮</div><h3>Slot Calls & Cozies</h3><p>Viewer game requests and a live queue.</p><span class="visit">OPEN SLOT CALLS →</span></a>
+      <a class="card blue" href="#" data-go="balance"><div class="icon">🧮</div><h3>Guess the Balance</h3><p>One locked-in guess per Kick account.</p><span class="visit">OPEN GAME →</span></a>
+      <a class="card orange" href="#" data-go="randomizer"><div class="icon">🎡</div><h3>Wheel & Randomizer</h3><p>Pick a viewer and announce the result in chat.</p><span class="visit">OPEN RANDOMIZER →</span></a>
+      <a class="card blue" href="#" data-go="giveaways"><div class="icon">🎁</div><h3>Giveaways</h3><p>Manage entries, eligibility, and winner selection.</p><span class="visit">OPEN GIVEAWAYS →</span></a>
+      <a class="card orange" href="#" data-go="obs"><div class="icon">🖥️</div><h3>OBS Tools</h3><p>Stream overlays and browser-source displays.</p><span class="visit">OPEN OBS TOOLS →</span></a>
+    </div>
+  </section>
+
+  <section class="page" id="casinos" role="tabpanel">
+    <div class="heading"><h2>MY CASINO LINKS</h2><p>All casino platforms together in one place.</p></div>
+    <div class="cards">
+      <a class="card orange" href="https://rainbet.com/?r=danielus" target="_blank" rel="noopener noreferrer"><div class="icon">🎰</div><h3>Rainbet</h3><p>Join Rainbet using Danielus25's referral link.</p><span class="visit">VISIT RAINBET ↗</span></a>
+      <a class="card blue" href="https://hype.bet/Danielus25" target="_blank" rel="noopener noreferrer"><div class="icon">🔥</div><h3>Hype.bet</h3><p>Join Hype.bet using Daniel's referral link.</p><span class="visit">VISIT HYPE.BET ↗</span></a>
+      <a class="card orange" href="https://degen.com/r/DanielusSlots" target="_blank" rel="noopener noreferrer"><div class="icon">💎</div><h3>Degen</h3><p>Join Degen using DanielusSlots' referral link.</p><span class="visit">VISIT DEGEN ↗</span></a>
+      <a class="card blue" href="https://shuffle.com/?r=2ajANevFJb" target="_blank" rel="noopener noreferrer"><div class="icon">🎲</div><h3>Shuffle</h3><p>Join Shuffle using Daniel's referral link.</p><span class="visit">VISIT SHUFFLE ↗</span></a>
+      <a class="card orange" href="https://chancer2.com/ref/danielus25" target="_blank" rel="noopener noreferrer"><div class="icon">🍀</div><h3>Chancer2</h3><p>Join Chancer2 using Danielus25's referral link.</p><span class="visit">VISIT CHANCER2 ↗</span></a>
+    </div>
+  </section>
+
+  <section class="page" id="tournaments" role="tabpanel">
+    <div class="heading"><h2>TOURNAMENT CENTRAL</h2><p>Run the competition from one place.</p></div>
+    <div class="panel"><span class="pill">TOURNAMENT SETUP</span><h3>Player entries · Brackets · Match results</h3><p>Create 4, 6, 8, or 16-player tournaments, open or close entries, manage the player list, randomize matchups, advance winners, and display the bracket to viewers.</p><div class="feature-list"><div class="feature"><b>🎟️ Kick entry commands</b><small>Join and leave through chat when Daniel connects his Kick app.</small></div><div class="feature"><b>🏅 Organizer controls</b><small>Set player limits, tournament name, entry status, and clear or manage players.</small></div><div class="feature"><b>⚔️ Live bracket</b><small>Record results and advance winners through each round.</small></div><div class="feature"><b>📣 Chat updates</b><small>Announce entries, next matches, and tournament winners.</small></div></div></div>
+  </section>
+
+  <section class="page" id="predictions" role="tabpanel">
+    <div class="heading"><h2>BRACKET PREDICTIONS</h2><p>Can chat call the whole tournament?</p></div>
+    <div class="panel"><span class="pill">VIEWER PICK'EM</span><h3>Predict the winners · Earn points</h3><p>Viewers get a prediction bracket connected to the active tournament. Award 1 point for every correct game, keep a running points table, and show who predicted the most winners.</p><div class="feature-list"><div class="feature"><b>📝 Submit picks</b><small>Viewers choose who they think will win each matchup.</small></div><div class="feature"><b>🔒 Lock picks</b><small>Lock predictions when the tournament or round begins.</small></div><div class="feature"><b>⭐ Points</b><small>1 point for each correctly predicted game.</small></div><div class="feature"><b>📊 Prediction standings</b><small>Track viewer points for the current tournament.</small></div></div></div>
+  </section>
+
+  <section class="page" id="bonus" role="tabpanel">
+    <div class="heading"><h2>BONUS HUNTS</h2><p>Keep every hunt organized.</p></div>
+    <div class="panel"><span class="pill">HUNT TRACKER</span><h3>Bonuses · Costs · Wins · Profit</h3><p>Build and manage a bonus list, track buy amounts and bonus values, record opened results, and show hunt totals. A viewer-facing display and OBS browser source can use the same live hunt data.</p><div class="feature-list"><div class="feature"><b>🎰 Bonus list</b><small>Add games, bonus amounts, and notes.</small></div><div class="feature"><b>💵 Hunt totals</b><small>Track total cost, total wins, and profit or loss.</small></div><div class="feature"><b>📺 Live display</b><small>Show current progress to viewers and OBS.</small></div><div class="feature"><b>🏁 Hunt results</b><small>Keep a record of completed hunts.</small></div></div></div>
+  </section>
+
+  <section class="page" id="slots" role="tabpanel">
+    <div class="heading"><h2>SLOT CALLS & COZIES</h2><p>Viewer requests in a dedicated queue.</p></div>
+    <div class="panel"><span class="pill">CHAT COMMAND: !slot</span><h3>One active request per viewer</h3><p>Viewers type <b>!slot + game name</b> in Kick chat. Daniel can call the next game, remove or clear requests, and turn slot calls on or off. The bot can announce when calls open, when a request is added, and when calls close.</p><div class="feature-list"><div class="feature"><b>📥 Request queue</b><small>See the viewer name and requested game.</small></div><div class="feature"><b>⏭️ Call next</b><small>Advance to the next request and announce it in chat.</small></div><div class="feature"><b>🔔 Chat announcements</b><small>Tell viewers when calls open, their request is added, and calls close.</small></div><div class="feature"><b>🧹 Queue controls</b><small>Remove requests, clear the queue, and manage call status.</small></div></div></div>
+  </section>
+
+  <section class="page" id="balance" role="tabpanel">
+    <div class="heading"><h2>GUESS THE BALANCE</h2><p>One guess. Lock it in.</p></div>
+    <div class="panel"><span class="pill">VIEWER GUESSING GAME</span><h3>Who can get closest?</h3><p>Viewers submit one guess per Kick account. Once submitted, the guess cannot be changed. Entries lock immediately when Daniel closes the game, and the closest guess wins.</p><div class="feature-list"><div class="feature"><b>👤 Kick account check</b><small>Identify each viewer so they only get one entry.</small></div><div class="feature"><b>🔐 Locked guesses</b><small>No edits or second guesses after submission.</small></div><div class="feature"><b>🏆 Winner reveal</b><small>Compare guesses with the final balance and announce the closest.</small></div><div class="feature"><b>📋 Entry list</b><small>Organizer can review entries and lock the game.</small></div></div></div>
+  </section>
+
+  <section class="page" id="randomizer" role="tabpanel">
+    <div class="heading"><h2>WHEEL OF NAMES</h2><p>Random picks for stream chaos.</p></div>
+    <div class="panel"><span class="pill">RANDOMIZER</span><h3>Pick a viewer · Assign a game</h3><p>Load eligible viewer names, spin or randomly select a name, and optionally pair that viewer with a game. Send the selected name and game to Kick chat so everyone sees the result.</p><div class="feature-list"><div class="feature"><b>🎡 Name wheel</b><small>Randomly select from the active participant list.</small></div><div class="feature"><b>🎮 Game assignment</b><small>Choose or randomize the game for the selected viewer.</small></div><div class="feature"><b>💬 Chat result</b><small>Post the viewer's name and selected game in chat.</small></div><div class="feature"><b>🔄 Reset list</b><small>Manage entries between rounds.</small></div></div></div>
+  </section>
+
+  <section class="page" id="giveaways" role="tabpanel">
+    <div class="heading"><h2>GIVEAWAYS</h2><p>Entries, eligibility, and winner selection.</p></div>
+    <div class="panel"><span class="pill">GIVEAWAY MANAGER</span><h3>Run a fair giveaway</h3><p>Open and close entries, set the entry keyword and eligibility rules, review participants, randomly select a winner, and announce the result in chat.</p><div class="feature-list"><div class="feature"><b>🎟️ Entry keyword</b><small>Let viewers enter using a chat command or keyword.</small></div><div class="feature"><b>✅ Eligibility</b><small>Configure participation requirements for each giveaway.</small></div><div class="feature"><b>🎲 Winner picker</b><small>Randomly select from eligible entries.</small></div><div class="feature"><b>📣 Announcements</b><small>Post the winner to Kick chat.</small></div></div></div>
+  </section>
+
+  <section class="page" id="obs" role="tabpanel">
+    <div class="heading"><h2>OBS STREAM TOOLS</h2><p>Browser-source displays for the stream.</p></div>
+    <div class="panel"><span class="pill">STREAM OVERLAYS</span><h3>Live information on stream</h3><p>Dedicated browser-source pages for tournament brackets, bonus hunt progress, slot-call queue, giveaway results, and other stream information. Each overlay will be designed to fit OBS without needing the full website navigation.</p><div class="feature-list"><div class="feature"><b>🏆 Tournament overlay</b><small>Show the live bracket and match progress.</small></div><div class="feature"><b>💰 Bonus hunt overlay</b><small>Show current hunt totals and progress.</small></div><div class="feature"><b>🎮 Slot queue overlay</b><small>Show the current game and waiting requests.</small></div><div class="feature"><b>🎁 Giveaway overlay</b><small>Show entry status and winner announcements.</small></div></div></div>
+  </section>
+
+  <div class="notice"><strong>18+ only.</strong> Gambling involves risk. Set limits, never chase losses, and only participate where legal.</div>
+  <footer class="footer">© <span id="year"></span> Danielus25 · All rights reserved</footer>
 </main>
-<script>document.getElementById("year").textContent=new Date().getFullYear();</script>
+<script>
+const tabs=[...document.querySelectorAll('[data-tab]')];
+const pages=[...document.querySelectorAll('.page')];
+function showPage(name){
+  if(!pages.some(p=>p.id===name)) name='home';
+  pages.forEach(p=>p.classList.toggle('active',p.id===name));
+  tabs.forEach(t=>t.setAttribute('aria-selected',String(t.dataset.tab===name)));
+  const active=tabs.find(t=>t.dataset.tab===name); if(active) active.scrollIntoView({block:'nearest',inline:'nearest'});
+  if(location.hash!=='#'+name) history.replaceState(null,'','#'+name);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach(t=>t.addEventListener('click',()=>showPage(t.dataset.tab)));
+document.querySelectorAll('[data-go]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();showPage(a.dataset.go)}));
+document.querySelector('[data-home]').addEventListener('click',e=>{e.preventDefault();showPage('home')});
+document.getElementById('year').textContent=new Date().getFullYear();
+showPage(location.hash.slice(1)||'home');
+</script>
 </body>
 </html>
