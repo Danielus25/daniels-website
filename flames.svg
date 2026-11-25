@@ -6,17 +6,22 @@
 </defs>
 <rect width="1600" height="900" fill="#03050b"/>
 <g opacity=".8" filter="url(#glow)">
+ <animateTransform attributeName="transform" type="translate" values="0 0; 0 -16; 0 7; 0 -11; 0 0" keyTimes="0;0.3;0.55;0.8;1" dur="2.7s" repeatCount="indefinite"/>
  <path fill="url(#blue)" d="M0 900V570Q70 490 20 380Q140 430 100 230Q220 320 205 120Q320 260 280 0Q410 170 365 390Q510 260 470 120Q565 310 500 470Q640 400 610 245Q690 420 610 560Q730 650 670 900Z"/>
  <path fill="url(#orange)" d="M1600 900V570Q1530 490 1580 380Q1460 430 1500 230Q1380 320 1395 120Q1280 260 1325 0Q1190 170 1235 390Q1090 260 1130 120Q1035 310 1100 470Q960 400 990 245Q910 420 990 560Q870 650 930 900Z"/>
 </g>
 <g opacity=".98">
+ <animateTransform attributeName="transform" type="translate" values="0 0; 0 -22; 0 9; 0 -14; 0 0" keyTimes="0;0.25;0.5;0.78;1" dur="1.9s" repeatCount="indefinite"/>
  <path fill="url(#blue)" d="M0 900V720Q90 650 55 530Q145 580 130 420Q235 520 215 330Q325 465 285 220Q420 400 360 565Q470 475 455 350Q540 510 485 650Q600 600 570 465Q655 625 600 760Q690 810 665 900Z"/>
  <path fill="url(#orange)" d="M1600 900V720Q1510 650 1545 530Q1455 580 1470 420Q1365 520 1385 330Q1275 465 1315 220Q1180 400 1240 565Q1130 475 1145 350Q1060 510 1115 650Q1000 600 1030 465Q945 625 1000 760Q910 810 935 900Z"/>
 </g>
 <g fill="none" stroke-linecap="round">
+ <animateTransform attributeName="transform" type="translate" values="0 0; 0 -13; 0 5; 0 -9; 0 0" dur="1.5s" repeatCount="indefinite"/>
  <path stroke="#43d7ff" stroke-width="22" opacity=".75" d="M10 850Q170 720 120 570T260 300T310 70M90 900Q250 770 220 620T380 390T390 150M0 700Q130 620 90 480T210 250"/>
  <path stroke="#ffb13b" stroke-width="22" opacity=".75" d="M1590 850Q1430 720 1480 570T1340 300T1290 70M1510 900Q1350 770 1380 620T1220 390T1210 150M1600 700Q1470 620 1510 480T1390 250"/>
 </g>
-<g fill="#ff9d39" opacity=".8"><circle cx="760" cy="260" r="3"/><circle cx="900" cy="390" r="4"/><circle cx="680" cy="540" r="2"/><circle cx="1010" cy="190" r="3"/></g>
-<g fill="#27bfff" opacity=".8"><circle cx="590" cy="330" r="3"/><circle cx="830" cy="620" r="2"/><circle cx="720" cy="160" r="2"/></g>
+<g fill="#ff9d39" opacity=".8">
+ <animate attributeName="opacity" values=".35;1;.55;.9;.35" dur="1.2s" repeatCount="indefinite"/><circle cx="760" cy="260" r="3"/><circle cx="900" cy="390" r="4"/><circle cx="680" cy="540" r="2"/><circle cx="1010" cy="190" r="3"/></g>
+<g fill="#27bfff" opacity=".8">
+ <animate attributeName="opacity" values=".9;.4;1;.55;.9" dur="1.45s" repeatCount="indefinite"/><circle cx="590" cy="330" r="3"/><circle cx="830" cy="620" r="2"/><circle cx="720" cy="160" r="2"/></g>
 </svg>
