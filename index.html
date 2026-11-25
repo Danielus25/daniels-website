@@ -280,6 +280,45 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
   <footer class="footer">© <span id="year"></span> Danielus25 · All rights reserved</footer>
 </main>
 <script>
+/* Independent navigation bootstrap: kept separate from the app tools script. */
+(function(){
+  function activatePage(name){
+    var pages=document.querySelectorAll('.page');
+    var tabs=document.querySelectorAll('.tabs [data-tab]');
+    var found=false;
+    pages.forEach(function(page){
+      var active=page.id===name;
+      if(active) found=true;
+      page.classList.toggle('active',active);
+    });
+    if(!found){
+      name='home';
+      pages.forEach(function(page){page.classList.toggle('active',page.id==='home');});
+    }
+    tabs.forEach(function(tab){
+      tab.setAttribute('aria-selected',String(tab.getAttribute('data-tab')===name));
+    });
+    try{localStorage.setItem('danielus25_active_tab',name);}catch(e){}
+    if(location.hash!=='#'+name){
+      try{history.replaceState(null,'',location.pathname+location.search+'#'+name);}catch(e){}
+    }
+  }
+  document.addEventListener('click',function(event){
+    var tab=event.target.closest && event.target.closest('.tabs [data-tab]');
+    if(!tab)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    activatePage(tab.getAttribute('data-tab'));
+  },true);
+  window.addEventListener('hashchange',function(){
+    activatePage(location.hash.slice(1)||'home');
+  });
+  var initial=location.hash.slice(1);
+  if(!initial){try{initial=localStorage.getItem('danielus25_active_tab')||'home';}catch(e){initial='home';}}
+  activatePage(initial);
+})();
+</script>
+<script>
 const tabs=[...document.querySelectorAll('[data-tab]')];
 const pages=[...document.querySelectorAll('.page')];
 function showPage(name){
