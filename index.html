@@ -50,17 +50,17 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 <header>
   <div class="top"><a class="brand" href="#" data-home>🔥 <span>DANIELUS25</span></a><button class="kick" type="button" disabled aria-label="Kick sign-in will be connected later">SIGN IN WITH KICK</button></div>
   <nav class="tabs" role="tablist" aria-label="Website sections">
-    <button type="button" class="tab" role="tab" aria-selected="true" data-tab="home">HOME</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="promo">PROMO</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="tournaments">TOURNAMENT</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="predictions">BRACKET GUESSES</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="bonus">BONUS HUNT</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="cozies">COZIES</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="slotcalls">SLOT CALLS</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="balance">GUESS THE BALANCE</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="randomizer">RANDOMIZER</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="giveaways">KEYWORD GIVEAWAY</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="obs">OBS TOOLS</button>
+    <button type="button" class="tab" role="tab" aria-selected="true" data-tab="home" onclick="showPage('home')">HOME</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="promo" onclick="showPage('promo')">PROMO</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="tournaments" onclick="showPage('tournaments')">TOURNAMENT</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="predictions" onclick="showPage('predictions')">BRACKET GUESSES</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="bonus" onclick="showPage('bonus')">BONUS HUNT</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="cozies" onclick="showPage('cozies')">COZIES</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="slotcalls" onclick="showPage('slotcalls')">SLOT CALLS</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="balance" onclick="showPage('balance')">GUESS THE BALANCE</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="randomizer" onclick="showPage('randomizer')">RANDOMIZER</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="giveaways" onclick="showPage('giveaways')">KEYWORD GIVEAWAY</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="obs" onclick="showPage('obs')">OBS TOOLS</button>
   </nav>
 </header>
 <main class="wrap">
@@ -292,17 +292,7 @@ function showPage(name){
   if(name==='predictions') renderPredictions();
   window.scrollTo({top:0,behavior:'smooth'});
 }
-const nav=document.querySelector('.tabs');
-nav.addEventListener('click',e=>{
-  const tab=e.target.closest('[data-tab]');
-  if(!tab||!nav.contains(tab))return;
-  e.preventDefault();
-  showPage(tab.dataset.tab);
-});
-nav.addEventListener('keydown',e=>{
-  const tab=e.target.closest('[data-tab]');
-  if(tab&&(e.key==='Enter'||e.key===' ')){e.preventDefault();showPage(tab.dataset.tab);}
-});
+
 window.showPage=showPage;
 document.querySelectorAll('[data-go]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();showPage(a.dataset.go)}));
 document.querySelector('[data-home]').addEventListener('click',e=>{e.preventDefault();showPage('home')});
