@@ -193,12 +193,33 @@ header{position:sticky;top:0;z-index:10;background:#070b14ed;backdrop-filter:blu
 
   <section class="page" id="randomizer" role="tabpanel">
     <div class="heading"><h2>WHEEL OF NAMES</h2><p>Random picks for stream chaos.</p></div>
-    <div class="panel"><span class="pill">RANDOMIZER</span><h3>Pick a viewer · Assign a game</h3><p>Load eligible viewer names, spin or randomly select a name, and optionally pair that viewer with a game. Send the selected name and game to Kick chat so everyone sees the result.</p><div class="feature-list"><div class="feature"><b>🎡 Name wheel</b><small>Randomly select from the active participant list.</small></div><div class="feature"><b>🎮 Game assignment</b><small>Choose or randomize the game for the selected viewer.</small></div><div class="feature"><b>💬 Chat result</b><small>Post the viewer's name and selected game in chat.</small></div><div class="feature"><b>🔄 Reset list</b><small>Manage entries between rounds.</small></div></div></div>
+    <div class="panel">
+      <span class="pill">LOCAL RANDOMIZER PREVIEW</span><h3>Build the viewer wheel</h3>
+      <div class="tool-grid"><label class="tool-field">Add viewer<input id="wheelName" maxlength="30" placeholder="Kick username"></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="addWheelName">Add viewer</button></div></div>
+      <div class="tool-grid"><label class="tool-field">Optional game list<input id="wheelGames" placeholder="Game 1, Game 2, Game 3"></label><div class="tool-field tool-bottom"><button class="tool-btn" id="clearWheel">Clear names</button></div></div>
+      <p id="wheelCount" class="tool-status">0 viewers loaded.</p><div id="wheelList" class="tool-list"><p class="muted">Add viewers to the wheel.</p></div>
+      <div class="tool-actions"><button class="tool-btn primary" id="spinWheel">🎡 Pick a random viewer</button></div>
+      <div id="wheelResult" class="round-block" aria-live="polite"><h4>RESULT</h4><p class="muted">Your random pick will appear here.</p></div>
+      <p class="tool-note">Preview limitation: this wheel uses names entered manually in this browser. It is not connected to live Kick viewers or chat announcements yet.</p>
+    </div>
   </section>
 
   <section class="page" id="giveaways" role="tabpanel">
     <div class="heading"><h2>GIVEAWAYS</h2><p>Entries, eligibility, and winner selection.</p></div>
-    <div class="panel"><span class="pill">GIVEAWAY MANAGER</span><h3>Run a fair giveaway</h3><p>Open and close entries, set the entry keyword and eligibility rules, review participants, randomly select a winner, and announce the result in chat.</p><div class="feature-list"><div class="feature"><b>🎟️ Entry keyword</b><small>Let viewers enter using a chat command or keyword.</small></div><div class="feature"><b>✅ Eligibility</b><small>Configure participation requirements for each giveaway.</small></div><div class="feature"><b>🎲 Winner picker</b><small>Randomly select from eligible entries.</small></div><div class="feature"><b>📣 Announcements</b><small>Post the winner to Kick chat.</small></div></div></div>
+    <div class="panel">
+      <span class="pill">LOCAL KEYWORD GIVEAWAY PREVIEW</span><h3>Set up the giveaway</h3>
+      <div class="tool-grid"><label class="tool-field">Entry keyword<input id="giveawayKeyword" maxlength="30" value="pickme"></label><label class="tool-field">Giveaway title<input id="giveawayTitle" maxlength="60" placeholder="Tonight's giveaway"></label></div>
+      <div class="tool-actions"><button class="tool-btn primary" id="openGiveaway">Open entries</button><button class="tool-btn" id="closeGiveaway">Close entries</button><button class="tool-btn danger" id="resetGiveaway">Reset giveaway</button></div>
+      <p id="giveawayStatus" class="tool-status" aria-live="polite">Entries are closed.</p>
+      <div class="tool-divider"></div><h3>Preview a viewer entry</h3>
+      <p class="muted">This simulates a viewer typing the keyword in chat. Live chat collection will be connected through Daniel's bot later.</p>
+      <div class="tool-grid"><label class="tool-field">Viewer / Kick username<input id="giveawayViewer" maxlength="30" placeholder="Kick username"></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="addGiveawayEntry">Enter giveaway</button></div></div>
+      <p id="giveawayEntryStatus" class="tool-status" aria-live="polite"></p>
+      <div class="tool-divider"></div><h3>Entries <span id="giveawayCount" class="pill">0</span></h3><div id="giveawayEntries" class="tool-list"><p class="muted">No entries yet.</p></div>
+      <div class="tool-actions"><button class="tool-btn primary" id="drawGiveaway">🎁 Draw random winner</button></div>
+      <div id="giveawayWinner" class="round-block" aria-live="polite"><h4>WINNER</h4><p class="muted">No winner drawn yet.</p></div>
+      <p class="tool-note">Preview limitation: entries are manually simulated and stored only in this browser. One entry per typed username is enforced locally. Kick identity checks, active-chat eligibility, and chat announcements require Daniel's own backend and bot connection.</p>
+    </div>
   </section>
 
   <section class="page" id="obs" role="tabpanel">
@@ -426,6 +447,86 @@ $('revealBalance').onclick=()=>{
   balanceGame.open=false;balanceGame.final=final;saveBalanceGame();renderBalanceGame();
 };
 renderBalanceGame();
+
+const wheelStoreKey='danielus25_wheel_preview_v1';
+let wheelNames=[];
+try{const saved=JSON.parse(localStorage.getItem(wheelStoreKey)||'[]');if(Array.isArray(saved))wheelNames=saved;}catch(e){}
+function saveWheel(){try{localStorage.setItem(wheelStoreKey,JSON.stringify(wheelNames));}catch(e){}}
+function renderWheel(){
+  $('wheelCount').textContent=wheelNames.length+' viewer'+(wheelNames.length===1?'':'s')+' loaded.';
+  $('wheelList').innerHTML='';
+  if(!wheelNames.length)$('wheelList').innerHTML='<p class="muted">Add viewers to the wheel.</p>';
+  wheelNames.forEach((name,i)=>{
+    const row=document.createElement('div');row.className='player-row';
+    const label=document.createElement('span');label.textContent=(i+1)+'. '+name;
+    const remove=document.createElement('button');remove.textContent='REMOVE';remove.onclick=()=>{wheelNames.splice(i,1);saveWheel();renderWheel();};
+    row.append(label,remove);$('wheelList').append(row);
+  });
+}
+$('addWheelName').onclick=()=>{
+  const name=$('wheelName').value.trim().replace(/^@/,'');if(!name)return;
+  if(wheelNames.some(n=>n.toLowerCase()===name.toLowerCase())){alert('That viewer is already on the wheel.');return;}
+  wheelNames.push(name);$('wheelName').value='';saveWheel();renderWheel();
+};
+$('wheelName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addWheelName').click();});
+$('clearWheel').onclick=()=>{if(!confirm('Clear all names from the wheel?'))return;wheelNames=[];saveWheel();renderWheel();$('wheelResult').innerHTML='<h4>RESULT</h4><p class="muted">Your random pick will appear here.</p>';};
+$('spinWheel').onclick=()=>{
+  if(!wheelNames.length){alert('Add at least one viewer first.');return;}
+  const winner=wheelNames[Math.floor(Math.random()*wheelNames.length)];
+  const games=$('wheelGames').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const game=games.length?games[Math.floor(Math.random()*games.length)]:null;
+  $('wheelResult').innerHTML='';
+  const title=document.createElement('h4');title.textContent='🎉 RANDOM PICK';
+  const result=document.createElement('p');result.className='tool-status';result.textContent=winner+(game?' · Game: '+game:'');
+  $('wheelResult').append(title,result);
+};
+renderWheel();
+
+const giveawayStoreKey='danielus25_giveaway_preview_v1';
+let giveaway={open:false,keyword:'pickme',title:'',entries:[],winner:''};
+try{const saved=JSON.parse(localStorage.getItem(giveawayStoreKey)||'null');if(saved&&Array.isArray(saved.entries))giveaway={...giveaway,...saved};}catch(e){}
+function saveGiveaway(){try{localStorage.setItem(giveawayStoreKey,JSON.stringify(giveaway));}catch(e){}}
+function renderGiveaway(){
+  $('giveawayKeyword').value=giveaway.keyword;$('giveawayTitle').value=giveaway.title;
+  $('giveawayStatus').textContent=giveaway.open?'Entries are OPEN · keyword: '+giveaway.keyword:'Entries are CLOSED.';
+  $('giveawayCount').textContent=String(giveaway.entries.length);$('giveawayEntries').innerHTML='';
+  if(!giveaway.entries.length)$('giveawayEntries').innerHTML='<p class="muted">No entries yet.</p>';
+  giveaway.entries.forEach((name,i)=>{
+    const row=document.createElement('div');row.className='player-row';
+    const label=document.createElement('span');label.textContent=(i+1)+'. '+name;
+    const remove=document.createElement('button');remove.textContent='REMOVE';remove.onclick=()=>{giveaway.entries.splice(i,1);if(giveaway.winner===name)giveaway.winner='';saveGiveaway();renderGiveaway();};
+    row.append(label,remove);$('giveawayEntries').append(row);
+  });
+  $('giveawayWinner').innerHTML='';
+  const heading=document.createElement('h4');heading.textContent='WINNER';
+  const result=document.createElement('p');result.className=giveaway.winner?'tool-status':'muted';result.textContent=giveaway.winner?'🏆 '+giveaway.winner:'No winner drawn yet.';
+  $('giveawayWinner').append(heading,result);
+  $('openGiveaway').disabled=giveaway.open;$('closeGiveaway').disabled=!giveaway.open;
+  $('addGiveawayEntry').disabled=!giveaway.open;$('drawGiveaway').disabled=giveaway.open||!giveaway.entries.length;
+}
+$('openGiveaway').onclick=()=>{
+  const keyword=$('giveawayKeyword').value.trim(),title=$('giveawayTitle').value.trim();
+  if(!keyword){alert('Set an entry keyword first.');return;}
+  giveaway.keyword=keyword;giveaway.title=title;giveaway.open=true;giveaway.winner='';saveGiveaway();renderGiveaway();
+};
+$('closeGiveaway').onclick=()=>{giveaway.open=false;saveGiveaway();renderGiveaway();};
+$('addGiveawayEntry').onclick=()=>{
+  if(!giveaway.open){alert('Entries are closed.');return;}
+  const name=$('giveawayViewer').value.trim().replace(/^@/,'');if(!name){alert('Enter a viewer name.');return;}
+  if(giveaway.entries.some(n=>n.toLowerCase()===name.toLowerCase())){$('giveawayEntryStatus').textContent='That viewer has already entered.';return;}
+  giveaway.entries.push(name);$('giveawayViewer').value='';$('giveawayEntryStatus').textContent=name+' entered with keyword '+giveaway.keyword+'.';saveGiveaway();renderGiveaway();
+};
+$('giveawayViewer').addEventListener('keydown',e=>{if(e.key==='Enter')$('addGiveawayEntry').click();});
+$('drawGiveaway').onclick=()=>{
+  if(giveaway.open){alert('Close entries before drawing a winner.');return;}
+  if(!giveaway.entries.length){alert('There are no entries to draw from.');return;}
+  giveaway.winner=giveaway.entries[Math.floor(Math.random()*giveaway.entries.length)];saveGiveaway();renderGiveaway();
+};
+$('resetGiveaway').onclick=()=>{
+  if(!confirm('Reset this giveaway and remove all entries?'))return;
+  giveaway={open:false,keyword:$('giveawayKeyword').value.trim()||'pickme',title:$('giveawayTitle').value.trim(),entries:[],winner:''};saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='';
+};
+renderGiveaway();
 
 showPage(location.hash.slice(1)||'home');
 </script>
