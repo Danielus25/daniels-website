@@ -85,9 +85,7 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="predictions" onclick="showPage('predictions')">BRACKET GUESSES</button>
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="cozies" onclick="showPage('cozies')">COZIES</button>
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="slotcalls" onclick="showPage('slotcalls')">SLOT CALLS</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="randomizer" onclick="showPage('randomizer')">RANDOMIZER</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="giveaways" onclick="showPage('giveaways')">KEYWORD GIVEAWAY</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="obs" onclick="showPage('obs')">OBS TOOLS</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="dashboard" onclick="showPage('dashboard')">DASHBOARD</button>
   </nav>
 </header>
 <main class="wrap">
@@ -280,8 +278,17 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
     </div>
   </section>
 
+  <section class="page" id="dashboard" role="tabpanel">
+    <div class="heading"><h2>STREAM DASHBOARD</h2><p>Quick access to Daniel's extra stream tools.</p></div>
+    <div class="cards">
+      <a class="card orange" href="#" data-go="randomizer"><div class="icon">🎡</div><h3>Randomizer</h3><p>Pick a viewer or name at random.</p><span class="visit">OPEN RANDOMIZER →</span></a>
+      <a class="card blue" href="#" data-go="giveaways"><div class="icon">🎁</div><h3>Keyword Giveaway</h3><p>Manage keyword entries and draw a winner.</p><span class="visit">OPEN GIVEAWAY →</span></a>
+      <a class="card orange" href="#" data-go="obs"><div class="icon">🖥️</div><h3>OBS Tools</h3><p>Access stream overlays and browser-source tools.</p><span class="visit">OPEN OBS TOOLS →</span></a>
+    </div>
+  </section>
+
   <section class="page" id="randomizer" role="tabpanel">
-    <div class="heading"><h2>WHEEL OF NAMES</h2><p>Random picks for stream chaos.</p></div>
+    <div class="heading"><h2>WHEEL OF NAMES</h2><p>Random picks for stream chaos.</p></div><p class="muted"><a href="#" data-go="dashboard">← Back to Dashboard</a></p>
     <div class="panel">
       <span class="pill">LOCAL RANDOMIZER PREVIEW</span><h3>Build the viewer wheel</h3>
       <div class="tool-grid"><label class="tool-field">Add viewer<input id="wheelName" maxlength="30" placeholder="Kick username"></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="addWheelName">Add viewer</button></div></div>
@@ -294,7 +301,7 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
   </section>
 
   <section class="page" id="giveaways" role="tabpanel">
-    <div class="heading"><h2>GIVEAWAYS</h2><p>Entries, eligibility, and winner selection.</p></div>
+    <div class="heading"><h2>GIVEAWAYS</h2><p>Entries, eligibility, and winner selection.</p></div><p class="muted"><a href="#" data-go="dashboard">← Back to Dashboard</a></p>
     <div class="panel">
       <span class="pill">LOCAL KEYWORD GIVEAWAY PREVIEW</span><h3>Set up the giveaway</h3>
       <div class="tool-grid"><label class="tool-field">Entry keyword<input id="giveawayKeyword" maxlength="30" value="pickme"></label><label class="tool-field">Giveaway title<input id="giveawayTitle" maxlength="60" placeholder="Tonight's giveaway"></label></div>
@@ -312,7 +319,7 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
   </section>
 
   <section class="page" id="obs" role="tabpanel">
-    <div class="heading"><h2>OBS STREAM TOOLS</h2><p>Browser-source displays for the stream.</p></div>
+    <div class="heading"><h2>OBS STREAM TOOLS</h2><p>Browser-source displays for the stream.</p></div><p class="muted"><a href="#" data-go="dashboard">← Back to Dashboard</a></p>
     <div class="panel"><span class="pill">STREAM OVERLAYS</span><h3>Live information on stream</h3><p>Dedicated browser-source pages for tournament brackets, bonus hunt progress, slot-call queue, giveaway results, and other stream information. Each overlay will be designed to fit OBS without needing the full website navigation.</p><div class="feature-list"><div class="feature"><b>🏆 Tournament overlay</b><small>Show the live bracket and match progress.</small></div><div class="feature"><b>💰 Bonus hunt overlay</b><small>Show current hunt totals and progress.</small></div><div class="feature"><b>🎮 Slot queue overlay</b><small>Show the current game and waiting requests.</small></div><div class="feature"><b>🎁 Giveaway overlay</b><small>Show entry status and winner announcements.</small></div></div></div>
   </section>
 
