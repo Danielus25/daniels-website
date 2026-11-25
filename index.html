@@ -71,9 +71,31 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 @media(max-width:700px){.bonus-stats{grid-template-columns:1fr}.bonus-stats.two{grid-template-columns:1fr}.bonus-entry-fields{grid-template-columns:1fr 1fr}.bonus-entry-row{grid-template-columns:1fr 1fr}.bonus-wide{grid-column:1/-1}}
 @media(max-width:480px){.bonus-entry-fields{grid-template-columns:1fr}.bonus-head{align-items:flex-start}.bonus-panel{padding:16px}}
 
+
+/* Animated blue-and-orange flame atmosphere */
+body{position:relative;isolation:isolate;background:var(--bg)}
+.flame-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict;background:radial-gradient(ellipse at 50% 100%,#111b2a 0%,#070b14 68%)}
+.flame-bg:before,.flame-bg:after{content:"";position:absolute;inset:-22% -12% -12%;opacity:.72;filter:blur(34px);will-change:transform,background-position}
+.flame-bg:before{background:
+radial-gradient(ellipse 18% 48% at 12% 100%,#ff7628 0%,#ff762888 35%,transparent 76%),
+radial-gradient(ellipse 15% 42% at 34% 105%,#ff9b32 0%,#ff762866 40%,transparent 76%),
+radial-gradient(ellipse 22% 54% at 68% 105%,#ff5b20 0%,#ff762866 42%,transparent 78%),
+radial-gradient(ellipse 18% 48% at 91% 100%,#ff9b32 0%,#ff762877 38%,transparent 78%);
+animation:orangeFlames 9s ease-in-out infinite alternate}
+.flame-bg:after{background:
+radial-gradient(ellipse 20% 52% at 22% 105%,#168dff 0%,#29baff99 38%,transparent 78%),
+radial-gradient(ellipse 17% 46% at 49% 105%,#29baff 0%,#168dff88 40%,transparent 78%),
+radial-gradient(ellipse 21% 55% at 78% 105%,#087be8 0%,#29baff88 38%,transparent 78%);
+mix-blend-mode:screen;animation:blueFlames 11s ease-in-out infinite alternate}
+@keyframes orangeFlames{0%{transform:translate3d(-2%,3%,0) scale(1,.94);background-position:0 0}50%{transform:translate3d(2%,-2%,0) scale(1.05,1.08)}100%{transform:translate3d(-1%,-5%,0) scale(.98,1.12)}}
+@keyframes blueFlames{0%{transform:translate3d(2%,2%,0) scale(.98,1)}50%{transform:translate3d(-2%,-4%,0) scale(1.06,1.1)}100%{transform:translate3d(1%,-2%,0) scale(1,1.06)}}
+header{background:#070b14b8}
+@media(prefers-reduced-motion:reduce){.flame-bg:before,.flame-bg:after{animation:none}}
+
 </style>
 </head>
 <body>
+<div class="flame-bg" aria-hidden="true"></div>
 <header>
   <div class="top"><a class="brand" href="#" data-home>🔥 <span>DANIELUS25</span></a><button class="kick" type="button" disabled aria-label="Kick sign-in will be connected later">SIGN IN WITH KICK</button></div>
   <nav class="tabs" role="tablist" aria-label="Website sections">
