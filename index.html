@@ -409,7 +409,11 @@ function addTournamentPlayer(name,game,buyIn){
   const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
   if(count>=cap){alert(name+' has reached the entries-per-person limit.');return false;}
   if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
-  tourneyState.players.push({name,game,buyIn});tourneyState.rounds=[];tourneyState.results=[];saveTourneyState();renderTourney();return true;
+  tourneyState.players.push({name,game,buyIn});
+  const names=tournamentNames(),size=2**Math.ceil(Math.log2(Math.max(2,names.length)));
+  while(names.length<size)names.push('BYE');
+  const firstRound=[];for(let i=0;i<names.length;i+=2)firstRound.push({a:names[i],b:names[i+1],winner:names[i+1]==='BYE'?names[i]:''});
+  tourneyState.rounds=[firstRound];tourneyState.results=[];saveTourneyState();renderTourney();return true;
 }
 $('saveTourney').onclick=()=>{
   const limit=Number($('tourneyLimit').value);
