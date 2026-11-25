@@ -608,6 +608,161 @@ let bonusEntries=[];
 try{const saved=JSON.parse(localStorage.getItem(bonusStoreKey)||'[]');if(Array.isArray(saved))bonusEntries=saved;}catch(e){}
 function saveBonusEntries(){try{localStorage.setItem(bonusStoreKey,JSON.stringify(bonusEntries));}catch(e){}}
 function money(n){return '
+function renderBonusHunt(){
+  const list=$('bonusList');if(!list)return;list.innerHTML='';
+  const cost=bonusEntries.reduce((s,b)=>s+Number(b.buy||0),0);
+  const payout=bonusEntries.reduce((s,b)=>s+Number(b.payout||0),0);
+  $('bonusCost').textContent=money(cost);$('bonusPayout').textContent=money(payout);$('bonusProfit').textContent=money(payout-cost);
+  $('bonusRemaining').textContent=String(bonusEntries.filter(b=>!b.opened).length);
+  if(!bonusEntries.length){list.innerHTML='<p class="muted">No bonuses added yet.</p>';return;}
+  bonusEntries.forEach((b,i)=>{
+    const row=document.createElement('div');row.className='round-block';
+    const title=document.createElement('h4');title.textContent=(i+1)+'. '+b.game;row.append(title);
+    const info=document.createElement('p');info.className='muted';info.textContent='Buy: '+money(b.buy)+' · Bonus: '+money(b.value)+' · '+(b.opened?'Opened · Payout: '+money(b.payout):'Waiting to open');row.append(info);
+    if(!b.opened){
+      const controls=document.createElement('div');controls.className='tool-grid';
+      const field=document.createElement('label');field.className='tool-field';field.textContent='Payout ($)';
+      const input=document.createElement('input');input.type='number';input.min='0';input.step='0.01';input.placeholder='Enter result';field.append(input);
+      const button=document.createElement('button');button.className='tool-btn primary';button.textContent='Record payout';button.onclick=()=>{const n=Number(input.value);if(input.value.trim()===''||!Number.isFinite(n)||n<0){alert('Enter a valid payout amount.');return;}b.payout=n;b.opened=true;saveBonusEntries();renderBonusHunt();};
+      controls.append(field,button);row.append(controls);
+    }
+    const remove=document.createElement('button');remove.className='tool-btn danger';remove.textContent='Remove';remove.onclick=()=>{bonusEntries.splice(i,1);saveBonusEntries();renderBonusHunt();};row.append(remove);list.append(row);
+  });
+}
+$('addBonus').onclick=()=>{
+  const game=$('bonusGame').value.trim(),buy=Number($('bonusBuy').value||0),value=Number($('bonusValue').value||0);
+  if(!game){alert('Enter a game name.');return;}
+  if(buy<0||value<0||!Number.isFinite(buy)||!Number.isFinite(value)){alert('Enter valid dollar amounts.');return;}
+  bonusEntries.push({game,buy,value,payout:0,opened:false});saveBonusEntries();
+  $('bonusGame').value='';$('bonusBuy').value='';$('bonusValue').value='';renderBonusHunt();
+};
+$('clearBonuses').onclick=()=>{if(!confirm('Clear the entire local bonus hunt?'))return;bonusEntries=[];saveBonusEntries();renderBonusHunt();};
+renderBonusHunt();
+
+const balanceStoreKey='danielus25_balance_preview_v1';
+let balanceGame={open:true,entries:[],final:null};
+try{const saved=JSON.parse(localStorage.getItem(balanceStoreKey)||'null');if(saved&&Array.isArray(saved.entries))balanceGame={...balanceGame,...saved};}catch(e){}
+function saveBalanceGame(){try{localStorage.setItem(balanceStoreKey,JSON.stringify(balanceGame));}catch(e){}}
+function renderBalanceGame(){
+  $('balanceStatus').textContent=balanceGame.open?'Entries are OPEN.':'Entries are CLOSED.';
+  $('toggleBalanceEntries').textContent=balanceGame.open?'Close entries':'Open entries';
+  $('submitBalanceGuess').disabled=!balanceGame.open;
+  $('balanceCount').textContent=String(balanceGame.entries.length);
+  $('balanceList').innerHTML='';
+  if(!balanceGame.entries.length)$('balanceList').innerHTML='<p class="muted">No guesses yet.</p>';
+  balanceGame.entries.forEach((entry,i)=>{
+    const row=document.createElement('div');row.className='player-row';
+    const name=document.createElement('strong');name.textContent=(i+1)+'. '+entry.viewer;
+    const amount=document.createElement('span');amount.textContent=money(entry.guess);
+    row.append(name,amount);$('balanceList').append(row);
+  });
+  if(balanceGame.final!==null){
+    $('balanceFinal').value=String(balanceGame.final);
+    const ranked=[...balanceGame.entries].sort((a,b)=>Math.abs(a.guess-balanceGame.final)-Math.abs(b.guess-balanceGame.final));
+    $('balanceWinner').textContent=ranked.length?'🏆 Closest guess: '+ranked[0].viewer+' · '+money(ranked[0].guess)+' (off by '+money(Math.abs(ranked[0].guess-balanceGame.final))+')':'No entries to score.';
+  }else $('balanceWinner').textContent='';
+}
+$('submitBalanceGuess').onclick=()=>{
+  if(!balanceGame.open){alert('Entries are closed.');return;}
+  const viewer=$('balanceViewer').value.trim().replace(/^@/,'');
+  const raw=$('balanceGuess').value,guess=Number(raw);
+  if(!viewer||raw.trim()===''||!Number.isFinite(guess)||guess<0){alert('Enter your username and a valid guess.');return;}
+  if(balanceGame.entries.some(e=>e.viewer.toLowerCase()===viewer.toLowerCase())){alert('That name already has a locked guess.');return;}
+  balanceGame.entries.push({viewer,guess});saveBalanceGame();$('balanceViewer').value='';$('balanceGuess').value='';renderBalanceGame();
+};
+$('toggleBalanceEntries').onclick=()=>{balanceGame.open=!balanceGame.open;saveBalanceGame();renderBalanceGame();};
+$('revealBalance').onclick=()=>{
+  const raw=$('balanceFinal').value,final=Number(raw);
+  if(raw.trim()===''||!Number.isFinite(final)||final<0){alert('Enter the final balance first.');return;}
+  if(!balanceGame.entries.length){alert('There are no guesses to score.');return;}
+  balanceGame.open=false;balanceGame.final=final;saveBalanceGame();renderBalanceGame();
+};
+renderBalanceGame();
+
+const wheelStoreKey='danielus25_wheel_preview_v1';
+let wheelNames=[];
+try{const saved=JSON.parse(localStorage.getItem(wheelStoreKey)||'[]');if(Array.isArray(saved))wheelNames=saved;}catch(e){}
+function saveWheel(){try{localStorage.setItem(wheelStoreKey,JSON.stringify(wheelNames));}catch(e){}}
+function renderWheel(){
+  $('wheelCount').textContent=wheelNames.length+' viewer'+(wheelNames.length===1?'':'s')+' loaded.';
+  $('wheelList').innerHTML='';
+  if(!wheelNames.length)$('wheelList').innerHTML='<p class="muted">Add viewers to the wheel.</p>';
+  wheelNames.forEach((name,i)=>{
+    const row=document.createElement('div');row.className='player-row';
+    const label=document.createElement('span');label.textContent=(i+1)+'. '+name;
+    const remove=document.createElement('button');remove.textContent='REMOVE';remove.onclick=()=>{wheelNames.splice(i,1);saveWheel();renderWheel();};
+    row.append(label,remove);$('wheelList').append(row);
+  });
+}
+$('addWheelName').onclick=()=>{
+  const name=$('wheelName').value.trim().replace(/^@/,'');if(!name)return;
+  if(wheelNames.some(n=>n.toLowerCase()===name.toLowerCase())){alert('That viewer is already on the wheel.');return;}
+  wheelNames.push(name);$('wheelName').value='';saveWheel();renderWheel();
+};
+$('wheelName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addWheelName').click();});
+$('clearWheel').onclick=()=>{if(!confirm('Clear all names from the wheel?'))return;wheelNames=[];saveWheel();renderWheel();$('wheelResult').innerHTML='<h4>RESULT</h4><p class="muted">Your random pick will appear here.</p>';};
+$('spinWheel').onclick=()=>{
+  if(!wheelNames.length){alert('Add at least one viewer first.');return;}
+  const winner=wheelNames[Math.floor(Math.random()*wheelNames.length)];
+  const games=$('wheelGames').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const game=games.length?games[Math.floor(Math.random()*games.length)]:null;
+  $('wheelResult').innerHTML='';
+  const title=document.createElement('h4');title.textContent='🎉 RANDOM PICK';
+  const result=document.createElement('p');result.className='tool-status';result.textContent=winner+(game?' · Game: '+game:'');
+  $('wheelResult').append(title,result);
+};
+renderWheel();
+
+const giveawayStoreKey='danielus25_giveaway_preview_v1';
+let giveaway={open:false,keyword:'pickme',title:'',entries:[],winner:''};
+try{const saved=JSON.parse(localStorage.getItem(giveawayStoreKey)||'null');if(saved&&Array.isArray(saved.entries))giveaway={...giveaway,...saved};}catch(e){}
+function saveGiveaway(){try{localStorage.setItem(giveawayStoreKey,JSON.stringify(giveaway));}catch(e){}}
+function renderGiveaway(){
+  $('giveawayKeyword').value=giveaway.keyword;$('giveawayTitle').value=giveaway.title;
+  $('giveawayStatus').textContent=giveaway.open?'Entries are OPEN · keyword: '+giveaway.keyword:'Entries are CLOSED.';
+  $('giveawayCount').textContent=String(giveaway.entries.length);$('giveawayEntries').innerHTML='';
+  if(!giveaway.entries.length)$('giveawayEntries').innerHTML='<p class="muted">No entries yet.</p>';
+  giveaway.entries.forEach((name,i)=>{
+    const row=document.createElement('div');row.className='player-row';
+    const label=document.createElement('span');label.textContent=(i+1)+'. '+name;
+    const remove=document.createElement('button');remove.textContent='REMOVE';remove.onclick=()=>{giveaway.entries.splice(i,1);if(giveaway.winner===name)giveaway.winner='';saveGiveaway();renderGiveaway();};
+    row.append(label,remove);$('giveawayEntries').append(row);
+  });
+  $('giveawayWinner').innerHTML='';
+  const heading=document.createElement('h4');heading.textContent='WINNER';
+  const result=document.createElement('p');result.className=giveaway.winner?'tool-status':'muted';result.textContent=giveaway.winner?'🏆 '+giveaway.winner:'No winner drawn yet.';
+  $('giveawayWinner').append(heading,result);
+  $('openGiveaway').disabled=giveaway.open;$('closeGiveaway').disabled=!giveaway.open;
+  $('addGiveawayEntry').disabled=!giveaway.open;$('drawGiveaway').disabled=giveaway.open||!giveaway.entries.length;
+}
+$('openGiveaway').onclick=()=>{
+  const keyword=$('giveawayKeyword').value.trim(),title=$('giveawayTitle').value.trim();
+  if(!keyword){alert('Set an entry keyword first.');return;}
+  giveaway.keyword=keyword;giveaway.title=title;giveaway.open=true;giveaway.winner='';saveGiveaway();renderGiveaway();
+};
+$('closeGiveaway').onclick=()=>{giveaway.open=false;saveGiveaway();renderGiveaway();};
+$('addGiveawayEntry').onclick=()=>{
+  if(!giveaway.open){alert('Entries are closed.');return;}
+  const name=$('giveawayViewer').value.trim().replace(/^@/,'');if(!name){alert('Enter a viewer name.');return;}
+  if(giveaway.entries.some(n=>n.toLowerCase()===name.toLowerCase())){$('giveawayEntryStatus').textContent='That viewer has already entered.';return;}
+  giveaway.entries.push(name);$('giveawayViewer').value='';$('giveawayEntryStatus').textContent=name+' entered with keyword '+giveaway.keyword+'.';saveGiveaway();renderGiveaway();
+};
+$('giveawayViewer').addEventListener('keydown',e=>{if(e.key==='Enter')$('addGiveawayEntry').click();});
+$('drawGiveaway').onclick=()=>{
+  if(giveaway.open){alert('Close entries before drawing a winner.');return;}
+  if(!giveaway.entries.length){alert('There are no entries to draw from.');return;}
+  giveaway.winner=giveaway.entries[Math.floor(Math.random()*giveaway.entries.length)];saveGiveaway();renderGiveaway();
+};
+$('resetGiveaway').onclick=()=>{
+  if(!confirm('Reset this giveaway and remove all entries?'))return;
+  giveaway={open:false,keyword:$('giveawayKeyword').value.trim()||'pickme',title:$('giveawayTitle').value.trim(),entries:[],winner:''};saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='';
+};
+renderGiveaway();
+
+let savedTab='home';
+try{savedTab=location.hash.slice(1)||localStorage.getItem('danielus25_active_tab')||'home';}catch(e){savedTab=location.hash.slice(1)||'home';}
+showPage(savedTab);
+window.addEventListener('hashchange',()=>showPage(location.hash.slice(1)||'home'));
 </script>
 </body>
 </html>+Number(n||0).toFixed(2);}
