@@ -10,9 +10,9 @@
 :root{--bg:#070b14;--panel:#101a2a;--line:#24415c;--orange:#ff7628;--blue:#29baff;--white:#f4f8ff;--muted:#aabbd0}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 12% 8%,#123b5b80,transparent 35%),radial-gradient(ellipse at 88% 12%,#6b2a1380,transparent 34%),var(--bg);color:var(--white);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
 a{color:inherit;text-decoration:none}button{font:inherit}.wrap{max-width:1180px;margin:auto;padding:20px}
-header{position:sticky;top:0;z-index:10;background:#070b14ed;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .top{max-width:1180px;margin:auto;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px}.brand{font-weight:1000;letter-spacing:.06em;white-space:nowrap}.brand span{background:linear-gradient(90deg,var(--orange),var(--blue));background-clip:text;color:transparent}.kick{border:1px solid #315674;border-radius:999px;padding:8px 13px;font-weight:850;font-size:.82rem;white-space:nowrap}
-.tabs{max-width:1180px;margin:auto;padding:0 14px 12px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin}.tab{flex:0 0 auto;border:1px solid #28435c;background:#101a2a;color:#c5d5e7;border-radius:999px;padding:9px 14px;font-size:.82rem;font-weight:850;cursor:pointer}.tab[aria-selected=true]{background:linear-gradient(100deg,#a94718,#14577c);border-color:#68b8e5;color:white;box-shadow:0 0 18px #168acb33}
+.tabs{position:relative;z-index:1001;max-width:1180px;margin:auto;padding:0 14px 12px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin}.tab{position:relative;z-index:1002;pointer-events:auto;touch-action:manipulation;flex:0 0 auto;border:1px solid #28435c;background:#101a2a;color:#c5d5e7;border-radius:999px;padding:9px 14px;font-size:.82rem;font-weight:850;cursor:pointer}.tab[aria-selected=true]{background:linear-gradient(100deg,#a94718,#14577c);border-color:#68b8e5;color:white;box-shadow:0 0 18px #168acb33}
 .hero{text-align:center;padding:58px 10px 38px}.eyebrow{font-size:.75rem;font-weight:950;letter-spacing:.25em;color:var(--blue);text-transform:uppercase}.hero h1{font-size:clamp(2.5rem,7vw,5.4rem);line-height:.98;margin:14px 0;background:linear-gradient(100deg,#ff8a38 8%,#fff 48%,#35c5ff 90%);background-clip:text;color:transparent;filter:drop-shadow(0 0 22px #168acb55)}.hero p{max-width:680px;margin:16px auto;color:var(--muted);line-height:1.7}
 .page{display:none;animation:fade .2s ease}.page.active{display:block}@keyframes fade{from{opacity:.45;transform:translateY(5px)}to{opacity:1;transform:none}}
 .heading{text-align:center;margin:12px 0 24px}.heading h2{margin:0;color:var(--blue);font-size:clamp(1.45rem,4vw,2rem)}.heading p{color:var(--muted);margin:8px 0}
@@ -49,17 +49,17 @@ header{position:sticky;top:0;z-index:10;background:#070b14ed;backdrop-filter:blu
 <header>
   <div class="top"><a class="brand" href="#" data-home>🔥 <span>DANIELUS25</span></a><button class="kick" type="button" disabled aria-label="Kick sign-in will be connected later">SIGN IN WITH KICK</button></div>
   <nav class="tabs" role="tablist" aria-label="Website sections">
-    <button class="tab" role="tab" aria-selected="true" data-tab="home">HOME</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="promo">PROMO</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="tournaments">TOURNAMENT</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="predictions">BRACKET GUESSES</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="bonus">BONUS HUNT</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="cozies">COZIES</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="slotcalls">SLOT CALLS</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="balance">GUESS THE BALANCE</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="randomizer">RANDOMIZER</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="giveaways">KEYWORD GIVEAWAY</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="obs">OBS TOOLS</button>
+    <button type="button" class="tab" role="tab" aria-selected="true" data-tab="home" onclick="showPage(&quot;home&quot;)">HOME</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="promo" onclick="showPage(&quot;promo&quot;)">PROMO</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="tournaments" onclick="showPage(&quot;tournaments&quot;)">TOURNAMENT</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="predictions" onclick="showPage(&quot;predictions&quot;)">BRACKET GUESSES</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="bonus" onclick="showPage(&quot;bonus&quot;)">BONUS HUNT</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="cozies" onclick="showPage(&quot;cozies&quot;)">COZIES</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="slotcalls" onclick="showPage(&quot;slotcalls&quot;)">SLOT CALLS</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="balance" onclick="showPage(&quot;balance&quot;)">GUESS THE BALANCE</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="randomizer" onclick="showPage(&quot;randomizer&quot;)">RANDOMIZER</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="giveaways" onclick="showPage(&quot;giveaways&quot;)">KEYWORD GIVEAWAY</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="obs" onclick="showPage(&quot;obs&quot;)">OBS TOOLS</button>
   </nav>
 </header>
 <main class="wrap">
