@@ -287,7 +287,8 @@ function showPage(name){
   pages.forEach(p=>p.classList.toggle('active',p.id===name));
   tabs.forEach(t=>t.setAttribute('aria-selected',String(t.dataset.tab===name)));
   const active=tabs.find(t=>t.dataset.tab===name); if(active) active.scrollIntoView({block:'nearest',inline:'nearest'});
-  if(location.hash!=='#'+name) history.replaceState(null,'','#'+name);
+  try{sessionStorage.setItem('danielus25_active_tab',name);}catch(e){}
+  if(location.hash!=='#'+name) history.replaceState(null,'',location.pathname+location.search+'#'+name);
   if(name==='predictions') renderPredictions();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -725,7 +726,10 @@ $('resetGiveaway').onclick=()=>{
 };
 renderGiveaway();
 
-showPage(location.hash.slice(1)||'home');
+let savedTab='home';
+try{savedTab=location.hash.slice(1)||sessionStorage.getItem('danielus25_active_tab')||'home';}catch(e){savedTab=location.hash.slice(1)||'home';}
+showPage(savedTab);
+window.addEventListener('hashchange',()=>showPage(location.hash.slice(1)||'home'));
 </script>
 </body>
 </html>
