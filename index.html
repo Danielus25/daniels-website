@@ -362,7 +362,7 @@ function renderTourney(){
         const matchTitle=document.createElement('strong');matchTitle.textContent='Match '+(mi+1);row.append(matchTitle);
         [match.a,match.b].forEach((name,side)=>{
           const pick=document.createElement('button');pick.type='button';pick.className='tool-btn'+(match.winner===name?' primary':'');
-          pick.textContent=name||'TBD';pick.disabled=!name||name==='BYE'||!!match.winner;
+          pick.textContent=name||'TBD';pick.disabled=!name||name==='BYE';
           pick.title='Click to advance '+name;
           pick.onclick=()=>setTournamentWinner(ri,mi,name);
           row.append(pick);
@@ -378,6 +378,7 @@ function renderTourney(){
 function setTournamentWinner(ri,mi,name){
   const match=tourneyState.rounds[ri]?.[mi];if(!match)return;
   match.winner=name;
+  tourneyState.results=tourneyState.results.filter(r=>!(r.round===ri+1&&r.match===mi+1));
   tourneyState.rounds=tourneyState.rounds.slice(0,ri+1);
   let round=tourneyState.rounds[ri];
   if(round.every(m=>m.winner)){
