@@ -243,7 +243,18 @@ function showPage(name){
   if(name==='predictions') renderPredictions();
   window.scrollTo({top:0,behavior:'smooth'});
 }
-tabs.forEach(t=>t.addEventListener('click',()=>showPage(t.dataset.tab)));
+const nav=document.querySelector('.tabs');
+nav.addEventListener('click',e=>{
+  const tab=e.target.closest('[data-tab]');
+  if(!tab||!nav.contains(tab))return;
+  e.preventDefault();
+  showPage(tab.dataset.tab);
+});
+nav.addEventListener('keydown',e=>{
+  const tab=e.target.closest('[data-tab]');
+  if(tab&&(e.key==='Enter'||e.key===' ')){e.preventDefault();showPage(tab.dataset.tab);}
+});
+window.showPage=showPage;
 document.querySelectorAll('[data-go]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();showPage(a.dataset.go)}));
 document.querySelector('[data-home]').addEventListener('click',e=>{e.preventDefault();showPage('home')});
 document.getElementById('year').textContent=new Date().getFullYear();
