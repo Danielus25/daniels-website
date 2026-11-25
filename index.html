@@ -443,7 +443,6 @@ $('removeSavedPlayers').onclick=()=>{
 };
 $('openTourneyEntries').onclick=()=>{tourneyState.open=true;saveTourneyState();renderTourney();};
 $('closeTourneyEntries').onclick=()=>{tourneyState.open=false;saveTourneyState();renderTourney();};
-$('toggleEntries').onclick=()=>{tourneyState.open=!tourneyState.open;saveTourneyState();renderTourney();};
 $('makeBracket').onclick=()=>{
   if(tourneyState.players.length<2){alert('Add at least two players first.');return;}
   if(tourneyState.rounds.length&&!confirm('Replace the current bracket?'))return;
