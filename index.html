@@ -140,7 +140,25 @@ header{position:sticky;top:0;z-index:10;background:#070b14ed;backdrop-filter:blu
 
   <section class="page" id="bonus" role="tabpanel">
     <div class="heading"><h2>BONUS HUNTS</h2><p>Keep every hunt organized.</p></div>
-    <div class="panel"><span class="pill">HUNT TRACKER</span><h3>Bonuses · Costs · Wins · Profit</h3><p>Build and manage a bonus list, track buy amounts and bonus values, record opened results, and show hunt totals. A viewer-facing display and OBS browser source can use the same live hunt data.</p><div class="feature-list"><div class="feature"><b>🎰 Bonus list</b><small>Add games, bonus amounts, and notes.</small></div><div class="feature"><b>💵 Hunt totals</b><small>Track total cost, total wins, and profit or loss.</small></div><div class="feature"><b>📺 Live display</b><small>Show current progress to viewers and OBS.</small></div><div class="feature"><b>🏁 Hunt results</b><small>Keep a record of completed hunts.</small></div></div></div>
+    <div class="panel">
+      <span class="pill">LOCAL HUNT TRACKER PREVIEW</span><h3>Build your bonus list</h3>
+      <div class="tool-grid">
+        <label class="tool-field">Game name<input id="bonusGame" maxlength="50" placeholder="Slot name"></label>
+        <label class="tool-field">Buy amount ($)<input id="bonusBuy" type="number" min="0" step="0.01" placeholder="0.00"></label>
+        <label class="tool-field">Bonus amount ($)<input id="bonusValue" type="number" min="0" step="0.01" placeholder="0.00"></label>
+        <div class="tool-field tool-bottom"><button class="tool-btn primary" id="addBonus">Add bonus</button></div>
+      </div>
+      <div class="tool-actions"><button class="tool-btn danger" id="clearBonuses">Clear hunt</button></div>
+      <div class="feature-list">
+        <div class="feature"><b>Total buy cost</b><small id="bonusCost">$0.00</small></div>
+        <div class="feature"><b>Total payouts</b><small id="bonusPayout">$0.00</small></div>
+        <div class="feature"><b>Profit / loss</b><small id="bonusProfit">$0.00</small></div>
+        <div class="feature"><b>Bonuses remaining</b><small id="bonusRemaining">0</small></div>
+      </div>
+      <div class="tool-divider"></div><h3>Hunt list</h3>
+      <div id="bonusList" class="tool-list"><p class="muted">No bonuses added yet.</p></div>
+      <p class="tool-note">Preview limitation: hunt data is saved only in this browser. Shared viewer displays and OBS sources will be connected after Daniel's separate backend is ready.</p>
+    </div>
   </section>
 
   <section class="page" id="cozies" role="tabpanel">
@@ -314,6 +332,45 @@ $('submitPicks').onclick=()=>{
   $('predictionStatus').textContent='Picks locked! Your entry cannot be changed in this preview.';
 };
 renderPredictions();
+
+const bonusStoreKey='danielus25_bonus_hunt_preview_v1';
+let bonusEntries=[];
+try{const saved=JSON.parse(localStorage.getItem(bonusStoreKey)||'[]');if(Array.isArray(saved))bonusEntries=saved;}catch(e){}
+function saveBonusEntries(){try{localStorage.setItem(bonusStoreKey,JSON.stringify(bonusEntries));}catch(e){}}
+function money(n){return '
+</script>
+</body>
+</html>+Number(n||0).toFixed(2);}
+function renderBonusHunt(){
+  const list=$('bonusList');if(!list)return;list.innerHTML='';
+  const cost=bonusEntries.reduce((s,b)=>s+Number(b.buy||0),0);
+  const payout=bonusEntries.reduce((s,b)=>s+Number(b.payout||0),0);
+  $('bonusCost').textContent=money(cost);$('bonusPayout').textContent=money(payout);$('bonusProfit').textContent=money(payout-cost);
+  $('bonusRemaining').textContent=String(bonusEntries.filter(b=>!b.opened).length);
+  if(!bonusEntries.length){list.innerHTML='<p class="muted">No bonuses added yet.</p>';return;}
+  bonusEntries.forEach((b,i)=>{
+    const row=document.createElement('div');row.className='round-block';
+    const title=document.createElement('h4');title.textContent=(i+1)+'. '+b.game;row.append(title);
+    const info=document.createElement('p');info.className='muted';info.textContent='Buy: '+money(b.buy)+' · Bonus: '+money(b.value)+' · '+(b.opened?'Opened · Payout: '+money(b.payout):'Waiting to open');row.append(info);
+    if(!b.opened){
+      const controls=document.createElement('div');controls.className='tool-grid';
+      const field=document.createElement('label');field.className='tool-field';field.textContent='Payout ($)';
+      const input=document.createElement('input');input.type='number';input.min='0';input.step='0.01';input.placeholder='Enter result';field.append(input);
+      const button=document.createElement('button');button.className='tool-btn primary';button.textContent='Record payout';button.onclick=()=>{const n=Number(input.value);if(input.value.trim()===''||!Number.isFinite(n)||n<0){alert('Enter a valid payout amount.');return;}b.payout=n;b.opened=true;saveBonusEntries();renderBonusHunt();};
+      controls.append(field,button);row.append(controls);
+    }
+    const remove=document.createElement('button');remove.className='tool-btn danger';remove.textContent='Remove';remove.onclick=()=>{bonusEntries.splice(i,1);saveBonusEntries();renderBonusHunt();};row.append(remove);list.append(row);
+  });
+}
+$('addBonus').onclick=()=>{
+  const game=$('bonusGame').value.trim(),buy=Number($('bonusBuy').value||0),value=Number($('bonusValue').value||0);
+  if(!game){alert('Enter a game name.');return;}
+  if(buy<0||value<0||!Number.isFinite(buy)||!Number.isFinite(value)){alert('Enter valid dollar amounts.');return;}
+  bonusEntries.push({game,buy,value,payout:0,opened:false});saveBonusEntries();
+  $('bonusGame').value='';$('bonusBuy').value='';$('bonusValue').value='';renderBonusHunt();
+};
+$('clearBonuses').onclick=()=>{if(!confirm('Clear the entire local bonus hunt?'))return;bonusEntries=[];saveBonusEntries();renderBonusHunt();};
+renderBonusHunt();
 
 showPage(location.hash.slice(1)||'home');
 </script>
