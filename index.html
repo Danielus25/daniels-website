@@ -349,6 +349,8 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
     if(location.hash!=='#'+name){
       try{history.replaceState(null,'',location.pathname+location.search+'#'+name);}catch(e){}
     }
+    // Open each section at the top instead of retaining the previous section's scroll position.
+    window.scrollTo({top:0,behavior:'smooth'});
   }
   document.addEventListener('click',function(event){
     var tab=event.target.closest && event.target.closest('.tabs [data-tab]');
