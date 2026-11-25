@@ -42,6 +42,7 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 .match-row select{background:#071321;color:#fff;border:1px solid #315674;border-radius:8px;padding:8px;max-width:100%}
 .tool-note{font-size:.78rem;color:#9eafc4;line-height:1.5;margin-top:18px}
 .tool-bottom{justify-content:end}
+.tournament-panel{max-width:980px}.tournament-panel .player-row{flex-wrap:wrap}.tournament-panel .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tournament-panel input{min-width:0}@media(max-width:540px){.tournament-panel .tool-grid{grid-template-columns:1fr}}
 @media(max-width:540px){.tool-grid{grid-template-columns:1fr}.tool-bottom{justify-content:start}.match-row{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
@@ -98,24 +99,71 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
   </section>
 
   <section class="page" id="tournaments" role="tabpanel">
-    <div class="heading"><h2>TOURNAMENT CENTRAL</h2><p>Set up a tournament and build its bracket.</p></div>
-    <div class="panel">
-      <span class="pill">ORGANIZER PREVIEW</span>
-      <h3>Tournament setup</h3>
-      <p class="muted">Create a local preview of Daniel's tournament. Kick chat registration and shared live updates will be connected after Daniel signs in.</p>
+    <div class="heading"><h2>TOURNAMENT CENTRAL</h2><p>Player entry, live bracket management, and tournament results.</p></div>
+    <div class="panel tournament-panel">
+      <span class="pill">🏆 TOURNAMENT PLAYER ENTRY</span>
+      <p class="muted">Players from Daniel's Slot Calls queue will be importable here once the queue is connected. You can also add players manually and edit their game and buy-in details.</p>
       <div class="tool-grid">
         <label class="tool-field">Tournament name<input id="tourneyName" maxlength="60" placeholder="Danielus25 Tournament"></label>
-        <label class="tool-field">Player limit<select id="tourneyLimit"><option>4</option><option>6</option><option>8</option><option>16</option></select></label>
+        <label class="tool-field">Bracket size<select id="tourneyLimit"><option>4</option><option>8</option><option>12</option><option>16</option><option>32</option></select></label>
+        <label class="tool-field">Entries per person<select id="entriesPerPerson"><option>1 Entry</option><option>2 Entries</option><option>3 Entries</option><option>4 Entries</option><option>5 Entries</option><option>6 Entries</option><option>7 Entries</option><option>8 Entries</option><option>9 Entries</option><option>10 Entries</option></select></label>
+        <label class="tool-field">Duplicate games <button type="button" class="tool-btn" id="duplicateToggle" aria-pressed="false">DUP: OFF</button></label>
       </div>
-      <div class="tool-actions"><button class="tool-btn primary" id="saveTourney">Save setup</button><button class="tool-btn" id="toggleEntries">Open entries</button><button class="tool-btn danger" id="clearTourney">Clear tournament</button></div>
-      <p id="entryStatus" class="tool-status" aria-live="polite">Entries are closed.</p>
+      <p class="muted">When duplicate games are ON, each game can only be used once, whether it is Regular or Super.</p>
+      <div class="tool-actions">
+        <button class="tool-btn primary" id="addAllQueue">＋ ADD ALL TO BRACKET</button>
+        <button class="tool-btn" id="toggleCalls">🔕 CALLS OFF</button>
+        <button class="tool-btn" id="restorePlayers">↩ RESTORE SAVED PLAYERS</button>
+        <button class="tool-btn danger" id="removeSavedPlayers">🗑️ REMOVE SAVED PLAYERS</button>
+      </div>
+      <p id="queueImportStatus" class="tool-status" aria-live="polite"></p>
       <div class="tool-divider"></div>
-      <h3>Player list <span id="playerCount" class="pill">0 / 4</span></h3>
-      <div class="tool-grid"><label class="tool-field">Add player<input id="playerName" maxlength="30" placeholder="Kick username"></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="addPlayer">Add player</button></div></div>
-      <div id="playerList" class="tool-list"><p class="muted">No players added yet.</p></div>
-      <div class="tool-actions"><button class="tool-btn primary" id="makeBracket">Shuffle & create bracket</button></div>
-      <div id="bracketView" class="bracket-view"><p class="muted">Your bracket will appear here after you create it.</p></div>
-      <p class="tool-note">Preview limitation: this version saves on this browser only. It is not connected to Kick, BotRix, or a shared database yet.</p>
+      <h3>Player entry</h3>
+      <div class="tool-grid">
+        <label class="tool-field">Kick username<input id="playerName" maxlength="30" placeholder="Kick username"></label>
+        <label class="tool-field">Game<input id="playerGame" maxlength="60" placeholder="Game name"></label>
+        <label class="tool-field">Buy-in ($)<input id="playerBuyIn" type="number" min="0" step="0.01" placeholder="0.00"></label>
+        <div class="tool-field tool-bottom"><button class="tool-btn primary" id="addPlayer">ADD TO BRACKET</button></div>
+      </div>
+      <div class="tool-divider"></div>
+      <h3>Players <span id="playerCount" class="pill">0 / 8 players</span></h3>
+      <div class="feature-list">
+        <div class="feature"><b>Open spots</b><small id="openSpots">8 open spots</small></div>
+        <div class="feature"><b>Entry status</b><small id="entryStatus">Entries are closed.</small></div>
+      </div>
+      <p class="muted">Add players with a username and game. Each player appears in the bracket as soon as you press ADD TO BRACKET.</p>
+      <div id="playerList" class="tool-list"><p class="muted">Waiting for player details.</p></div>
+      <div class="tool-actions">
+        <button class="tool-btn primary" id="makeBracket">🔀 CREATE / SHUFFLE BRACKET</button>
+        <button class="tool-btn" id="saveTourney">Save tournament settings</button>
+      </div>
+      <div class="tool-divider"></div>
+      <h3>👑 Organizer controls</h3>
+      <div class="tool-actions">
+        <button class="tool-btn" id="closeTourneyEntries">Close entries</button>
+        <button class="tool-btn" id="openTourneyEntries">Open entries</button>
+        <button class="tool-btn danger" id="clearTourney">Clear players / new tournament</button>
+      </div>
+      <p id="organizerStatus" class="tool-status" aria-live="polite">Organizer preview is active in this browser. Kick manager sign-in will enable protected controls later.</p>
+      <div class="tool-divider"></div>
+      <h3>Chaos Tournament</h3>
+      <p class="muted" id="bracketSummary">8-player tournament · 0 entered. Click a name to advance them.</p>
+      <div class="tool-actions">
+        <button class="tool-btn" id="toggleGuesses">🧠 GUESSES: OFF</button>
+        <button class="tool-btn primary" id="startNextMatch">▶️ START NEXT MATCH</button>
+        <button class="tool-btn" id="shufflePlayers">🔀 Shuffle players</button>
+        <button class="tool-btn" id="printBracket">Print bracket</button>
+        <button class="tool-btn danger" id="removeBracketPlayers">🗑️ REMOVE PLAYERS</button>
+        <button class="tool-btn" id="saveBracket">Save bracket</button>
+        <button class="tool-btn" id="newTournament">New tournament</button>
+      </div>
+      <div id="bracketView" class="bracket-view"><p class="muted">Your bracket will appear here after players are added.</p></div>
+      <div class="tool-divider"></div>
+      <h3>🥇 WINNERS</h3>
+      <div class="tool-actions"><button class="tool-btn danger" id="clearWinners">🧹 CLEAR ALL WINNERS</button></div>
+      <p class="muted">Every completed match appears here, including its saved payout. The tournament champion is shown at the top.</p>
+      <div id="winnerResults" class="tool-list"><p class="muted">Winners will appear here as matches are completed.</p></div>
+      <p class="tool-note">Preview limitation: tournament settings and results are saved in this browser only. Kick identity, live Slot Calls imports, BotRix announcements, shared viewer updates, and OBS overlay publishing will be connected after Daniel's own Kick and backend setup.</p>
     </div>
   </section>
 
@@ -259,34 +307,168 @@ document.querySelectorAll('[data-go]').forEach(a=>a.addEventListener('click',e=>
 document.querySelector('[data-home]').addEventListener('click',e=>{e.preventDefault();showPage('home')});
 document.getElementById('year').textContent=new Date().getFullYear();
 
-const tourneyStoreKey='danielus25_tournament_preview_v1';
-let tourneyState={name:'',limit:4,open:false,players:[],rounds:[]};
-try{const saved=JSON.parse(localStorage.getItem(tourneyStoreKey)||'null');if(saved&&Array.isArray(saved.players)&&Array.isArray(saved.rounds))tourneyState={...tourneyState,...saved};}catch(e){}
+const tourneyStoreKey='danielus25_tournament_preview_v2';
+let tourneyState={name:'',limit:8,entriesPerPerson:1,duplicateGames:false,callsOn:false,guessesOn:false,open:false,players:[],savedPlayers:[],rounds:[],results:[],activeMatch:null};
+try{
+  const saved=JSON.parse(localStorage.getItem(tourneyStoreKey)||'null');
+  if(saved&&Array.isArray(saved.players)&&Array.isArray(saved.rounds))tourneyState={...tourneyState,...saved};
+}catch(e){}
 const $=id=>document.getElementById(id);
 function saveTourneyState(){try{localStorage.setItem(tourneyStoreKey,JSON.stringify(tourneyState));}catch(e){}}
+function tournamentPlayerLabel(p){return typeof p==='string'?p:(p.name||'Player');}
+function tournamentPlayerGame(p){return typeof p==='string'?'':(p.game||'');}
+function tournamentPlayerBuyIn(p){return typeof p==='string'?0:Number(p.buyIn||0);}
+function tournamentNames(){return tourneyState.players.map(p=>tournamentPlayerLabel(p));}
 function renderTourney(){
-  $('tourneyName').value=tourneyState.name;
+  $('tourneyName').value=tourneyState.name||'';
   $('tourneyLimit').value=String(tourneyState.limit);
-  $('playerCount').textContent=tourneyState.players.length+' / '+tourneyState.limit;
-  $('entryStatus').textContent=tourneyState.open?'Entries are OPEN.':'Entries are closed.';
+  $('entriesPerPerson').value=String(tourneyState.entriesPerPerson||1)+' '+((tourneyState.entriesPerPerson||1)===1?'Entry':'Entries');
+  $('duplicateToggle').textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
+  $('duplicateToggle').setAttribute('aria-pressed',String(!!tourneyState.duplicateGames));
+  $('toggleCalls').textContent=tourneyState.callsOn?'🔔 CALLS ON':'🔕 CALLS OFF';
+  $('toggleGuesses').textContent='🧠 GUESSES: '+(tourneyState.guessesOn?'ON':'OFF');
   $('toggleEntries').textContent=tourneyState.open?'Close entries':'Open entries';
+  $('entryStatus').textContent=tourneyState.open?'OPEN':'CLOSED';
+  $('playerCount').textContent=tourneyState.players.length+' / '+tourneyState.limit+' players';
+  $('openSpots').textContent=Math.max(0,tourneyState.limit-tourneyState.players.length)+' open spots';
+  $('bracketSummary').textContent=(tourneyState.name||'Chaos Tournament')+' · '+tourneyState.limit+'-player tournament · '+tourneyState.players.length+' entered. Click a name to advance them.';
   $('playerList').innerHTML='';
-  if(!tourneyState.players.length)$('playerList').innerHTML='<p class="muted">No players added yet.</p>';
-  tourneyState.players.forEach((p,i)=>{const row=document.createElement('div');row.className='player-row';const name=document.createElement('span');name.textContent=(i+1)+'. '+p;const remove=document.createElement('button');remove.textContent='REMOVE';remove.setAttribute('aria-label','Remove '+p);remove.onclick=()=>{tourneyState.players.splice(i,1);saveTourneyState();renderTourney();};row.append(name,remove);$('playerList').append(row);});
+  if(!tourneyState.players.length)$('playerList').innerHTML='<p class="muted">Waiting for player details.</p>';
+  tourneyState.players.forEach((p,i)=>{
+    const row=document.createElement('div');row.className='round-block';
+    const top=document.createElement('div');top.className='player-row';
+    const label=document.createElement('strong');label.textContent='Player '+(i+1)+' · '+tournamentPlayerLabel(p);
+    const remove=document.createElement('button');remove.textContent='REMOVE';remove.onclick=()=>{tourneyState.players.splice(i,1);saveTourneyState();renderTourney();};
+    top.append(label,remove);row.append(top);
+    const fields=document.createElement('div');fields.className='tool-grid';
+    const game=document.createElement('label');game.className='tool-field';game.textContent='Game';
+    const gameInput=document.createElement('input');gameInput.value=tournamentPlayerGame(p);gameInput.placeholder='Game name';gameInput.maxLength=60;
+    gameInput.onchange=()=>{if(typeof p==='string')tourneyState.players[i]={name:p,game:gameInput.value,buyIn:0};else p.game=gameInput.value;saveTourneyState();};
+    game.append(gameInput);
+    const buy=document.createElement('label');buy.className='tool-field';buy.textContent='Buy-in ($)';
+    const buyInput=document.createElement('input');buyInput.type='number';buyInput.min='0';buyInput.step='0.01';buyInput.value=tournamentPlayerBuyIn(p);
+    buyInput.onchange=()=>{const n=Number(buyInput.value||0);if(typeof p==='string')tourneyState.players[i]={name:p,game:'',buyIn:n};else p.buyIn=n;saveTourneyState();};
+    buy.append(buyInput);fields.append(game,buy);row.append(fields);$('playerList').append(row);
+  });
   $('bracketView').innerHTML='';
-  if(!tourneyState.rounds.length){$('bracketView').innerHTML='<p class="muted">Your bracket will appear here after you create it.</p>';return;}
-  tourneyState.rounds.forEach((round,ri)=>{const block=document.createElement('div');block.className='round-block';const title=document.createElement('h4');title.textContent=ri===tourneyState.rounds.length-1&&round.length===1?'FINAL':'ROUND '+(ri+1);block.append(title);round.forEach((match,mi)=>{const row=document.createElement('div');row.className='match-row';const names=document.createElement('strong');names.textContent=match.a+' vs '+match.b;row.append(names);if(match.winner){const result=document.createElement('span');result.textContent='Winner: '+match.winner;result.className='tool-status';row.append(result);}else{const select=document.createElement('select');select.innerHTML='<option value="">Choose winner…</option>';[match.a,match.b].forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;select.append(o);});const btn=document.createElement('button');btn.className='tool-btn primary';btn.textContent='Record winner';btn.onclick=()=>{if(!select.value)return;match.winner=select.value;saveTourneyState();renderTourney();};row.append(select,btn);}block.append(row);});$('bracketView').append(block);});
-  const last=tourneyState.rounds[tourneyState.rounds.length-1];
-  if(last.length===1&&last[0].winner){const win=document.createElement('p');win.className='tool-status';win.textContent='🏆 Tournament winner: '+last[0].winner; $('bracketView').append(win);}
-  else if(last.length>1&&last.every(m=>m.winner)){const next=last.map(m=>m.winner);const nextRound=[];for(let i=0;i<next.length;i+=2){if(next[i+1])nextRound.push({a:next[i],b:next[i+1],winner:''});else nextRound.push({a:next[i],b:'BYE',winner:next[i]});}if(nextRound.length===1&&nextRound[0].b==='BYE'){tourneyState.rounds.push([{a:nextRound[0].a,b:'BYE',winner:nextRound[0].a}]);}else tourneyState.rounds.push(nextRound);saveTourneyState();renderTourney();}
+  if(!tourneyState.rounds.length){$('bracketView').innerHTML='<p class="muted">Add players, then create the bracket.</p>';}
+  else{
+    const roundNames=tourneyState.rounds.length===1?['Round 1']:tourneyState.rounds.map((r,i)=>i===tourneyState.rounds.length-1&&r.length===1?'Final':(r.length===2?'Semi-finals':'Round '+(i+1)));
+    tourneyState.rounds.forEach((round,ri)=>{
+      const block=document.createElement('div');block.className='round-block';
+      const title=document.createElement('h4');title.textContent=roundNames[ri];block.append(title);
+      round.forEach((match,mi)=>{
+        const row=document.createElement('div');row.className='match-row';
+        const matchTitle=document.createElement('strong');matchTitle.textContent='Match '+(mi+1);row.append(matchTitle);
+        [match.a,match.b].forEach((name,side)=>{
+          const pick=document.createElement('button');pick.type='button';pick.className='tool-btn'+(match.winner===name?' primary':'');
+          pick.textContent=name||'TBD';pick.disabled=!name||name==='BYE'||!!match.winner;
+          pick.title='Click to advance '+name;
+          pick.onclick=()=>setTournamentWinner(ri,mi,name);
+          row.append(pick);
+        });
+        if(match.winner){const win=document.createElement('span');win.className='tool-status';win.textContent='✓ '+match.winner+' advances';row.append(win);}
+        block.append(row);
+      });
+      $('bracketView').append(block);
+    });
+  }
+  renderTournamentWinners();
 }
-$('saveTourney').onclick=()=>{tourneyState.name=$('tourneyName').value.trim();tourneyState.limit=Number($('tourneyLimit').value);if(tourneyState.players.length>tourneyState.limit){alert('Remove players until the list fits the selected limit.');return;}saveTourneyState();renderTourney();};
+function setTournamentWinner(ri,mi,name){
+  const match=tourneyState.rounds[ri]?.[mi];if(!match)return;
+  match.winner=name;
+  tourneyState.rounds=tourneyState.rounds.slice(0,ri+1);
+  let round=tourneyState.rounds[ri];
+  if(round.every(m=>m.winner)){
+    const winners=round.map(m=>m.winner),next=[];
+    for(let i=0;i<winners.length;i+=2){
+      if(winners[i+1])next.push({a:winners[i],b:winners[i+1],winner:''});
+      else next.push({a:winners[i],b:'BYE',winner:winners[i]});
+    }
+    if(next.length)tourneyState.rounds.push(next);
+  }
+  tourneyState.results.push({round:ri+1,match:mi+1,winner:name,buyIn:tourneyState.players.find(p=>tournamentPlayerLabel(p)===name)?.buyIn||0});
+  saveTourneyState();renderTourney();
+}
+function renderTournamentWinners(){
+  const list=$('winnerResults');if(!list)return;list.innerHTML='';
+  const finalRound=tourneyState.rounds[tourneyState.rounds.length-1]||[];
+  const champion=finalRound.length===1&&finalRound[0].winner?finalRound[0].winner:'';
+  if(champion){const c=document.createElement('div');c.className='round-block';const h=document.createElement('h4');h.textContent='🏆 TOURNAMENT CHAMPION';const p=document.createElement('p');p.className='tool-status';p.textContent=champion;c.append(h,p);list.append(c);}
+  if(!tourneyState.results.length&&!champion){list.innerHTML='<p class="muted">Winners will appear here as matches are completed.</p>';return;}
+  tourneyState.results.forEach((r,i)=>{const row=document.createElement('div');row.className='player-row';const label=document.createElement('strong');label.textContent='Round '+r.round+' · Match '+r.match+' — '+r.winner;const payout=document.createElement('span');payout.textContent='Buy-in: $'+Number(r.buyIn||0).toFixed(2);row.append(label,payout);list.append(row);});
+}
+function addTournamentPlayer(name,game,buyIn){
+  name=String(name||'').trim().replace(/^@/,'');game=String(game||'').trim();buyIn=Number(buyIn||0);
+  if(!name||!game){alert('Enter a Kick username and game.');return false;}
+  if(!tourneyState.open){alert('Open entries before adding players.');return false;}
+  const max=tourneyState.limit;
+  if(tourneyState.players.length>=max){alert('The bracket is full.');return false;}
+  const cap=Number(tourneyState.entriesPerPerson||1);
+  const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
+  if(count>=cap){alert(name+' has reached the entries-per-person limit.');return false;}
+  if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
+  tourneyState.players.push({name,game,buyIn});tourneyState.rounds=[];tourneyState.results=[];saveTourneyState();renderTourney();return true;
+}
+$('saveTourney').onclick=()=>{
+  const limit=Number($('tourneyLimit').value);
+  if(tourneyState.players.length>limit){alert('The current player list is larger than that bracket size.');return;}
+  tourneyState.name=$('tourneyName').value.trim();tourneyState.limit=limit;
+  tourneyState.entriesPerPerson=parseInt($('entriesPerPerson').value,10)||1;
+  saveTourneyState();renderTourney();
+};
+$('tourneyLimit').onchange=()=>{$('saveTourney').click();};
+$('entriesPerPerson').onchange=()=>{$('saveTourney').click();};
+$('duplicateToggle').onclick=()=>{tourneyState.duplicateGames=!tourneyState.duplicateGames;saveTourneyState();renderTourney();};
+$('toggleCalls').onclick=()=>{tourneyState.callsOn=!tourneyState.callsOn;saveTourneyState();renderTourney();};
+$('toggleGuesses').onclick=()=>{tourneyState.guessesOn=!tourneyState.guessesOn;saveTourneyState();renderTourney();};
+$('addPlayer').onclick=()=>{
+  const ok=addTournamentPlayer($('playerName').value,$('playerGame').value,$('playerBuyIn').value);
+  if(ok){$('playerName').value='';$('playerGame').value='';$('playerBuyIn').value='';}
+};
+['playerName','playerGame','playerBuyIn'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')$('addPlayer').click();}));
+$('addAllQueue').onclick=()=>{
+  const queue=Array.isArray(window.slotCallsQueue)?window.slotCallsQueue:[];
+  if(!queue.length){$('queueImportStatus').textContent='No connected Slot Calls queue found yet. Once Daniel’s queue is wired up, queued viewers can be added here in one click.';return;}
+  let added=0;queue.forEach(item=>{if(addTournamentPlayer(item.username||item.name,item.game||item.slot, item.buyIn||0))added++;});
+  $('queueImportStatus').textContent=added+' player(s) added from Slot Calls.';
+};
+$('restorePlayers').onclick=()=>{
+  if(!tourneyState.savedPlayers.length){$('queueImportStatus').textContent='No saved player list is available yet.';return;}
+  tourneyState.players=JSON.parse(JSON.stringify(tourneyState.savedPlayers));saveTourneyState();renderTourney();$('queueImportStatus').textContent='Your saved tournament bracket has been restored.';
+};
+$('removeSavedPlayers').onclick=()=>{
+  if(!confirm('Remove the saved player list?'))return;tourneyState.savedPlayers=[];saveTourneyState();$('queueImportStatus').textContent='Saved players removed.';
+};
+$('openTourneyEntries').onclick=()=>{tourneyState.open=true;saveTourneyState();renderTourney();};
+$('closeTourneyEntries').onclick=()=>{tourneyState.open=false;saveTourneyState();renderTourney();};
 $('toggleEntries').onclick=()=>{tourneyState.open=!tourneyState.open;saveTourneyState();renderTourney();};
-$('addPlayer').onclick=()=>{const name=$('playerName').value.trim().replace(/^@/,'');if(!name)return;if(!tourneyState.open){alert('Open entries before adding players.');return;}if(tourneyState.players.length>=tourneyState.limit){alert('The player limit has been reached.');return;}if(tourneyState.players.some(p=>p.toLowerCase()===name.toLowerCase())){alert('That player is already entered.');return;}tourneyState.players.push(name);$('playerName').value='';saveTourneyState();renderTourney();};
-$('playerName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addPlayer').click();});
-$('makeBracket').onclick=()=>{if(tourneyState.players.length<2){alert('Add at least two players first.');return;}if(tourneyState.rounds.length&&!confirm('Replace the current bracket?'))return;const shuffled=[...tourneyState.players];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}const round=[];for(let i=0;i<shuffled.length;i+=2){if(shuffled[i+1])round.push({a:shuffled[i],b:shuffled[i+1],winner:''});else round.push({a:shuffled[i],b:'BYE',winner:shuffled[i]});}tourneyState.rounds=[round];saveTourneyState();renderTourney();};
-$('clearTourney').onclick=()=>{if(!confirm('Clear this local tournament preview and all its players?'))return;tourneyState={name:'',limit:4,open:false,players:[],rounds:[]};saveTourneyState();renderTourney();};
-
+$('makeBracket').onclick=()=>{
+  if(tourneyState.players.length<2){alert('Add at least two players first.');return;}
+  if(tourneyState.rounds.length&&!confirm('Replace the current bracket?'))return;
+  tourneyState.savedPlayers=JSON.parse(JSON.stringify(tourneyState.players));
+  const names=tournamentNames(),shuffled=[...names];
+  for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+  const size=2**Math.ceil(Math.log2(shuffled.length));
+  while(shuffled.length<size)shuffled.push('BYE');
+  const round=[];for(let i=0;i<shuffled.length;i+=2)round.push({a:shuffled[i],b:shuffled[i+1],winner:shuffled[i+1]==='BYE'?shuffled[i]:''});
+  tourneyState.rounds=[round];tourneyState.results=[];saveTourneyState();renderTourney();
+};
+$('shufflePlayers').onclick=()=>{$('makeBracket').click();};
+$('startNextMatch').onclick=()=>{
+  for(let ri=0;ri<tourneyState.rounds.length;ri++){const mi=tourneyState.rounds[ri].findIndex(m=>!m.winner&&m.a!=='BYE'&&m.b!=='BYE');if(mi>=0){tourneyState.activeMatch={round:ri,match:mi};$('bracketSummary').textContent='Next match: Round '+(ri+1)+' · Match '+(mi+1)+' — '+tourneyState.rounds[ri][mi].a+' vs '+tourneyState.rounds[ri][mi].b;return;}}
+  $('bracketSummary').textContent='No unplayed matches remain.';
+};
+$('printBracket').onclick=()=>window.print();
+$('saveBracket').onclick=()=>{tourneyState.savedPlayers=JSON.parse(JSON.stringify(tourneyState.players));saveTourneyState();$('organizerStatus').textContent='Tournament bracket saved in this browser.';};
+$('removeBracketPlayers').onclick=()=>{if(!confirm('Remove all current bracket players?'))return;tourneyState.players=[];tourneyState.rounds=[];tourneyState.results=[];saveTourneyState();renderTourney();};
+$('clearWinners').onclick=()=>{if(!confirm('Clear all saved tournament winners?'))return;tourneyState.results=[];tourneyState.rounds=tourneyState.rounds.map(r=>r.map(m=>({...m,winner:''}))).slice(0,1);saveTourneyState();renderTourney();};
+$('newTournament').onclick=()=>$('clearTourney').click();
+$('clearTourney').onclick=()=>{
+  if(!confirm('Clear players and start a new tournament?'))return;
+  const keepLimit=tourneyState.limit;tourneyState={name:'',limit:keepLimit,entriesPerPerson:1,duplicateGames:false,callsOn:false,guessesOn:false,open:false,players:[],savedPlayers:[],rounds:[],results:[],activeMatch:null};saveTourneyState();renderTourney();
+};
 renderTourney();
 
 const predictionStoreKey='danielus25_predictions_preview_v1';
