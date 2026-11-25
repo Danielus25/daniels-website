@@ -49,6 +49,28 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 .tool-bottom{justify-content:end}
 .tournament-panel{max-width:980px}.tournament-panel .player-row{flex-wrap:wrap}.tournament-panel .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tournament-panel input{min-width:0}@media(max-width:540px){.tournament-panel .tool-grid{grid-template-columns:1fr}}
 @media(max-width:540px){.tool-grid{grid-template-columns:1fr}.tool-bottom{justify-content:start}.match-row{align-items:flex-start;flex-direction:column}}
+
+.bonus-panel{max-width:1000px;margin:16px auto;padding:22px;background:linear-gradient(145deg,#14243a,#0c1422);border:1px solid #315674;border-radius:18px}
+.bonus-panel h2{margin:0;color:#8bd9ff;font-size:1.2rem}
+.bonus-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bonus-head>div:first-child{min-width:0}
+.bonus-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.bonus-stats.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.bonus-stats .feature strong{display:block;color:#ff9b45;font-size:1.45rem;margin-top:7px;overflow-wrap:anywhere}
+.bonus-stats .feature p{font-size:.83rem;margin:8px 0 0}
+.bonus-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+.bonus-wide{grid-column:1/-1}
+.bonus-controls{align-items:end}
+.limit-field{min-width:190px;flex:1}
+.limit-field select{width:100%;background:#071321;color:white;border:1px solid #315674;border-radius:10px;padding:10px}
+.empty-state{padding:18px;text-align:center;border:1px dashed #315674;border-radius:12px;color:#aabbd0}
+.bonus-entry-fields{grid-template-columns:repeat(3,minmax(0,1fr))}
+.bonus-entry-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,.5fr) auto auto;align-items:center;gap:10px;padding:12px;border:1px solid #29445e;background:#0a1422;border-radius:12px}
+.bonus-entry-row small{display:block;color:#aabbd0;margin-top:5px}
+.bonus-payout-input{width:100%;min-width:0;background:#071321;border:1px solid #315674;border-radius:9px;color:white;padding:10px}
+@media(max-width:700px){.bonus-stats{grid-template-columns:1fr}.bonus-stats.two{grid-template-columns:1fr}.bonus-entry-fields{grid-template-columns:1fr 1fr}.bonus-entry-row{grid-template-columns:1fr 1fr}.bonus-wide{grid-column:1/-1}}
+@media(max-width:480px){.bonus-entry-fields{grid-template-columns:1fr}.bonus-head{align-items:flex-start}.bonus-panel{padding:16px}}
+
 </style>
 </head>
 <body>
@@ -193,26 +215,39 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
   </section>
 
   <section class="page" id="bonus" role="tabpanel">
-    <div class="heading"><h2>BONUS HUNTS</h2><p>Keep every hunt organized.</p></div>
-    <div class="panel">
-      <span class="pill">LOCAL HUNT TRACKER PREVIEW</span><h3>Build your bonus list</h3>
-      <div class="tool-grid">
-        <label class="tool-field">Game name<input id="bonusGame" maxlength="50" placeholder="Slot name"></label>
-        <label class="tool-field">Buy amount ($)<input id="bonusBuy" type="number" min="0" step="0.01" placeholder="0.00"></label>
-        <label class="tool-field">Bonus amount ($)<input id="bonusValue" type="number" min="0" step="0.01" placeholder="0.00"></label>
-        <div class="tool-field tool-bottom"><button class="tool-btn primary" id="addBonus">Add bonus</button></div>
+    <div class="heading"><h2>BONUS HUNTS</h2><p>Track every bonus, caller, payout, and completed hunt.</p></div>
+    <section class="panel bonus-panel">
+      <div class="bonus-head"><div><h2 id="huntTitle">No active bonus hunt</h2><p class="muted" id="huntStatus">Start a hunt to begin tracking bonuses.</p></div><button class="tool-btn" id="refreshBonus">Refresh</button></div>
+      <div class="bonus-stats">
+        <div class="feature"><b>STARTING BALANCE</b><strong id="startingBalance">$0.00</strong></div>
+        <div class="feature"><b>BONUSES SAVED</b><strong id="bonusCount">0</strong></div>
+        <div class="feature"><b>TOTAL PAYOUT</b><strong id="totalPayout">$0.00</strong></div>
       </div>
-      <div class="tool-actions"><button class="tool-btn danger" id="clearBonuses">Clear hunt</button></div>
-      <div class="feature-list">
-        <div class="feature"><b>Total buy cost</b><small id="bonusCost">$0.00</small></div>
-        <div class="feature"><b>Total payouts</b><small id="bonusPayout">$0.00</small></div>
-        <div class="feature"><b>Profit / loss</b><small id="bonusProfit">$0.00</small></div>
-        <div class="feature"><b>Bonuses remaining</b><small id="bonusRemaining">0</small></div>
+      <p class="tool-status" id="bonusQueueStatus">Both queues are OFF. !slot requests are paused.</p>
+      <div class="tool-grid bonus-fields">
+        <label class="tool-field">Bonus hunt name<input id="huntName" maxlength="60" placeholder="Name this hunt"></label>
+        <label class="tool-field">Starting balance ($)<input id="startingBalanceInput" type="number" min="0" step="0.01" placeholder="0.00"></label>
+        <label class="tool-field bonus-wide">Final bankroll balance ($) — auto-fills from TOTAL PAYOUT when you end the hunt<input id="finalBalanceInput" type="number" min="0" step="0.01" placeholder="Final balance"></label>
       </div>
-      <div class="tool-divider"></div><h3>Hunt list</h3>
-      <div id="bonusList" class="tool-list"><p class="muted">No bonuses added yet.</p></div>
-      <p class="tool-note">Preview limitation: hunt data is saved only in this browser. Shared viewer displays and OBS sources will be connected after Daniel's separate backend is ready.</p>
-    </div>
+      <div class="tool-actions bonus-controls">
+        <button class="tool-btn primary" id="startHunt">Start new hunt</button><button class="tool-btn" id="endHunt">End hunt</button><button class="tool-btn danger" id="clearBonuses">Clear bonuses</button>
+        <button class="tool-btn" id="bonusDuplicateToggle">DUPLICATE CALLS: OFF</button><button class="tool-btn" id="bonusQueueToggle">SLOT CALLS: OFF</button>
+        <label class="tool-field limit-field">Max pending calls per viewer:<select id="bonusCallLimit"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label>
+        <button class="tool-btn" id="saveBonusCallLimit">SAVE LIMIT</button>
+      </div>
+      <p class="tool-status" id="adminMessage">Preview mode: manager controls are available locally. Kick sign-in and shared syncing will be connected later.</p>
+    </section>
+    <section class="panel bonus-panel"><h2>⭐ TOP &amp; LOWEST SLOTS</h2><div class="bonus-stats two">
+      <div class="feature"><b>🏆 TOP-PAYING SLOT</b><strong id="topSlotName">Waiting for payouts</strong><p class="muted" id="topSlotDetails">Game, viewer, spin cost, payout and multiplier will show here.</p></div>
+      <div class="feature"><b>📉 LOWEST-PAYING SLOT</b><strong id="lowestSlotName">Waiting for payouts</strong><p class="muted" id="lowestSlotDetails">Game, viewer, spin cost, payout and multiplier will show here.</p></div>
+    </div></section>
+    <section class="panel bonus-panel"><h2>🎮 Bonus Hunt Slot Queue</h2><div class="tool-actions"><button class="tool-btn danger" id="bonusQueueClear">CLEAR QUEUE</button><button class="tool-btn" id="bonusQueueRefresh">REFRESH QUEUE</button></div><p class="tool-status" id="bonusQueueActionMessage"></p><div id="bonusQueueList" class="tool-list"><p class="empty-state">The Bonus Hunt queue is empty.</p></div></section>
+    <section class="panel bonus-panel"><div class="bonus-head"><h2>📋 Bonus list</h2><div class="tool-actions"><button class="tool-btn" id="jessicaAboveGambas">DANIEL'S GAMES ABOVE GAMBAS</button><button class="tool-btn" id="gambasAboveSupers">GAMBAS ABOVE SUPERS</button><button class="tool-btn" id="supersLast">SUPERS LAST</button><button class="tool-btn danger" id="clearBonusList">CLEAR ALL</button></div></div><p class="muted">Each bonus stays connected to the viewer who called it.</p><div class="tool-grid bonus-entry-fields">
+      <label class="tool-field">Viewer<input id="bonusViewer" placeholder="Kick username"></label><label class="tool-field">Game<input id="bonusGame" placeholder="Game name"></label><label class="tool-field">Bonus type<select id="bonusType"><option>Regular</option><option>Gamba</option><option>Super</option><option>Epic</option></select></label><label class="tool-field">Spin cost ($)<input id="bonusSpinCost" type="number" min="0" step="0.01" placeholder="0.00"></label><label class="tool-field">Bonus amount ($)<input id="bonusValue" type="number" min="0" step="0.01" placeholder="0.00"></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="addBonus">ADD BONUS</button></div>
+    </div><div id="bonusList" class="tool-list"><p class="empty-state">No bonuses added yet. Use ADD BONUS beside a queued game to fill in the caller and game.</p></div></section>
+    <section class="panel bonus-panel"><div class="bonus-head"><h2>🏆 ENDING PAYOUT</h2><button class="tool-btn danger" id="clearEndingPayouts">CLEAR ALL</button></div><div id="payoutRankList" class="tool-list"><p class="empty-state">Payout standings will appear here after you save the first bonus payout.</p></div><p class="tool-status" id="endingPayoutMessage"></p></section>
+    <section class="panel bonus-panel"><div class="bonus-head"><h2>🗂️ Past Hunt Records</h2><button class="tool-btn danger" id="clearAllPastHunts">CLEAR ALL</button></div><p class="muted">Completed hunts are saved here. Delete an old hunt to remove its record and all bonuses from that hunt.</p><div id="pastHuntList" class="tool-list"><p class="empty-state">No completed hunts yet.</p></div></section>
+    <p class="tool-note">Preview limitation: hunt settings and records are saved in this browser only. Kick chat, shared viewer data, and OBS syncing will be connected after Daniel's separate account and backend are ready.</p>
   </section>
 
   <section class="page" id="cozies" role="tabpanel">
@@ -608,40 +643,68 @@ $('submitPicks').onclick=()=>{
 };
 renderPredictions();
 
-const bonusStoreKey='danielus25_bonus_hunt_preview_v1';
-let bonusEntries=[];
-try{const saved=JSON.parse(localStorage.getItem(bonusStoreKey)||'[]');if(Array.isArray(saved))bonusEntries=saved;}catch(e){}
-function saveBonusEntries(){try{localStorage.setItem(bonusStoreKey,JSON.stringify(bonusEntries));}catch(e){}}
-function money(n){return '$'+Number(n||0).toFixed(2);}
+
+const bonusStoreKey='danielus25_bonus_hunt_preview_v2';
+let bonusState={hunt:null,entries:[],past:[],duplicateCalls:false,queueOn:false,callLimit:1,queue:[]};
+try{const saved=JSON.parse(localStorage.getItem(bonusStoreKey)||'null');if(saved&&typeof saved==='object')bonusState={...bonusState,...saved};}catch(e){}
+function saveBonusState(){try{localStorage.setItem(bonusStoreKey,JSON.stringify(bonusState));}catch(e){}}
+function bonusMoney(v){return '$'+Number(v||0).toFixed(2);}
+function bonusPayoutTotal(){return bonusState.entries.reduce((n,b)=>n+Number(b.payout||0),0);}
+function bonusMultiplier(b){const cost=Number(b.spinCost||0);return cost>0?Number(b.payout||0)/cost:0;}
 function renderBonusHunt(){
-  const list=$('bonusList');if(!list)return;list.innerHTML='';
-  const cost=bonusEntries.reduce((s,b)=>s+Number(b.buy||0),0);
-  const payout=bonusEntries.reduce((s,b)=>s+Number(b.payout||0),0);
-  $('bonusCost').textContent=money(cost);$('bonusPayout').textContent=money(payout);$('bonusProfit').textContent=money(payout-cost);
-  $('bonusRemaining').textContent=String(bonusEntries.filter(b=>!b.opened).length);
-  if(!bonusEntries.length){list.innerHTML='<p class="muted">No bonuses added yet.</p>';return;}
-  bonusEntries.forEach((b,i)=>{
-    const row=document.createElement('div');row.className='round-block';
-    const title=document.createElement('h4');title.textContent=(i+1)+'. '+b.game;row.append(title);
-    const info=document.createElement('p');info.className='muted';info.textContent='Buy: '+money(b.buy)+' · Bonus: '+money(b.value)+' · '+(b.opened?'Opened · Payout: '+money(b.payout):'Waiting to open');row.append(info);
-    if(!b.opened){
-      const controls=document.createElement('div');controls.className='tool-grid';
-      const field=document.createElement('label');field.className='tool-field';field.textContent='Payout ($)';
-      const input=document.createElement('input');input.type='number';input.min='0';input.step='0.01';input.placeholder='Enter result';field.append(input);
-      const button=document.createElement('button');button.className='tool-btn primary';button.textContent='Record payout';button.onclick=()=>{const n=Number(input.value);if(input.value.trim()===''||!Number.isFinite(n)||n<0){alert('Enter a valid payout amount.');return;}b.payout=n;b.opened=true;saveBonusEntries();renderBonusHunt();};
-      controls.append(field,button);row.append(controls);
-    }
-    const remove=document.createElement('button');remove.className='tool-btn danger';remove.textContent='Remove';remove.onclick=()=>{bonusEntries.splice(i,1);saveBonusEntries();renderBonusHunt();};row.append(remove);list.append(row);
-  });
+ const h=bonusState.hunt,entries=bonusState.entries||[],payout=bonusPayoutTotal();
+ $('huntTitle').textContent=h?.name||'No active bonus hunt';
+ $('huntStatus').textContent=h?'Hunt started '+new Date(h.startedAt).toLocaleString():'Start a hunt to begin tracking bonuses.';
+ $('startingBalance').textContent=bonusMoney(h?.startingBalance);
+ $('bonusCount').textContent=String(entries.length);
+ $('totalPayout').textContent=bonusMoney(payout);
+ $('bonusQueueStatus').textContent=bonusState.queueOn?'Bonus Hunt calls are ON. Cozies calls are OFF.':'Both queues are OFF. !slot requests are paused.';
+ $('bonusDuplicateToggle').textContent='DUPLICATE CALLS: '+(bonusState.duplicateCalls?'ON':'OFF');
+ $('bonusQueueToggle').textContent='SLOT CALLS: '+(bonusState.queueOn?'ON':'OFF');
+ $('bonusCallLimit').value=String(bonusState.callLimit||1);
+ $('startHunt').disabled=!!h;$('endHunt').disabled=!h;
+ const ranked=entries.filter(b=>b.opened).slice().sort((a,b)=>bonusMultiplier(b)-bonusMultiplier(a));
+ const top=ranked[0],low=ranked.length?ranked[ranked.length-1]:null;
+ $('topSlotName').textContent=top?.game||'Waiting for payouts';
+ $('topSlotDetails').textContent=top?('@'+top.viewer+' · Spin '+bonusMoney(top.spinCost)+' · Payout '+bonusMoney(top.payout)+' · '+bonusMultiplier(top).toFixed(2)+'x'):'Game, viewer, spin cost, payout and multiplier will show here.';
+ $('lowestSlotName').textContent=low?.game||'Waiting for payouts';
+ $('lowestSlotDetails').textContent=low?('@'+low.viewer+' · Spin '+bonusMoney(low.spinCost)+' · Payout '+bonusMoney(low.payout)+' · '+bonusMultiplier(low).toFixed(2)+'x'):'Game, viewer, spin cost, payout and multiplier will show here.';
+ const q=$('bonusQueueList');q.innerHTML=bonusState.queue.length?'':'<p class="empty-state">The Bonus Hunt queue is empty.</p>';
+ bonusState.queue.forEach((x,i)=>{const row=document.createElement('div');row.className='player-row';row.textContent='#'+(i+1)+' @'+x.viewer+' · '+x.game;q.append(row);});
+ const list=$('bonusList');list.innerHTML='';
+ if(!entries.length)list.innerHTML='<p class="empty-state">No bonuses added yet. Use ADD BONUS beside a queued game to fill in the caller and game.</p>';
+ entries.forEach((b,i)=>{
+  const row=document.createElement('div');row.className='bonus-entry-row';
+  const info=document.createElement('div');info.innerHTML='<strong>'+String(i+1)+'. '+escapeBonus(b.game)+'</strong><small>@'+escapeBonus(b.viewer)+' · '+escapeBonus(b.type)+' · Spin '+bonusMoney(b.spinCost)+' · Bonus '+bonusMoney(b.value)+'</small>';
+  row.append(info);
+  if(!b.opened){const input=document.createElement('input');input.type='number';input.min='0';input.step='0.01';input.placeholder='Payout ($)';input.className='bonus-payout-input';const save=document.createElement('button');save.className='tool-btn primary';save.textContent='SAVE PAYOUT';save.onclick=()=>{if(input.value.trim()===''||!Number.isFinite(Number(input.value))||Number(input.value)<0){alert('Enter a valid payout amount.');return;}b.payout=Number(input.value);b.opened=true;saveBonusState();renderBonusHunt();};row.append(input,save);}
+  else{const paid=document.createElement('strong');paid.textContent='Payout '+bonusMoney(b.payout)+' · '+bonusMultiplier(b).toFixed(2)+'x';row.append(paid);}
+  const remove=document.createElement('button');remove.className='tool-btn danger';remove.textContent='REMOVE';remove.onclick=()=>{bonusState.entries.splice(i,1);saveBonusState();renderBonusHunt();};row.append(remove);list.append(row);
+ });
+ const ranks={};entries.filter(b=>b.opened).forEach(b=>{const key=b.viewer||'Unknown';ranks[key]=(ranks[key]||0)+Number(b.payout||0);});
+ const rankList=Object.entries(ranks).sort((a,b)=>b[1]-a[1]);$('payoutRankList').innerHTML=rankList.length?'':'<p class="empty-state">Payout standings will appear here after you save the first bonus payout.</p>';
+ rankList.forEach(([name,total],i)=>{const row=document.createElement('div');row.className='player-row';const who=document.createElement('strong');who.textContent=(i+1)+'. @'+name;const amount=document.createElement('span');amount.className='tool-status';amount.textContent=bonusMoney(total);row.append(who,amount);$('payoutRankList').append(row);});
+ const past=$('pastHuntList');past.innerHTML=bonusState.past.length?'':'<p class="empty-state">No completed hunts yet.</p>';
+ bonusState.past.forEach((x,i)=>{const row=document.createElement('div');row.className='player-row';const info=document.createElement('span');info.innerHTML='<strong>'+escapeBonus(x.name)+'</strong><small>'+new Date(x.endedAt).toLocaleString()+' · '+x.count+' bonuses · Final bankroll '+bonusMoney(x.finalBalance)+'</small>';const del=document.createElement('button');del.className='tool-btn danger';del.textContent='DELETE HUNT';del.onclick=()=>{bonusState.past.splice(i,1);saveBonusState();renderBonusHunt();};row.append(info,del);past.append(row);});
 }
-$('addBonus').onclick=()=>{
-  const game=$('bonusGame').value.trim(),buy=Number($('bonusBuy').value||0),value=Number($('bonusValue').value||0);
-  if(!game){alert('Enter a game name.');return;}
-  if(buy<0||value<0||!Number.isFinite(buy)||!Number.isFinite(value)){alert('Enter valid dollar amounts.');return;}
-  bonusEntries.push({game,buy,value,payout:0,opened:false});saveBonusEntries();
-  $('bonusGame').value='';$('bonusBuy').value='';$('bonusValue').value='';renderBonusHunt();
-};
-$('clearBonuses').onclick=()=>{if(!confirm('Clear the entire local bonus hunt?'))return;bonusEntries=[];saveBonusEntries();renderBonusHunt();};
+function escapeBonus(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+$('refreshBonus').onclick=renderBonusHunt;
+$('startHunt').onclick=()=>{if(bonusState.hunt){alert('End the current hunt before starting another.');return;}const name=$('huntName').value.trim()||'Bonus Hunt',balance=Number($('startingBalanceInput').value);if($('startingBalanceInput').value.trim()===''||!Number.isFinite(balance)||balance<0){alert('Enter a valid starting balance.');return;}bonusState.hunt={name,startingBalance:balance,startedAt:new Date().toISOString()};bonusState.entries=[];$('finalBalanceInput').value='';saveBonusState();renderBonusHunt();};
+$('endHunt').onclick=()=>{if(!bonusState.hunt)return;const entered=$('finalBalanceInput').value.trim(),finalBalance=entered===''?bonusPayoutTotal():Number(entered);if(!Number.isFinite(finalBalance)||finalBalance<0){alert('Enter a valid final bankroll balance.');return;}bonusState.past.unshift({name:bonusState.hunt.name,startedAt:bonusState.hunt.startedAt,endedAt:new Date().toISOString(),startingBalance:bonusState.hunt.startingBalance,finalBalance,count:bonusState.entries.length,totalPayout:bonusPayoutTotal(),entries:JSON.parse(JSON.stringify(bonusState.entries))});bonusState.hunt=null;saveBonusState();renderBonusHunt();};
+$('clearBonuses').onclick=()=>{if(!confirm('Clear all bonuses from the current hunt?'))return;bonusState.entries=[];saveBonusState();renderBonusHunt();};
+$('bonusDuplicateToggle').onclick=()=>{bonusState.duplicateCalls=!bonusState.duplicateCalls;saveBonusState();renderBonusHunt();};
+$('bonusQueueToggle').onclick=()=>{bonusState.queueOn=!bonusState.queueOn;saveBonusState();renderBonusHunt();};
+$('saveBonusCallLimit').onclick=()=>{bonusState.callLimit=Number($('bonusCallLimit').value)||1;saveBonusState();$('adminMessage').textContent='Maximum pending calls per viewer set to '+bonusState.callLimit+' (preview only).';};
+$('bonusQueueClear').onclick=()=>{bonusState.queue=[];saveBonusState();renderBonusHunt();};
+$('bonusQueueRefresh').onclick=()=>{$('bonusQueueActionMessage').textContent='Queue refresh is waiting for Daniel’s Kick connection.';};
+$('addBonus').onclick=()=>{const viewer=$('bonusViewer').value.trim().replace(/^@/,''),game=$('bonusGame').value.trim(),type=$('bonusType').value,spinCost=Number($('bonusSpinCost').value||0),value=Number($('bonusValue').value||0);if(!game||!viewer){alert('Enter both the viewer and game name.');return;}if(!Number.isFinite(spinCost)||spinCost<0||!Number.isFinite(value)||value<0){alert('Enter valid dollar amounts.');return;}if(!bonusState.hunt){alert('Start a bonus hunt first.');return;}if(!bonusState.duplicateCalls&&bonusState.entries.some(b=>b.game.toLowerCase()===game.toLowerCase())){alert('That game is already in this hunt. Turn duplicate calls ON to allow it.');return;}bonusState.entries.push({viewer,game,type,spinCost,value,payout:0,opened:false});saveBonusState();$('bonusViewer').value='';$('bonusGame').value='';$('bonusSpinCost').value='';$('bonusValue').value='';renderBonusHunt();};
+$('clearBonusList').onclick=()=>{if(!confirm('Clear all bonuses from this hunt?'))return;bonusState.entries=[];saveBonusState();renderBonusHunt();};
+$('clearEndingPayouts').onclick=()=>{if(!confirm('Clear saved payout results?'))return;bonusState.entries.forEach(b=>{b.opened=false;b.payout=0;});saveBonusState();renderBonusHunt();};
+$('clearAllPastHunts').onclick=()=>{if(!confirm('Delete all past hunt records?'))return;bonusState.past=[];saveBonusState();renderBonusHunt();};
+function sortBonusTypes(mode){const order=mode==='daniel'?['Regular','Super','Epic','Gamba']:mode==='gamba'?['Gamba','Regular','Super','Epic']:['Regular','Gamba','Epic','Super'];bonusState.entries.sort((a,b)=>order.indexOf(a.type)-order.indexOf(b.type));saveBonusState();renderBonusHunt();}
+$('jessicaAboveGambas').onclick=()=>sortBonusTypes('daniel');
+$('gambasAboveSupers').onclick=()=>sortBonusTypes('gamba');
+$('supersLast').onclick=()=>sortBonusTypes('supers');
 renderBonusHunt();
 
 const balanceStoreKey='danielus25_balance_preview_v1';
@@ -768,36 +831,7 @@ let savedTab='home';
 try{savedTab=location.hash.slice(1)||localStorage.getItem('danielus25_active_tab')||'home';}catch(e){savedTab=location.hash.slice(1)||'home';}
 showPage(savedTab);
 window.addEventListener('hashchange',()=>showPage(location.hash.slice(1)||'home'));
-function renderBonusHunt(){
-  const list=$('bonusList');if(!list)return;list.innerHTML='';
-  const cost=bonusEntries.reduce((s,b)=>s+Number(b.buy||0),0);
-  const payout=bonusEntries.reduce((s,b)=>s+Number(b.payout||0),0);
-  $('bonusCost').textContent=money(cost);$('bonusPayout').textContent=money(payout);$('bonusProfit').textContent=money(payout-cost);
-  $('bonusRemaining').textContent=String(bonusEntries.filter(b=>!b.opened).length);
-  if(!bonusEntries.length){list.innerHTML='<p class="muted">No bonuses added yet.</p>';return;}
-  bonusEntries.forEach((b,i)=>{
-    const row=document.createElement('div');row.className='round-block';
-    const title=document.createElement('h4');title.textContent=(i+1)+'. '+b.game;row.append(title);
-    const info=document.createElement('p');info.className='muted';info.textContent='Buy: '+money(b.buy)+' · Bonus: '+money(b.value)+' · '+(b.opened?'Opened · Payout: '+money(b.payout):'Waiting to open');row.append(info);
-    if(!b.opened){
-      const controls=document.createElement('div');controls.className='tool-grid';
-      const field=document.createElement('label');field.className='tool-field';field.textContent='Payout ($)';
-      const input=document.createElement('input');input.type='number';input.min='0';input.step='0.01';input.placeholder='Enter result';field.append(input);
-      const button=document.createElement('button');button.className='tool-btn primary';button.textContent='Record payout';button.onclick=()=>{const n=Number(input.value);if(input.value.trim()===''||!Number.isFinite(n)||n<0){alert('Enter a valid payout amount.');return;}b.payout=n;b.opened=true;saveBonusEntries();renderBonusHunt();};
-      controls.append(field,button);row.append(controls);
-    }
-    const remove=document.createElement('button');remove.className='tool-btn danger';remove.textContent='Remove';remove.onclick=()=>{bonusEntries.splice(i,1);saveBonusEntries();renderBonusHunt();};row.append(remove);list.append(row);
-  });
-}
-$('addBonus').onclick=()=>{
-  const game=$('bonusGame').value.trim(),buy=Number($('bonusBuy').value||0),value=Number($('bonusValue').value||0);
-  if(!game){alert('Enter a game name.');return;}
-  if(buy<0||value<0||!Number.isFinite(buy)||!Number.isFinite(value)){alert('Enter valid dollar amounts.');return;}
-  bonusEntries.push({game,buy,value,payout:0,opened:false});saveBonusEntries();
-  $('bonusGame').value='';$('bonusBuy').value='';$('bonusValue').value='';renderBonusHunt();
-};
-$('clearBonuses').onclick=()=>{if(!confirm('Clear the entire local bonus hunt?'))return;bonusEntries=[];saveBonusEntries();renderBonusHunt();};
-renderBonusHunt();
+
 
 </script>
 </body>
