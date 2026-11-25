@@ -120,7 +120,22 @@ header{position:sticky;top:0;z-index:10;background:#070b14ed;backdrop-filter:blu
 
   <section class="page" id="predictions" role="tabpanel">
     <div class="heading"><h2>BRACKET PREDICTIONS</h2><p>Can chat call the whole tournament?</p></div>
-    <div class="panel"><span class="pill">VIEWER PICK'EM</span><h3>Predict the winners · Earn points</h3><p>Viewers get a prediction bracket connected to the active tournament. Award 1 point for every correct game, keep a running points table, and show who predicted the most winners.</p><div class="feature-list"><div class="feature"><b>📝 Submit picks</b><small>Viewers choose who they think will win each matchup.</small></div><div class="feature"><b>🔒 Lock picks</b><small>Lock predictions when the tournament or round begins.</small></div><div class="feature"><b>⭐ Points</b><small>1 point for each correctly predicted game.</small></div><div class="feature"><b>📊 Prediction standings</b><small>Track viewer points for the current tournament.</small></div></div></div>
+    <div class="panel">
+      <span class="pill">LOCAL PICK'EM PREVIEW</span>
+      <h3>Make your tournament picks</h3>
+      <p class="muted">Enter a viewer name, predict each matchup, and submit once. Picks lock after submission. Each correct completed game earns 1 point.</p>
+      <div class="tool-grid">
+        <label class="tool-field">Viewer / Kick username<input id="predictionViewer" maxlength="30" placeholder="Your Kick username"></label>
+        <div class="tool-field tool-bottom"><button class="tool-btn primary" id="startPicks">Start predictions</button></div>
+      </div>
+      <p id="predictionStatus" class="tool-status" aria-live="polite">Waiting for a tournament bracket.</p>
+      <div id="predictionEditor" class="bracket-view"></div>
+      <div class="tool-actions"><button class="tool-btn primary" id="submitPicks" disabled>Lock in my picks</button></div>
+      <div class="tool-divider"></div>
+      <h3>Prediction standings</h3>
+      <div id="predictionStandings" class="tool-list"><p class="muted">No predictions submitted yet.</p></div>
+      <p class="tool-note">Preview limitation: entries and points are saved only in this browser. This is not yet tied to Kick accounts or shared across viewers. Points update as tournament results are recorded.</p>
+    </div>
   </section>
 
   <section class="page" id="bonus" role="tabpanel">
@@ -204,7 +219,100 @@ $('addPlayer').onclick=()=>{const name=$('playerName').value.trim().replace(/^@/
 $('playerName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addPlayer').click();});
 $('makeBracket').onclick=()=>{if(tourneyState.players.length<2){alert('Add at least two players first.');return;}if(tourneyState.rounds.length&&!confirm('Replace the current bracket?'))return;const shuffled=[...tourneyState.players];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}const round=[];for(let i=0;i<shuffled.length;i+=2){if(shuffled[i+1])round.push({a:shuffled[i],b:shuffled[i+1],winner:''});else round.push({a:shuffled[i],b:'BYE',winner:shuffled[i]});}tourneyState.rounds=[round];saveTourneyState();renderTourney();};
 $('clearTourney').onclick=()=>{if(!confirm('Clear this local tournament preview and all its players?'))return;tourneyState={name:'',limit:4,open:false,players:[],rounds:[]};saveTourneyState();renderTourney();};
+
 renderTourney();
+
+const predictionStoreKey='danielus25_predictions_preview_v1';
+let predictionEntries=[];
+let predictionDraft=null;
+try{const saved=JSON.parse(localStorage.getItem(predictionStoreKey)||'[]');if(Array.isArray(saved))predictionEntries=saved;}catch(e){}
+function savePredictions(){try{localStorage.setItem(predictionStoreKey,JSON.stringify(predictionEntries));}catch(e){}}
+function actualTournamentName(){return tourneyState.name||'Current tournament';}
+function rebuildDraftFromSelections(){
+  if(!tourneyState.rounds.length||!tourneyState.rounds[0].length)return null;
+  const rounds=[tourneyState.rounds[0].map(m=>({a:m.a,b:m.b,winner:m.b==='BYE'?m.a:''}))];
+  if(predictionDraft&&predictionDraft.rounds){
+    predictionDraft.rounds[0]?.forEach((m,i)=>{if(rounds[0][i]&&[rounds[0][i].a,rounds[0][i].b].includes(m.winner))rounds[0][i].winner=m.winner;});
+  }
+  while(rounds[rounds.length-1].length>1){
+    const prev=rounds[rounds.length-1];
+    if(!prev.every(m=>m.winner))break;
+    const winners=prev.map(m=>m.winner), next=[];
+    for(let i=0;i<winners.length;i+=2){
+      if(winners[i+1])next.push({a:winners[i],b:winners[i+1],winner:''});
+      else next.push({a:winners[i],b:'BYE',winner:winners[i]});
+    }
+    const oldRound=predictionDraft?.rounds?.[rounds.length];
+    oldRound?.forEach((m,i)=>{if(next[i]&&[next[i].a,next[i].b].includes(m.winner))next[i].winner=m.winner;});
+    rounds.push(next);
+  }
+  return rounds;
+}
+function predictionScore(entry){
+  let points=0;
+  entry.rounds.forEach((round,ri)=>{
+    const actual=tourneyState.rounds[ri]||[];
+    round.forEach((m,mi)=>{if(m.winner&&actual[mi]?.winner&&m.winner===actual[mi].winner)points++;});
+  });
+  return points;
+}
+function renderPredictions(){
+  const standings=$('predictionStandings');if(!standings)return;
+  standings.innerHTML='';
+  if(!predictionEntries.length)standings.innerHTML='<p class="muted">No predictions submitted yet.</p>';
+  [...predictionEntries].sort((a,b)=>predictionScore(b)-predictionScore(a)).forEach((entry,i)=>{
+    const row=document.createElement('div');row.className='player-row';
+    const name=document.createElement('strong');name.textContent=(i+1)+'. '+entry.viewer;
+    const score=document.createElement('span');score.className='tool-status';score.textContent=predictionScore(entry)+' points';
+    row.append(name,score);standings.append(row);
+  });
+  const editor=$('predictionEditor');editor.innerHTML='';
+  if(!tourneyState.rounds.length||!tourneyState.rounds[0].length){
+    $('predictionStatus').textContent='Create a tournament bracket first to open predictions.';
+    $('submitPicks').disabled=true;return;
+  }
+  if(!predictionDraft){
+    $('predictionStatus').textContent=actualTournamentName()+': enter your username and select Start predictions.';
+    $('submitPicks').disabled=true;return;
+  }
+  $('predictionStatus').textContent='Choose a winner in every matchup, then lock in your picks.';
+  predictionDraft.rounds.forEach((round,ri)=>{
+    const block=document.createElement('div');block.className='round-block';
+    const title=document.createElement('h4');title.textContent=ri===predictionDraft.rounds.length-1&&round.length===1?'PREDICT THE CHAMPION':'PREDICTION ROUND '+(ri+1);block.append(title);
+    round.forEach((match,mi)=>{
+      const row=document.createElement('div');row.className='match-row';
+      const label=document.createElement('strong');label.textContent=match.a+' vs '+match.b;row.append(label);
+      if(match.b==='BYE'){const bye=document.createElement('span');bye.className='tool-status';bye.textContent='Advances automatically';row.append(bye);}
+      else{
+        const select=document.createElement('select');const empty=document.createElement('option');empty.value='';empty.textContent='Choose predicted winner…';select.append(empty);
+        [match.a,match.b].forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;select.append(o);});
+        select.value=match.winner||'';
+        select.onchange=()=>{match.winner=select.value;const name=$('predictionViewer').value.trim().replace(/^@/,'');predictionDraft={viewer:name,rounds:predictionDraft.rounds};predictionDraft.rounds=rebuildDraftFromSelections();renderPredictions();};
+        row.append(select);
+      }
+      block.append(row);
+    });
+    editor.append(block);
+  });
+  const complete=predictionDraft.rounds.length>0&&predictionDraft.rounds[predictionDraft.rounds.length-1].length===1&&predictionDraft.rounds.every(r=>r.every(m=>m.winner));
+  $('submitPicks').disabled=!complete;
+}
+$('startPicks').onclick=()=>{
+  const viewer=$('predictionViewer').value.trim().replace(/^@/,'');
+  if(!viewer){alert('Enter your viewer name first.');return;}
+  if(!tourneyState.rounds.length||!tourneyState.rounds[0].length){alert('Create a tournament bracket first.');return;}
+  if(predictionEntries.some(e=>e.viewer.toLowerCase()===viewer.toLowerCase())){alert('This name already submitted predictions in this browser.');return;}
+  predictionDraft={viewer,rounds:[]};predictionDraft.rounds=rebuildDraftFromSelections();renderPredictions();
+};
+$('submitPicks').onclick=()=>{
+  if(!predictionDraft)return;
+  const viewer=predictionDraft.viewer;
+  if(predictionEntries.some(e=>e.viewer.toLowerCase()===viewer.toLowerCase())){alert('This name already submitted predictions.');return;}
+  predictionEntries.push({viewer,rounds:predictionDraft.rounds.map(r=>r.map(m=>({...m}))),tournament:actualTournamentName()});
+  savePredictions();predictionDraft=null;$('predictionViewer').value='';renderPredictions();
+  $('predictionStatus').textContent='Picks locked! Your entry cannot be changed in this preview.';
+};
+renderPredictions();
 
 showPage(location.hash.slice(1)||'home');
 </script>
