@@ -72,27 +72,22 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 @media(max-width:480px){.bonus-entry-fields{grid-template-columns:1fr}.bonus-head{align-items:flex-start}.bonus-panel{padding:16px}}
 
 
-/* Animated blue-and-orange flame atmosphere — shared behind every tab */
+/* Visible animated blue-and-orange flame tongues behind every tab */
 body{position:relative;isolation:isolate;background:#070b14}
-body:before,body:after{content:"";position:fixed;inset:-12% -8% -4%;z-index:0;pointer-events:none;will-change:transform,background-position;filter:blur(28px)}
+body:before,body:after{content:"";position:fixed;left:-8%;bottom:-10%;width:116%;height:78vh;z-index:0;pointer-events:none;will-change:transform,clip-path;transform-origin:50% 100%;filter:blur(7px)}
 body:before{
- background:
- radial-gradient(ellipse 24% 62% at 8% 100%,#ff7628 0%,#ff7628aa 35%,transparent 78%),
- radial-gradient(ellipse 20% 55% at 38% 105%,#ff9b32 0%,#ff762877 40%,transparent 78%),
- radial-gradient(ellipse 24% 62% at 72% 105%,#ff5b20 0%,#ff762899 42%,transparent 80%),
- radial-gradient(ellipse 18% 52% at 96% 100%,#ff9b32 0%,#ff762888 38%,transparent 78%);
- opacity:.58;animation:orangeFlames 8s ease-in-out infinite alternate
+ background:linear-gradient(0deg,#ff5b20 0%,#ff7628 28%,#ffb04a 54%,#ff762833 82%,transparent 100%);
+ clip-path:polygon(0 100%,0 69%,4% 83%,8% 45%,12% 79%,17% 22%,21% 76%,26% 41%,30% 84%,35% 14%,40% 78%,45% 36%,50% 82%,55% 10%,60% 77%,65% 32%,70% 83%,75% 19%,80% 78%,85% 39%,90% 84%,95% 25%,100% 72%,100% 100%);
+ opacity:.72;animation:orangeFire 2.7s ease-in-out infinite alternate
 }
 body:after{
- background:
- radial-gradient(ellipse 24% 65% at 20% 105%,#168dff 0%,#29baffbb 38%,transparent 78%),
- radial-gradient(ellipse 22% 58% at 52% 105%,#29baff 0%,#168dff99 40%,transparent 78%),
- radial-gradient(ellipse 25% 66% at 84% 105%,#087be8 0%,#29baffaa 38%,transparent 78%);
- opacity:.62;mix-blend-mode:screen;animation:blueFlames 10s ease-in-out infinite alternate
+ background:linear-gradient(0deg,#087be8 0%,#168dff 30%,#55d5ff 57%,#29baff44 82%,transparent 100%);
+ clip-path:polygon(0 100%,0 77%,5% 53%,10% 85%,15% 34%,20% 79%,25% 18%,30% 82%,35% 44%,40% 86%,45% 20%,50% 80%,55% 38%,60% 84%,65% 15%,70% 79%,75% 42%,80% 85%,85% 24%,90% 78%,95% 46%,100% 76%,100% 100%);
+ opacity:.68;mix-blend-mode:screen;animation:blueFire 3.2s ease-in-out infinite alternate
 }
 body>header,body>main{position:relative;z-index:1}
-@keyframes orangeFlames{0%{transform:translate3d(-2%,3%,0) scale(1,.94)}50%{transform:translate3d(2%,-3%,0) scale(1.06,1.1)}100%{transform:translate3d(-1%,-6%,0) scale(.98,1.14)}}
-@keyframes blueFlames{0%{transform:translate3d(2%,2%,0) scale(.98,1)}50%{transform:translate3d(-2%,-5%,0) scale(1.07,1.12)}100%{transform:translate3d(1%,-3%,0) scale(1,1.08)}}
+@keyframes orangeFire{0%{transform:translate3d(-1%,3%,0) scaleY(.86) skewX(-2deg);clip-path:polygon(0 100%,0 69%,4% 83%,8% 45%,12% 79%,17% 22%,21% 76%,26% 41%,30% 84%,35% 14%,40% 78%,45% 36%,50% 82%,55% 10%,60% 77%,65% 32%,70% 83%,75% 19%,80% 78%,85% 39%,90% 84%,95% 25%,100% 72%,100% 100%)}50%{transform:translate3d(1%,-2%,0) scaleY(1.08) skewX(2deg)}100%{transform:translate3d(-1%,-5%,0) scaleY(.96) skewX(-1deg)}}
+@keyframes blueFire{0%{transform:translate3d(1%,2%,0) scaleY(.9) skewX(2deg)}50%{transform:translate3d(-1%,-4%,0) scaleY(1.12) skewX(-2deg)}100%{transform:translate3d(1%,-2%,0) scaleY(.98) skewX(1deg)}}
 header{background:#070b14b8}
 @media(prefers-reduced-motion:reduce){body:before,body:after{animation:none}}
 
