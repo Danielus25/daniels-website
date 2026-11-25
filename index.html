@@ -35,10 +35,15 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 .tool-list{display:grid;gap:8px;margin:12px 0}
 .player-row,.match-row{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #29445e;background:#0a1422;border-radius:11px;padding:11px 13px;color:#e6f2ff}
 .player-row button{border:0;background:transparent;color:#ffad8b;font-weight:900;cursor:pointer}
-.bracket-view{display:grid;gap:12px;margin-top:16px}
-.round-block{border:1px solid #29445e;border-radius:14px;padding:14px;background:#0a1422}
-.round-block h4{margin:0 0 10px;color:#8ed7ff}
-.match-row{margin-top:8px;flex-wrap:wrap}
+.bracket-view{display:flex;align-items:stretch;gap:22px;margin-top:16px;padding:18px 8px 24px;overflow-x:auto;min-height:230px;scrollbar-width:thin}
+.bracket-view>.round-block{flex:0 0 245px;display:flex;flex-direction:column;justify-content:space-around;gap:18px;border:1px solid #315674;border-radius:14px;padding:14px;background:linear-gradient(180deg,#0d1b2c,#091321);position:relative}
+.bracket-view>.round-block:not(:last-child)::after{content:'›';position:absolute;right:-20px;top:50%;transform:translateY(-50%);color:#ffad8b;font-size:30px;font-weight:900}
+.bracket-view>.round-block h4{margin:0 0 8px;color:#8ed7ff;text-align:center;text-transform:uppercase;letter-spacing:.08em}
+.bracket-view .match-row{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:7px;margin:0;padding:12px;border-color:#315674;background:#071321;min-height:112px}
+.bracket-view .match-row>strong{color:#9eafc4;font-size:.78rem;text-transform:uppercase}
+.bracket-view .match-row .tool-btn{width:100%;text-align:left;white-space:normal}
+.bracket-view .match-row .tool-status{font-size:.76rem}
+@media(max-width:540px){.bracket-view{gap:16px}.bracket-view>.round-block{flex-basis:220px}.bracket-view>.round-block:not(:last-child)::after{right:-16px}}
 .match-row select{background:#071321;color:#fff;border:1px solid #315674;border-radius:8px;padding:8px;max-width:100%}
 .tool-note{font-size:.78rem;color:#9eafc4;line-height:1.5;margin-top:18px}
 .tool-bottom{justify-content:end}
