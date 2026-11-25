@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+<defs>
+ <linearGradient id="blue" x1="0" y1="1" x2="0.8" y2="0"><stop stop-color="#00134f"/><stop offset=".38" stop-color="#006dff"/><stop offset=".72" stop-color="#22caff"/><stop offset="1" stop-color="#07142b"/></linearGradient>
+ <linearGradient id="orange" x1="0" y1="1" x2=".8" y2="0"><stop stop-color="#5b1000"/><stop offset=".38" stop-color="#ff4b08"/><stop offset=".72" stop-color="#ffb12d"/><stop offset="1" stop-color="#351006"/></linearGradient>
+ <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="1600" height="900" fill="#03050b"/>
+<g opacity=".8" filter="url(#glow)">
+ <path fill="url(#blue)" d="M0 900V570Q70 490 20 380Q140 430 100 230Q220 320 205 120Q320 260 280 0Q410 170 365 390Q510 260 470 120Q565 310 500 470Q640 400 610 245Q690 420 610 560Q730 650 670 900Z"/>
+ <path fill="url(#orange)" d="M1600 900V570Q1530 490 1580 380Q1460 430 1500 230Q1380 320 1395 120Q1280 260 1325 0Q1190 170 1235 390Q1090 260 1130 120Q1035 310 1100 470Q960 400 990 245Q910 420 990 560Q870 650 930 900Z"/>
+</g>
+<g opacity=".98">
+ <path fill="url(#blue)" d="M0 900V720Q90 650 55 530Q145 580 130 420Q235 520 215 330Q325 465 285 220Q420 400 360 565Q470 475 455 350Q540 510 485 650Q600 600 570 465Q655 625 600 760Q690 810 665 900Z"/>
+ <path fill="url(#orange)" d="M1600 900V720Q1510 650 1545 530Q1455 580 1470 420Q1365 520 1385 330Q1275 465 1315 220Q1180 400 1240 565Q1130 475 1145 350Q1060 510 1115 650Q1000 600 1030 465Q945 625 1000 760Q910 810 935 900Z"/>
+</g>
+<g fill="none" stroke-linecap="round">
+ <path stroke="#43d7ff" stroke-width="22" opacity=".75" d="M10 850Q170 720 120 570T260 300T310 70M90 900Q250 770 220 620T380 390T390 150M0 700Q130 620 90 480T210 250"/>
+ <path stroke="#ffb13b" stroke-width="22" opacity=".75" d="M1590 850Q1430 720 1480 570T1340 300T1290 70M1510 900Q1350 770 1380 620T1220 390T1210 150M1600 700Q1470 620 1510 480T1390 250"/>
+</g>
+<g fill="#ff9d39" opacity=".8"><circle cx="760" cy="260" r="3"/><circle cx="900" cy="390" r="4"/><circle cx="680" cy="540" r="2"/><circle cx="1010" cy="190" r="3"/></g>
+<g fill="#27bfff" opacity=".8"><circle cx="590" cy="330" r="3"/><circle cx="830" cy="620" r="2"/><circle cx="720" cy="160" r="2"/></g>
+</svg>
