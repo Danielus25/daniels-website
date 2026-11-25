@@ -185,6 +185,7 @@ function showPage(name){
   tabs.forEach(t=>t.setAttribute('aria-selected',String(t.dataset.tab===name)));
   const active=tabs.find(t=>t.dataset.tab===name); if(active) active.scrollIntoView({block:'nearest',inline:'nearest'});
   if(location.hash!=='#'+name) history.replaceState(null,'','#'+name);
+  if(name==='predictions') renderPredictions();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 tabs.forEach(t=>t.addEventListener('click',()=>showPage(t.dataset.tab)));
