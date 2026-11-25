@@ -21,6 +21,28 @@ header{position:sticky;top:0;z-index:10;background:#070b14ed;backdrop-filter:blu
 .pill{display:inline-block;border:1px solid #315674;color:#9bdcff;border-radius:999px;padding:5px 10px;font-size:.72rem;font-weight:900;letter-spacing:.07em}.notice{margin:24px 0 8px;padding:17px 20px;border:1px solid #315674;border-radius:17px;background:linear-gradient(100deg,#ff762817,#29baff17);text-align:center;color:#d5e5f5;line-height:1.6}.notice strong{color:#fff}.footer{text-align:center;color:#8193a9;padding:30px 0 18px;font-size:.82rem}
 @media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.top{padding:12px 14px}}@media(max-width:540px){.wrap{padding:13px}.cards,.feature-list{grid-template-columns:1fr}.hero{padding:45px 8px 28px}.panel{padding:18px}.tab{padding:8px 12px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important}}
+
+.tool-grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:16px 0}
+.tool-field{display:flex;flex-direction:column;gap:7px;color:#dcecff;font-size:.84rem;font-weight:800}
+.tool-field input,.tool-field select{width:100%;border:1px solid #315674;border-radius:11px;background:#071321;color:#fff;padding:12px;font:inherit;min-width:0}
+.tool-actions{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}
+.tool-btn{border:1px solid #315674;background:#10243a;color:#e8f5ff;border-radius:10px;padding:10px 14px;font-weight:850;cursor:pointer}
+.tool-btn.primary{background:linear-gradient(100deg,#a94718,#14577c);border-color:#4b91b9}
+.tool-btn.danger{border-color:#884b43;color:#ffc7b9}
+.tool-btn:disabled{opacity:.45;cursor:not-allowed}
+.tool-status{color:#9bdcff;font-weight:800;font-size:.88rem}
+.tool-divider{height:1px;background:#29445e;margin:22px 0}
+.tool-list{display:grid;gap:8px;margin:12px 0}
+.player-row,.match-row{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #29445e;background:#0a1422;border-radius:11px;padding:11px 13px;color:#e6f2ff}
+.player-row button{border:0;background:transparent;color:#ffad8b;font-weight:900;cursor:pointer}
+.bracket-view{display:grid;gap:12px;margin-top:16px}
+.round-block{border:1px solid #29445e;border-radius:14px;padding:14px;background:#0a1422}
+.round-block h4{margin:0 0 10px;color:#8ed7ff}
+.match-row{margin-top:8px;flex-wrap:wrap}
+.match-row select{background:#071321;color:#fff;border:1px solid #315674;border-radius:8px;padding:8px;max-width:100%}
+.tool-note{font-size:.78rem;color:#9eafc4;line-height:1.5;margin-top:18px}
+.tool-bottom{justify-content:end}
+@media(max-width:540px){.tool-grid{grid-template-columns:1fr}.tool-bottom{justify-content:start}.match-row{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
 <body>
@@ -75,8 +97,25 @@ header{position:sticky;top:0;z-index:10;background:#070b14ed;backdrop-filter:blu
   </section>
 
   <section class="page" id="tournaments" role="tabpanel">
-    <div class="heading"><h2>TOURNAMENT CENTRAL</h2><p>Run the competition from one place.</p></div>
-    <div class="panel"><span class="pill">TOURNAMENT SETUP</span><h3>Player entries · Brackets · Match results</h3><p>Create 4, 6, 8, or 16-player tournaments, open or close entries, manage the player list, randomize matchups, advance winners, and display the bracket to viewers.</p><div class="feature-list"><div class="feature"><b>🎟️ Kick entry commands</b><small>Join and leave through chat when Daniel connects his Kick app.</small></div><div class="feature"><b>🏅 Organizer controls</b><small>Set player limits, tournament name, entry status, and clear or manage players.</small></div><div class="feature"><b>⚔️ Live bracket</b><small>Record results and advance winners through each round.</small></div><div class="feature"><b>📣 Chat updates</b><small>Announce entries, next matches, and tournament winners.</small></div></div></div>
+    <div class="heading"><h2>TOURNAMENT CENTRAL</h2><p>Set up a tournament and build its bracket.</p></div>
+    <div class="panel">
+      <span class="pill">ORGANIZER PREVIEW</span>
+      <h3>Tournament setup</h3>
+      <p class="muted">Create a local preview of Daniel's tournament. Kick chat registration and shared live updates will be connected after Daniel signs in.</p>
+      <div class="tool-grid">
+        <label class="tool-field">Tournament name<input id="tourneyName" maxlength="60" placeholder="Danielus25 Tournament"></label>
+        <label class="tool-field">Player limit<select id="tourneyLimit"><option>4</option><option>6</option><option>8</option><option>16</option></select></label>
+      </div>
+      <div class="tool-actions"><button class="tool-btn primary" id="saveTourney">Save setup</button><button class="tool-btn" id="toggleEntries">Open entries</button><button class="tool-btn danger" id="clearTourney">Clear tournament</button></div>
+      <p id="entryStatus" class="tool-status" aria-live="polite">Entries are closed.</p>
+      <div class="tool-divider"></div>
+      <h3>Player list <span id="playerCount" class="pill">0 / 4</span></h3>
+      <div class="tool-grid"><label class="tool-field">Add player<input id="playerName" maxlength="30" placeholder="Kick username"></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="addPlayer">Add player</button></div></div>
+      <div id="playerList" class="tool-list"><p class="muted">No players added yet.</p></div>
+      <div class="tool-actions"><button class="tool-btn primary" id="makeBracket">Shuffle & create bracket</button></div>
+      <div id="bracketView" class="bracket-view"><p class="muted">Your bracket will appear here after you create it.</p></div>
+      <p class="tool-note">Preview limitation: this version saves on this browser only. It is not connected to Kick, BotRix, or a shared database yet.</p>
+    </div>
   </section>
 
   <section class="page" id="predictions" role="tabpanel">
@@ -137,6 +176,36 @@ tabs.forEach(t=>t.addEventListener('click',()=>showPage(t.dataset.tab)));
 document.querySelectorAll('[data-go]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();showPage(a.dataset.go)}));
 document.querySelector('[data-home]').addEventListener('click',e=>{e.preventDefault();showPage('home')});
 document.getElementById('year').textContent=new Date().getFullYear();
+
+const tourneyStoreKey='danielus25_tournament_preview_v1';
+let tourneyState={name:'',limit:4,open:false,players:[],rounds:[]};
+try{const saved=JSON.parse(localStorage.getItem(tourneyStoreKey)||'null');if(saved&&Array.isArray(saved.players)&&Array.isArray(saved.rounds))tourneyState={...tourneyState,...saved};}catch(e){}
+const $=id=>document.getElementById(id);
+function saveTourneyState(){try{localStorage.setItem(tourneyStoreKey,JSON.stringify(tourneyState));}catch(e){}}
+function renderTourney(){
+  $('tourneyName').value=tourneyState.name;
+  $('tourneyLimit').value=String(tourneyState.limit);
+  $('playerCount').textContent=tourneyState.players.length+' / '+tourneyState.limit;
+  $('entryStatus').textContent=tourneyState.open?'Entries are OPEN.':'Entries are closed.';
+  $('toggleEntries').textContent=tourneyState.open?'Close entries':'Open entries';
+  $('playerList').innerHTML='';
+  if(!tourneyState.players.length)$('playerList').innerHTML='<p class="muted">No players added yet.</p>';
+  tourneyState.players.forEach((p,i)=>{const row=document.createElement('div');row.className='player-row';const name=document.createElement('span');name.textContent=(i+1)+'. '+p;const remove=document.createElement('button');remove.textContent='REMOVE';remove.setAttribute('aria-label','Remove '+p);remove.onclick=()=>{tourneyState.players.splice(i,1);saveTourneyState();renderTourney();};row.append(name,remove);$('playerList').append(row);});
+  $('bracketView').innerHTML='';
+  if(!tourneyState.rounds.length){$('bracketView').innerHTML='<p class="muted">Your bracket will appear here after you create it.</p>';return;}
+  tourneyState.rounds.forEach((round,ri)=>{const block=document.createElement('div');block.className='round-block';const title=document.createElement('h4');title.textContent=ri===tourneyState.rounds.length-1&&round.length===1?'FINAL':'ROUND '+(ri+1);block.append(title);round.forEach((match,mi)=>{const row=document.createElement('div');row.className='match-row';const names=document.createElement('strong');names.textContent=match.a+' vs '+match.b;row.append(names);if(match.winner){const result=document.createElement('span');result.textContent='Winner: '+match.winner;result.className='tool-status';row.append(result);}else{const select=document.createElement('select');select.innerHTML='<option value="">Choose winner…</option>';[match.a,match.b].forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;select.append(o);});const btn=document.createElement('button');btn.className='tool-btn primary';btn.textContent='Record winner';btn.onclick=()=>{if(!select.value)return;match.winner=select.value;saveTourneyState();renderTourney();};row.append(select,btn);}block.append(row);});$('bracketView').append(block);});
+  const last=tourneyState.rounds[tourneyState.rounds.length-1];
+  if(last.length===1&&last[0].winner){const win=document.createElement('p');win.className='tool-status';win.textContent='🏆 Tournament winner: '+last[0].winner; $('bracketView').append(win);}
+  else if(last.length>1&&last.every(m=>m.winner)){const next=last.map(m=>m.winner);const nextRound=[];for(let i=0;i<next.length;i+=2){if(next[i+1])nextRound.push({a:next[i],b:next[i+1],winner:''});else nextRound.push({a:next[i],b:'BYE',winner:next[i]});}if(nextRound.length===1&&nextRound[0].b==='BYE'){tourneyState.rounds.push([{a:nextRound[0].a,b:'BYE',winner:nextRound[0].a}]);}else tourneyState.rounds.push(nextRound);saveTourneyState();renderTourney();}
+}
+$('saveTourney').onclick=()=>{tourneyState.name=$('tourneyName').value.trim();tourneyState.limit=Number($('tourneyLimit').value);if(tourneyState.players.length>tourneyState.limit){alert('Remove players until the list fits the selected limit.');return;}saveTourneyState();renderTourney();};
+$('toggleEntries').onclick=()=>{tourneyState.open=!tourneyState.open;saveTourneyState();renderTourney();};
+$('addPlayer').onclick=()=>{const name=$('playerName').value.trim().replace(/^@/,'');if(!name)return;if(!tourneyState.open){alert('Open entries before adding players.');return;}if(tourneyState.players.length>=tourneyState.limit){alert('The player limit has been reached.');return;}if(tourneyState.players.some(p=>p.toLowerCase()===name.toLowerCase())){alert('That player is already entered.');return;}tourneyState.players.push(name);$('playerName').value='';saveTourneyState();renderTourney();};
+$('playerName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addPlayer').click();});
+$('makeBracket').onclick=()=>{if(tourneyState.players.length<2){alert('Add at least two players first.');return;}if(tourneyState.rounds.length&&!confirm('Replace the current bracket?'))return;const shuffled=[...tourneyState.players];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}const round=[];for(let i=0;i<shuffled.length;i+=2){if(shuffled[i+1])round.push({a:shuffled[i],b:shuffled[i+1],winner:''});else round.push({a:shuffled[i],b:'BYE',winner:shuffled[i]});}tourneyState.rounds=[round];saveTourneyState();renderTourney();};
+$('clearTourney').onclick=()=>{if(!confirm('Clear this local tournament preview and all its players?'))return;tourneyState={name:'',limit:4,open:false,players:[],rounds:[]};saveTourneyState();renderTourney();};
+renderTourney();
+
 showPage(location.hash.slice(1)||'home');
 </script>
 </body>
