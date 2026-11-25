@@ -173,7 +173,22 @@ header{position:sticky;top:0;z-index:10;background:#070b14ed;backdrop-filter:blu
 
   <section class="page" id="balance" role="tabpanel">
     <div class="heading"><h2>GUESS THE BALANCE</h2><p>One guess. Lock it in.</p></div>
-    <div class="panel"><span class="pill">VIEWER GUESSING GAME</span><h3>Who can get closest?</h3><p>Viewers submit one guess per Kick account. Once submitted, the guess cannot be changed. Entries lock immediately when Daniel closes the game, and the closest guess wins.</p><div class="feature-list"><div class="feature"><b>👤 Kick account check</b><small>Identify each viewer so they only get one entry.</small></div><div class="feature"><b>🔐 Locked guesses</b><small>No edits or second guesses after submission.</small></div><div class="feature"><b>🏆 Winner reveal</b><small>Compare guesses with the final balance and announce the closest.</small></div><div class="feature"><b>📋 Entry list</b><small>Organizer can review entries and lock the game.</small></div></div></div>
+    <div class="panel">
+      <span class="pill">LOCAL GUESSING GAME PREVIEW</span><h3>Who can get closest?</h3>
+      <div class="tool-grid">
+        <label class="tool-field">Viewer / Kick username<input id="balanceViewer" maxlength="30" placeholder="Your Kick username"></label>
+        <label class="tool-field">Your guess ($)<input id="balanceGuess" type="number" min="0" step="0.01" placeholder="0.00"></label>
+      </div>
+      <div class="tool-actions"><button class="tool-btn primary" id="submitBalanceGuess">Lock in my guess</button><button class="tool-btn" id="toggleBalanceEntries">Close entries</button></div>
+      <p id="balanceStatus" class="tool-status" aria-live="polite">Entries are OPEN.</p>
+      <div class="tool-divider"></div>
+      <h3>Organizer · Reveal result</h3>
+      <div class="tool-grid"><label class="tool-field">Final balance ($)<input id="balanceFinal" type="number" min="0" step="0.01" placeholder="Enter final balance"></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="revealBalance">Reveal winner</button></div></div>
+      <p id="balanceWinner" class="tool-status" aria-live="polite"></p>
+      <div class="tool-divider"></div><h3>Entries <span id="balanceCount" class="pill">0</span></h3>
+      <div id="balanceList" class="tool-list"><p class="muted">No guesses yet.</p></div>
+      <p class="tool-note">Preview limitation: names and guesses are stored only in this browser. One entry per typed name is enforced locally; Kick account verification and shared entries require Daniel's backend.</p>
+    </div>
   </section>
 
   <section class="page" id="randomizer" role="tabpanel">
@@ -371,6 +386,46 @@ $('addBonus').onclick=()=>{
 };
 $('clearBonuses').onclick=()=>{if(!confirm('Clear the entire local bonus hunt?'))return;bonusEntries=[];saveBonusEntries();renderBonusHunt();};
 renderBonusHunt();
+
+const balanceStoreKey='danielus25_balance_preview_v1';
+let balanceGame={open:true,entries:[],final:null};
+try{const saved=JSON.parse(localStorage.getItem(balanceStoreKey)||'null');if(saved&&Array.isArray(saved.entries))balanceGame={...balanceGame,...saved};}catch(e){}
+function saveBalanceGame(){try{localStorage.setItem(balanceStoreKey,JSON.stringify(balanceGame));}catch(e){}}
+function renderBalanceGame(){
+  $('balanceStatus').textContent=balanceGame.open?'Entries are OPEN.':'Entries are CLOSED.';
+  $('toggleBalanceEntries').textContent=balanceGame.open?'Close entries':'Open entries';
+  $('submitBalanceGuess').disabled=!balanceGame.open;
+  $('balanceCount').textContent=String(balanceGame.entries.length);
+  $('balanceList').innerHTML='';
+  if(!balanceGame.entries.length)$('balanceList').innerHTML='<p class="muted">No guesses yet.</p>';
+  balanceGame.entries.forEach((entry,i)=>{
+    const row=document.createElement('div');row.className='player-row';
+    const name=document.createElement('strong');name.textContent=(i+1)+'. '+entry.viewer;
+    const amount=document.createElement('span');amount.textContent=money(entry.guess);
+    row.append(name,amount);$('balanceList').append(row);
+  });
+  if(balanceGame.final!==null){
+    $('balanceFinal').value=String(balanceGame.final);
+    const ranked=[...balanceGame.entries].sort((a,b)=>Math.abs(a.guess-balanceGame.final)-Math.abs(b.guess-balanceGame.final));
+    $('balanceWinner').textContent=ranked.length?'🏆 Closest guess: '+ranked[0].viewer+' · '+money(ranked[0].guess)+' (off by '+money(Math.abs(ranked[0].guess-balanceGame.final))+')':'No entries to score.';
+  }else $('balanceWinner').textContent='';
+}
+$('submitBalanceGuess').onclick=()=>{
+  if(!balanceGame.open){alert('Entries are closed.');return;}
+  const viewer=$('balanceViewer').value.trim().replace(/^@/,'');
+  const raw=$('balanceGuess').value,guess=Number(raw);
+  if(!viewer||raw.trim()===''||!Number.isFinite(guess)||guess<0){alert('Enter your username and a valid guess.');return;}
+  if(balanceGame.entries.some(e=>e.viewer.toLowerCase()===viewer.toLowerCase())){alert('That name already has a locked guess.');return;}
+  balanceGame.entries.push({viewer,guess});saveBalanceGame();$('balanceViewer').value='';$('balanceGuess').value='';renderBalanceGame();
+};
+$('toggleBalanceEntries').onclick=()=>{balanceGame.open=!balanceGame.open;saveBalanceGame();renderBalanceGame();};
+$('revealBalance').onclick=()=>{
+  const raw=$('balanceFinal').value,final=Number(raw);
+  if(raw.trim()===''||!Number.isFinite(final)||final<0){alert('Enter the final balance first.');return;}
+  if(!balanceGame.entries.length){alert('There are no guesses to score.');return;}
+  balanceGame.open=false;balanceGame.final=final;saveBalanceGame();renderBalanceGame();
+};
+renderBalanceGame();
 
 showPage(location.hash.slice(1)||'home');
 </script>
