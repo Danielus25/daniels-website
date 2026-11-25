@@ -107,7 +107,7 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
         <label class="tool-field">Tournament name<input id="tourneyName" maxlength="60" placeholder="Danielus25 Tournament"></label>
         <label class="tool-field">Bracket size<select id="tourneyLimit"><option>4</option><option>8</option><option>12</option><option>16</option><option>32</option></select></label>
         <label class="tool-field">Entries per person<select id="entriesPerPerson"><option>1 Entry</option><option>2 Entries</option><option>3 Entries</option><option>4 Entries</option><option>5 Entries</option><option>6 Entries</option><option>7 Entries</option><option>8 Entries</option><option>9 Entries</option><option>10 Entries</option></select></label>
-        <label class="tool-field">Duplicate games <button type="button" class="tool-btn" id="duplicateToggle" aria-pressed="false">DUP: OFF</button></label>
+        <div class="tool-field"><span class="tool-label">Duplicate games</span><button type="button" class="tool-btn" id="duplicateToggle" aria-pressed="false">DUP: OFF</button><small class="muted">ON = each game can only be entered once.</small></div>
       </div>
       <p class="muted">When duplicate games are ON, each game can only be used once, whether it is Regular or Super.</p>
       <div class="tool-actions">
@@ -454,7 +454,14 @@ $('saveTourney').onclick=()=>{
 };
 $('tourneyLimit').onchange=()=>{$('saveTourney').click();};
 $('entriesPerPerson').onchange=()=>{$('saveTourney').click();};
-$('duplicateToggle').onclick=()=>{tourneyState.duplicateGames=!tourneyState.duplicateGames;saveTourneyState();renderTourney();};
+$('duplicateToggle').addEventListener('click',function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  tourneyState.duplicateGames=!tourneyState.duplicateGames;
+  saveTourneyState();
+  this.textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
+  this.setAttribute('aria-pressed',String(tourneyState.duplicateGames));
+});
 $('toggleCalls').onclick=()=>{tourneyState.callsOn=!tourneyState.callsOn;saveTourneyState();renderTourney();};
 $('toggleGuesses').onclick=()=>{tourneyState.guessesOn=!tourneyState.guessesOn;saveTourneyState();renderTourney();};
 $('addPlayer').onclick=()=>{
