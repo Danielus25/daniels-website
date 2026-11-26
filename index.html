@@ -503,6 +503,15 @@ body:has(#randomizer.active){
         <button type="button" class="tool-btn primary" id="keepBothWheelWinners">KEEP BOTH</button>
       </div>
     </dialog>
+    <dialog id="singleWheelResultsModal" class="wheel-results-modal" aria-labelledby="singleWheelResultsTitle">
+      <button type="button" class="wheel-modal-close" id="closeSingleWheelResults" aria-label="Close result">×</button>
+      <h2 id="singleWheelResultsTitle">🎉 WHEEL LANDED!</h2>
+      <div class="wheel-modal-result"><span id="singleWheelPopupLabel">RESULT</span><strong id="singleWheelPopupValue"></strong></div>
+      <div class="wheel-modal-actions">
+        <button type="button" class="tool-btn danger" id="removeSingleWheelWinner">REMOVE</button>
+        <button type="button" class="tool-btn primary" id="keepSingleWheelWinner">KEEP</button>
+      </div>
+    </dialog>
   </section>
 
   <section class="page" id="giveaways" role="tabpanel">
@@ -1070,15 +1079,23 @@ function spinWheelToIndex(items,discId,resultId,label,index){
  $(resultId).textContent='Spinning...';
  return new Promise(resolve=>setTimeout(()=>{$(resultId).textContent='🏆 '+chosen;resolve({chosen,index});},4350));
 }
-function spinOneWheel(items,discId,resultId,label){
+let lastSingleWheelResult=null;
+async function spinOneWheel(items,discId,resultId,label,kind){
  if(!items.length){alert('Add at least one '+label+' first.');return false;}
+ const button=kind==='name'?$('spinWheel'):$('spinGames');
+ button.disabled=true;
  const index=Math.floor(Math.random()*items.length);
- spinWheelToIndex(items,discId,resultId,label,index);
+ const result=await spinWheelToIndex(items,discId,resultId,label,index);
+ lastSingleWheelResult={kind,index,value:result.chosen,resultId,label:label.toUpperCase()};
+ $('singleWheelPopupLabel').textContent=lastSingleWheelResult.label;
+ $('singleWheelPopupValue').textContent=lastSingleWheelResult.value;
+ $('singleWheelResultsModal').showModal();
+ button.disabled=false;
  return true;
 }
 let lastBothWheelResults=null;
-$('spinWheel').onclick=()=>spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name');
-$('spinGames').onclick=()=>spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game');
+$('spinWheel').onclick=()=>spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name','name');
+$('spinGames').onclick=()=>spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game','game');
 $('spinBoth').onclick=async()=>{
  if(!wheelNames.length||!wheelGames.length){alert('Add at least one name and one game before spinning both wheels.');return;}
  $('spinBoth').disabled=true;
@@ -1106,6 +1123,19 @@ $('removeBothWheelWinners').onclick=()=>{
 };
 $('keepBothWheelWinners').onclick=()=>{$('wheelResultsModal').close();};
 $('closeWheelResults').onclick=()=>{$('wheelResultsModal').close();};
+$('removeSingleWheelWinner').onclick=()=>{
+ if(!lastSingleWheelResult)return;
+ const items=lastSingleWheelResult.kind==='name'?wheelNames:wheelGames;
+ const {index,value,resultId}=lastSingleWheelResult;
+ if(items[index]===value)items.splice(index,1);
+ else{const found=items.indexOf(value);if(found>=0)items.splice(found,1);}
+ saveWheelLists();renderWheels();
+ $(resultId).textContent='Removed: '+value;
+ lastSingleWheelResult=null;
+ $('singleWheelResultsModal').close();
+};
+$('keepSingleWheelWinner').onclick=()=>{$('singleWheelResultsModal').close();lastSingleWheelResult=null;};
+$('closeSingleWheelResults').onclick=()=>{$('singleWheelResultsModal').close();lastSingleWheelResult=null;};
 renderWheels();renderWheelSettings();
 
 const giveawayStoreKey='danielus25_giveaway_preview_v1';
