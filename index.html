@@ -965,10 +965,10 @@ $('clearGiveawayWinners').onclick=()=>{if(!confirm('Clear the winner history?'))
 $('resetGiveaway').onclick=()=>{if(!confirm('Reset the giveaway and clear entries and winners?'))return;giveaway={open:false,keyword:$('giveawayKeyword').value.trim()||'pickme',entries:[],winner:'',winners:[],subLuckMultiplier:1,activityTimer:0,claimTimer:15,messages:{...giveaway.messages}};saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='Giveaway reset.';};
 /* Future chat bridge: call this with a Kick username whenever they send a chat message. */
 window.danielGiveawayChatMessage=(username)=>{
- const name=String(username||'').trim().replace(/^@/,'');if(!name)return;
- const entry=giveaway.entries.find(e=>e.name.toLowerCase()===name.toLowerCase());if(!entry)return;
- entry.lastActive=Date.now();
- if(giveaway.activityTimer>0){const cutoff=Date.now()-giveaway.activityTimer*60000;giveaway.entries= giveaway.entries.filter(e=>Date.now()-Number(e.lastActive||0)<=giveaway.activityTimer*60000);}
+ const name=String(username||'').trim().replace(/^@/,'');const now=Date.now();
+ const entry=giveaway.entries.find(e=>e.name.toLowerCase()===name.toLowerCase());
+ if(entry)entry.lastActive=now;
+ if(giveaway.activityTimer>0)giveaway.entries=giveaway.entries.filter(e=>now-Number(e.lastActive||0)<=giveaway.activityTimer*60000);
  saveGiveaway();renderGiveaway();
 };
 renderGiveaway();
