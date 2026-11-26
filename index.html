@@ -224,6 +224,16 @@ body:has(#randomizer.active){
 #randomizer .wheel-hub{background:#090d14;border-color:#66788c;color:#e7edf5}
 #randomizer .wheel-disc.has-items+.wheel-hub{background:linear-gradient(135deg,#29baff,#ff7628);border-color:#fff;color:#071321}
 #randomizer .wheel-pointer{filter:drop-shadow(0 3px 5px #000b)}
+.wheel-results-modal{width:min(92vw,460px);padding:28px;border:2px solid #4b9ac5;border-radius:20px;background:linear-gradient(145deg,#14243a,#071321);color:#f4f8ff;box-shadow:0 24px 80px #000c;text-align:center}
+.wheel-results-modal::backdrop{background:#02060dcc;backdrop-filter:blur(5px)}
+.wheel-results-modal h2{margin:0 0 20px;color:#8ed7ff;font-size:1.35rem}
+.wheel-modal-close{position:absolute;top:8px;right:12px;border:0;background:transparent;color:#dcecff;font-size:1.8rem;cursor:pointer}
+.wheel-modal-result{display:grid;gap:5px;padding:14px;margin:10px 0;border:1px solid #315674;border-radius:12px;background:#071321}
+.wheel-modal-result span{font-size:.72rem;letter-spacing:.16em;font-weight:900;color:#ffad62}
+.wheel-modal-result strong{font-size:1.35rem;overflow-wrap:anywhere}
+.wheel-modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.wheel-modal-actions .tool-btn{min-width:130px}
+.wheel-divider-overlay line{shape-rendering:crispEdges}
 @media(max-width:760px){
   #randomizer .wheel-card{grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:13px;column-gap:10px}
   #randomizer .wheel-card .wheel-stage{width:100%}
@@ -483,6 +493,16 @@ body:has(#randomizer.active){
       </div>
       <p class="tool-note">Lists and settings are saved in this browser. The live shared-list and Kick chat connection still require Daniel’s backend/Kick integration.</p>
     </div>
+    <dialog id="wheelResultsModal" class="wheel-results-modal" aria-labelledby="wheelResultsTitle">
+      <button type="button" class="wheel-modal-close" id="closeWheelResults" aria-label="Close results">×</button>
+      <h2 id="wheelResultsTitle">🎉 BOTH WHEELS LANDED!</h2>
+      <div class="wheel-modal-result"><span>NAME</span><strong id="wheelPopupName"></strong></div>
+      <div class="wheel-modal-result"><span>GAME</span><strong id="wheelPopupGame"></strong></div>
+      <div class="wheel-modal-actions">
+        <button type="button" class="tool-btn danger" id="removeBothWheelWinners">REMOVE BOTH</button>
+        <button type="button" class="tool-btn primary" id="keepBothWheelWinners">KEEP BOTH</button>
+      </div>
+    </dialog>
   </section>
 
   <section class="page" id="giveaways" role="tabpanel">
@@ -1016,8 +1036,8 @@ function updateWheelDisc(items,discId,hubLabel){
   line.setAttribute('x2',String(50+49*Math.cos(angle)));
   line.setAttribute('y2',String(50+49*Math.sin(angle)));
   line.setAttribute('stroke','#071321');
-  line.setAttribute('stroke-width','1.15');
-  line.setAttribute('stroke-linecap','butt');
+  line.setAttribute('stroke-width','1.8');
+  line.setAttribute('stroke-linecap','square');
   line.setAttribute('vector-effect','non-scaling-stroke');
   svg.append(line);
  }
@@ -1039,8 +1059,53 @@ $('editGame').onclick=()=>{if(!wheelGames.length){alert('Add a game first.');ret
 function renderWheelSettings(){$('wheelAutoAdd').textContent=wheelSettings.autoAdd?'ON':'OFF';$('wheelAutoAdd').setAttribute('aria-pressed',String(wheelSettings.autoAdd));$('wheelAutoAdd').classList.toggle('primary',wheelSettings.autoAdd);$('wheelDuplicates').textContent=wheelSettings.duplicates?'ON':'OFF';$('wheelDuplicates').setAttribute('aria-pressed',String(wheelSettings.duplicates));$('wheelDuplicates').classList.toggle('primary',wheelSettings.duplicates);$('wheelEntriesPerPerson').value=String(wheelSettings.perPerson);$('wheelAutoStatus').textContent=wheelSettings.autoAdd?'ON — accepted !slot requests can add the viewer and requested game to the wheels in this browser.':'OFF — !slot calls still work normally, but nothing is added to either wheel.';}
 $('wheelAutoAdd').onclick=()=>{wheelSettings.autoAdd=!wheelSettings.autoAdd;renderWheelSettings();};$('wheelDuplicates').onclick=()=>{wheelSettings.duplicates=!wheelSettings.duplicates;renderWheelSettings();};$('saveWheelSettings').onclick=()=>{wheelSettings.perPerson=Math.max(1,Math.min(10,Number($('wheelEntriesPerPerson').value)||1));try{localStorage.setItem(wheelSettingsKey,JSON.stringify(wheelSettings));}catch(e){}renderWheelSettings();};
 function addSlotToWheels(viewer,game){if(!wheelSettings.autoAdd)return;const name=String(viewer||'').trim().replace(/^@/,'');const title=String(game||'').trim();if(!name||!title)return;const existing=wheelNames.filter(x=>x.toLowerCase()===name.toLowerCase()).length;if(existing<wheelSettings.perPerson&&(wheelSettings.duplicates||!existing))wheelNames.push(name);if(wheelSettings.duplicates||!wheelGames.some(x=>x.toLowerCase()===title.toLowerCase()))wheelGames.push(title);saveWheelLists();renderWheels();}
-function spinOneWheel(items,discId,resultId,label){if(!items.length){alert('Add at least one '+label+' first.');return false;}const chosen=items[Math.floor(Math.random()*items.length)],disc=$(discId),current=Number(disc.dataset.rotation||0),next=current+1440+Math.floor(Math.random()*720);disc.dataset.rotation=String(next);disc.style.transform='rotate('+next+'deg)';$(resultId).textContent='Spinning...';setTimeout(()=>{$(resultId).textContent='🏆 '+chosen;},4300);return true;}
-$('spinWheel').onclick=()=>spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name');$('spinGames').onclick=()=>spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game');$('spinBoth').onclick=()=>{if(!wheelNames.length||!wheelGames.length){alert('Add at least one name and one game before spinning both wheels.');return;}spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name');spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game');};
+function spinWheelToIndex(items,discId,resultId,label,index){
+ const chosen=items[index],disc=$(discId),step=360/items.length;
+ const target=((360-((index+0.5)*step))%360+360)%360;
+ const current=Number(disc.dataset.rotation||0),currentMod=((current%360)+360)%360;
+ const delta=(target-currentMod+360)%360;
+ const next=current+(5+Math.floor(Math.random()*3))*360+delta;
+ disc.dataset.rotation=String(next);
+ disc.style.transform='rotate('+next+'deg)';
+ $(resultId).textContent='Spinning...';
+ return new Promise(resolve=>setTimeout(()=>{$(resultId).textContent='🏆 '+chosen;resolve({chosen,index});},4350));
+}
+function spinOneWheel(items,discId,resultId,label){
+ if(!items.length){alert('Add at least one '+label+' first.');return false;}
+ const index=Math.floor(Math.random()*items.length);
+ spinWheelToIndex(items,discId,resultId,label,index);
+ return true;
+}
+let lastBothWheelResults=null;
+$('spinWheel').onclick=()=>spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name');
+$('spinGames').onclick=()=>spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game');
+$('spinBoth').onclick=async()=>{
+ if(!wheelNames.length||!wheelGames.length){alert('Add at least one name and one game before spinning both wheels.');return;}
+ $('spinBoth').disabled=true;
+ const nameIndex=Math.floor(Math.random()*wheelNames.length),gameIndex=Math.floor(Math.random()*wheelGames.length);
+ const results=await Promise.all([
+  spinWheelToIndex(wheelNames,'nameWheelDisc','nameWheelResult','name',nameIndex),
+  spinWheelToIndex(wheelGames,'gameWheelDisc','gameWheelResult','game',gameIndex)
+ ]);
+ lastBothWheelResults={name:results[0].chosen,game:results[1].chosen,nameIndex:results[0].index,gameIndex:results[1].index};
+ $('wheelPopupName').textContent=lastBothWheelResults.name;
+ $('wheelPopupGame').textContent=lastBothWheelResults.game;
+ $('wheelResultsModal').showModal();
+ $('spinBoth').disabled=false;
+};
+$('removeBothWheelWinners').onclick=()=>{
+ if(!lastBothWheelResults)return;
+ const removeAt=(items,index,value)=>{if(items[index]===value)items.splice(index,1);else{const found=items.indexOf(value);if(found>=0)items.splice(found,1);}};
+ removeAt(wheelNames,lastBothWheelResults.nameIndex,lastBothWheelResults.name);
+ removeAt(wheelGames,lastBothWheelResults.gameIndex,lastBothWheelResults.game);
+ saveWheelLists();renderWheels();
+ $('nameWheelResult').textContent='Removed: '+lastBothWheelResults.name;
+ $('gameWheelResult').textContent='Removed: '+lastBothWheelResults.game;
+ lastBothWheelResults=null;
+ $('wheelResultsModal').close();
+};
+$('keepBothWheelWinners').onclick=()=>{$('wheelResultsModal').close();};
+$('closeWheelResults').onclick=()=>{$('wheelResultsModal').close();};
 renderWheels();renderWheelSettings();
 
 const giveawayStoreKey='danielus25_giveaway_preview_v1';
