@@ -125,6 +125,23 @@ header{background:#070b14d9}
 .giveaway-manager-note{margin:16px 0;padding:13px;border:1px solid #315674;border-radius:11px;background:#0a1b2a;color:#9bdcff;font-size:.84rem;text-align:center}
 .giveaway-advanced{margin-top:18px;border:1px solid #315674;border-radius:12px;padding:13px;background:#081421}.giveaway-advanced summary{font-weight:850;cursor:pointer;color:#9bdcff}
 @media(max-width:540px){.giveaway-shell{padding:15px}.giveaway-options{grid-template-columns:1fr}.giveaway-keyword-row{grid-template-columns:1fr}.giveaway-count-card{align-items:flex-start;flex-direction:column}.giveaway-preview-tag{margin-left:0}}
+
+/* Two-wheel randomizer: smooth continuous blue-to-orange blend */
+.wheel-page{max-width:1080px;margin:0 auto}.wheel-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.wheel-card{min-width:0;padding:20px;border:1px solid #315674;border-radius:20px;background:linear-gradient(145deg,#14243aee,#0a1422f5);box-shadow:0 18px 42px #0007;overflow:hidden}
+.wheel-card h3{text-align:center;color:#d9efff;margin:0 0 12px;letter-spacing:.1em}
+.wheel-stage{position:relative;width:min(100%,300px);aspect-ratio:1;margin:14px auto 10px;display:grid;place-items:center}
+.wheel-disc{width:88%;height:88%;border-radius:50%;border:5px solid #d9efff88;box-shadow:0 0 0 5px #071321,0 0 30px #29baff35;background:conic-gradient(from 0deg,#29baff 0deg,#48b6dc 65deg,#7d9eb8 125deg,#c18a70 185deg,#ff7628 245deg,#f7a15d 300deg,#29baff 360deg);transform:rotate(0deg);transition:transform 4.2s cubic-bezier(.12,.72,.08,1);will-change:transform}
+.wheel-pointer{position:absolute;z-index:3;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:27px solid #fff;filter:drop-shadow(0 3px 5px #000b)}
+.wheel-hub{position:absolute;z-index:2;width:25%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#29baff,#ff7628);border:4px solid #f4f8ff;color:#071321;font-size:.7rem;font-weight:1000;letter-spacing:.05em;box-shadow:0 3px 12px #0008}
+.wheel-result{min-height:42px;margin:10px 0 14px;padding:10px;text-align:center;border:1px solid #315674;border-radius:11px;background:#071321;color:#fff;font-weight:900;overflow-wrap:anywhere}
+.wheel-add{grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:9px}.wheel-list-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:15px 0 8px;color:#9bdcff;font-size:.82rem;font-weight:850}.wheel-list{max-height:190px;overflow:auto}
+.wheel-spin{width:100%;margin-top:14px;padding:13px;background:linear-gradient(100deg,#176fa9,#a75a36,#ff7628);border-color:#80cfff;color:#fff;letter-spacing:.08em}
+.wheel-combo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.wheel-combo button{padding:15px;font-size:1rem;letter-spacing:.06em;color:#fff}
+.wheel-shuffle{background:linear-gradient(105deg,#176fa9,#477e9d,#b66b43);border-color:#57b9ed}.wheel-spin-both{background:linear-gradient(105deg,#287fba,#a75a36,#ff7628);border-color:#ffad75}
+@media(max-width:760px){.wheel-pair{grid-template-columns:1fr}.wheel-card{padding:16px}.wheel-stage{width:min(100%,270px)}}
+@media(max-width:480px){.wheel-add{grid-template-columns:1fr}.wheel-combo{grid-template-columns:1fr}.wheel-list-head{align-items:flex-start;flex-direction:column}}
+
 </style>
 </head>
 <body>
@@ -336,15 +353,34 @@ header{background:#070b14d9}
   </section>
 
   <section class="page" id="randomizer" role="tabpanel">
-    <div class="heading"><h2>WHEEL OF NAMES</h2><p>Random picks for stream chaos.</p></div><p class="muted"><a href="#" data-go="dashboard">← Back to Dashboard</a></p>
-    <div class="panel">
-      <span class="pill">LOCAL RANDOMIZER PREVIEW</span><h3>Build the viewer wheel</h3>
-      <div class="tool-grid"><label class="tool-field">Add viewer<input id="wheelName" maxlength="30" placeholder="Kick username"></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="addWheelName">Add viewer</button></div></div>
-      <div class="tool-grid"><label class="tool-field">Optional game list<input id="wheelGames" placeholder="Game 1, Game 2, Game 3"></label><div class="tool-field tool-bottom"><button class="tool-btn" id="clearWheel">Clear names</button></div></div>
-      <p id="wheelCount" class="tool-status">0 viewers loaded.</p><div id="wheelList" class="tool-list"><p class="muted">Add viewers to the wheel.</p></div>
-      <div class="tool-actions"><button class="tool-btn primary" id="spinWheel">🎡 Pick a random viewer</button></div>
-      <div id="wheelResult" class="round-block" aria-live="polite"><h4>RESULT</h4><p class="muted">Your random pick will appear here.</p></div>
-      <p class="tool-note">Preview limitation: this wheel uses names entered manually in this browser. It is not connected to live Kick viewers or chat announcements yet.</p>
+    <div class="heading"><h2>WHEEL OF NAMES &amp; GAMES</h2><p>Two separate wheels, with independent spins or one spin together.</p></div>
+    <p class="muted"><a href="#" data-go="dashboard">← Back to Dashboard</a></p>
+    <div class="wheel-page">
+      <div class="wheel-pair">
+        <section class="wheel-card">
+          <h3>NAME WHEEL</h3>
+          <div class="wheel-stage"><span class="wheel-pointer"></span><div class="wheel-disc" id="nameWheelDisc"></div><span class="wheel-hub">NAMES</span></div>
+          <p class="wheel-result" id="nameWheelResult" aria-live="polite">Waiting for a spin</p>
+          <div class="tool-grid wheel-add"><label class="tool-field">Add a name<input id="wheelName" maxlength="40" placeholder="Kick username"></label><button class="tool-btn primary" id="addWheelName" type="button">ADD NAME</button></div>
+          <div class="wheel-list-head"><span id="wheelCount">0 names</span><button class="tool-btn danger" id="clearWheel" type="button">CLEAR NAMES</button></div>
+          <div id="wheelList" class="tool-list"><p class="empty-state">Add names to the wheel.</p></div>
+          <button class="tool-btn wheel-spin" id="spinWheel" type="button">SPIN NAMES</button>
+        </section>
+        <section class="wheel-card">
+          <h3>GAME WHEEL</h3>
+          <div class="wheel-stage"><span class="wheel-pointer"></span><div class="wheel-disc" id="gameWheelDisc"></div><span class="wheel-hub">GAMES</span></div>
+          <p class="wheel-result" id="gameWheelResult" aria-live="polite">Waiting for a spin</p>
+          <div class="tool-grid wheel-add"><label class="tool-field">Add a game<input id="wheelGame" maxlength="60" placeholder="Game name"></label><button class="tool-btn primary" id="addWheelGame" type="button">ADD GAME</button></div>
+          <div class="wheel-list-head"><span id="gameWheelCount">0 games</span><button class="tool-btn danger" id="clearGames" type="button">CLEAR GAMES</button></div>
+          <div id="gameWheelList" class="tool-list"><p class="empty-state">Add games to the wheel.</p></div>
+          <button class="tool-btn wheel-spin" id="spinGames" type="button">SPIN GAMES</button>
+        </section>
+      </div>
+      <div class="wheel-combo">
+        <button class="tool-btn wheel-shuffle" id="shuffleBoth" type="button">🔀 SHUFFLE BOTH</button>
+        <button class="tool-btn wheel-spin-both" id="spinBoth" type="button">🎡 SPIN BOTH</button>
+      </div>
+      <p class="tool-note">Your lists are saved in this browser. This preview is not connected to live Kick chat or automatic chat announcements.</p>
     </div>
   </section>
 
@@ -839,17 +875,37 @@ $('revealBalance').onclick=()=>{
 renderBalanceGame();
 
 const wheelStoreKey='danielus25_wheel_preview_v1';
-let wheelNames=[];
+const gameWheelStoreKey='danielus25_game_wheel_preview_v1';
+let wheelNames=[],wheelGames=[];
 try{const saved=JSON.parse(localStorage.getItem(wheelStoreKey)||'[]');if(Array.isArray(saved))wheelNames=saved;}catch(e){}
-function saveWheel(){try{localStorage.setItem(wheelStoreKey,JSON.stringify(wheelNames));}catch(e){}}
-function renderWheel(){
-  $('wheelCount').textContent=wheelNames.length+' viewer'+(wheelNames.length===1?'':'s')+' loaded.';
-  $('wheelList').innerHTML='';
-  if(!wheelNames.length)$('wheelList').innerHTML='<p class="muted">Add viewers to the wheel.</p>';
-  wheelNames.forEach((name,i)=>{
-    const row=document.createElement('div');row.className='player-row';
-    const label=document.createElement('span');label.textContent=(i+1)+'. '+name;
-    const remove=document.createElement('button');remove.textContent='REMOVE';remove.onclick=()=>{wheelNames.splice(i,1);saveWheel();renderWheel();};
+try{const saved=JSON.parse(localStorage.getItem(gameWheelStoreKey)||'[]');if(Array.isArray(saved))wheelGames=saved;}catch(e){}
+function saveWheelLists(){try{localStorage.setItem(wheelStoreKey,JSON.stringify(wheelNames));localStorage.setItem(gameWheelStoreKey,JSON.stringify(wheelGames));}catch(e){}}
+function renderWheelList(items,listId,countId,kind){
+ const list=$(listId);list.innerHTML='';$(countId).textContent=items.length+' '+kind+(items.length===1?'':'s');
+ if(!items.length){list.innerHTML='<p class="empty-state">Add '+kind+'s to the wheel.</p>';return;}
+ items.forEach((item,i)=>{const row=document.createElement('div');row.className='player-row';const label=document.createElement('span');label.textContent=(i+1)+'. '+item;const remove=document.createElement('button');remove.type='button';remove.textContent='REMOVE';remove.onclick=()=>{items.splice(i,1);saveWheelLists();renderWheels();};row.append(label,remove);list.append(row);});
+}
+function renderWheels(){renderWheelList(wheelNames,'wheelList','wheelCount','name');renderWheelList(wheelGames,'gameWheelList','gameWheelCount','game');}
+function addWheelItem(inputId,items){const input=$(inputId),value=input.value.trim().replace(/^@/,'');if(!value)return;if(items.some(x=>x.toLowerCase()===value.toLowerCase())){alert('That entry is already on this wheel.');return;}items.push(value);input.value='';saveWheelLists();renderWheels();}
+$('addWheelName').onclick=()=>addWheelItem('wheelName',wheelNames);
+$('addWheelGame').onclick=()=>addWheelItem('wheelGame',wheelGames);
+$('wheelName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addWheelName').click();});
+$('wheelGame').addEventListener('keydown',e=>{if(e.key==='Enter')$('addWheelGame').click();});
+$('clearWheel').onclick=()=>{if(!confirm('Clear all names from the name wheel?'))return;wheelNames=[];saveWheelLists();renderWheels();$('nameWheelResult').textContent='Waiting for a spin';$('nameWheelDisc').style.transform='rotate(0deg)';$('nameWheelDisc').dataset.rotation='0';};
+$('clearGames').onclick=()=>{if(!confirm('Clear all games from the game wheel?'))return;wheelGames=[];saveWheelLists();renderWheels();$('gameWheelResult').textContent='Waiting for a spin';$('gameWheelDisc').style.transform='rotate(0deg)';$('gameWheelDisc').dataset.rotation='0';};
+function shuffleItems(items){for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];}}
+$('shuffleBoth').onclick=()=>{shuffleItems(wheelNames);shuffleItems(wheelGames);saveWheelLists();renderWheels();$('nameWheelResult').textContent='Names shuffled!';$('gameWheelResult').textContent='Games shuffled!';};
+function spinOneWheel(items,discId,resultId,label){
+ if(!items.length){alert('Add at least one '+label+' first.');return false;}
+ const chosen=items[Math.floor(Math.random()*items.length)],disc=$(discId),current=Number(disc.dataset.rotation||0);
+ const next=current+1440+Math.floor(Math.random()*720);
+ disc.dataset.rotation=String(next);disc.style.transform='rotate('+next+'deg)';$(resultId).textContent='Spinning...';
+ setTimeout(()=>{$(resultId).textContent='🏆 '+chosen;},4300);return true;
+}
+$('spinWheel').onclick=()=>spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name');
+$('spinGames').onclick=()=>spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game');
+$('spinBoth').onclick=()=>{if(!wheelNames.length||!wheelGames.length){alert('Add at least one name and one game before spinning both wheels.');return;}spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name');spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game');};
+renderWheels();};
     row.append(label,remove);$('wheelList').append(row);
   });
 }
