@@ -332,14 +332,14 @@ header{background:#070b14d9}
     <div class="heading"><h2>GIVEAWAYS</h2><p>Entries, eligibility, and winner selection.</p></div><p class="muted"><a href="#" data-go="dashboard">← Back to Dashboard</a></p>
     <div class="panel">
       <span class="pill">GIVEAWAY CONTROL CENTER · LOCAL PREVIEW</span><h3>Set up the giveaway</h3>
-      <div class="tool-grid"><label class="tool-field">Entry keyword<input id="giveawayKeyword" maxlength="30" value="pickme"></label><label class="tool-field">Giveaway title<input id="giveawayTitle" maxlength="60" placeholder="Tonight's giveaway"></label></div>
+      <div class="tool-grid"><label class="tool-field">Entry keyword<input id="giveawayKeyword" maxlength="30" value="pickme"></label></div>
       <div class="tool-divider"></div><h3>Subscriber Sub Luck</h3>
       <p class="muted">Turn Sub Luck on or off and choose the chance multiplier for all subscribers.</p>
       <div class="tool-grid"><div class="tool-field"><span>Sub Luck</span><button type="button" class="tool-btn" id="giveawaySubLuckToggle" aria-pressed="false">SUB LUCK: OFF</button></div><label class="tool-field">Subscriber chance multiplier<select id="giveawaySubLuckMultiplier"><option value="1">1x chance</option><option value="2">2x chance</option><option value="3">3x chance</option><option value="4">4x chance</option></select></label></div>
       <p id="giveawaySubLuckStatus" class="tool-note">Sub Luck is OFF. Everyone gets 1 chance.</p>
       <div class="tool-divider"></div><h3>Custom chat wording</h3>
-      <p class="muted">Use {title}, {keyword}, {user}, and {winner} where shown. These messages are saved with the giveaway settings.</p>
-      <div class="tool-grid"><label class="tool-field">When entries open<input id="giveawayOpenMessage" maxlength="220" value="🎁 {title} is OPEN! Type !{keyword} to enter!"></label><label class="tool-field">When someone enters<input id="giveawayEntryMessage" maxlength="220" value="Good luck @{user}! You're entered!"></label><label class="tool-field">When entries close<input id="giveawayCloseMessage" maxlength="220" value="Entries are CLOSED! Good luck everyone!"></label><label class="tool-field">Winner announcement<input id="giveawayWinnerMessage" maxlength="220" value="🏆 Congrats @{winner}! You won {title}!"></label></div>
+      <p class="muted">Use {keyword}, {user}, and {winner} where shown. These messages are saved with the giveaway settings.</p>
+      <div class="tool-grid"><label class="tool-field">When entries open<input id="giveawayOpenMessage" maxlength="220" value="🎁 GIVEAWAY IS OPEN! Type !{keyword} to enter!"></label><label class="tool-field">When someone enters<input id="giveawayEntryMessage" maxlength="220" value="Good luck @{user}! You're entered!"></label><label class="tool-field">When entries close<input id="giveawayCloseMessage" maxlength="220" value="Entries are CLOSED! Good luck everyone!"></label><label class="tool-field">Winner announcement<input id="giveawayWinnerMessage" maxlength="220" value="🏆 Congrats @{winner}! You won the giveaway!"></label></div>
       <div class="tool-actions"><button class="tool-btn primary" id="openGiveaway">Open entries</button><button class="tool-btn" id="closeGiveaway">Close entries</button><button class="tool-btn danger" id="resetGiveaway">Reset giveaway</button></div>
       <p id="giveawayStatus" class="tool-status" aria-live="polite">Entries are closed.</p>
       <div class="tool-divider"></div><h3>Preview a viewer entry</h3>
@@ -834,7 +834,7 @@ const defaultGiveawayMessages={
  close:'Entries are CLOSED! Good luck everyone!',
  winner:'🏆 Congrats @{winner}! You won {title}!'
 };
-let giveaway={open:false,keyword:'pickme',title:'',entries:[],winner:'',subLuckOn:false,subLuckMultiplier:1,messages:{...defaultGiveawayMessages}};
+let giveaway={open:false,keyword:'pickme',entries:[],winner:'',subLuckOn:false,subLuckMultiplier:1,messages:{...defaultGiveawayMessages}};
 try{
  const saved=JSON.parse(localStorage.getItem(giveawayStoreKey)||'null');
  if(saved&&Array.isArray(saved.entries)){
@@ -844,10 +844,10 @@ try{
 }catch(e){}
 function saveGiveaway(){try{localStorage.setItem(giveawayStoreKey,JSON.stringify(giveaway));}catch(e){}}
 function giveawayMessage(template,values){
- return String(template||'').replace(/\{(title|keyword|user|winner)\}/g,(match,key)=>String(values[key]??''));
+ return String(template||'').replace(/\{(keyword|user|winner)\}/g,(match,key)=>String(values[key]??''));
 }
 function renderGiveaway(){
- $('giveawayKeyword').value=giveaway.keyword;$('giveawayTitle').value=giveaway.title;
+ $('giveawayKeyword').value=giveaway.keyword;
  $('giveawaySubLuckToggle').textContent='SUB LUCK: '+(giveaway.subLuckOn?'ON':'OFF');
  $('giveawaySubLuckToggle').setAttribute('aria-pressed',String(giveaway.subLuckOn));
  $('giveawaySubLuckMultiplier').value=String([1,2,3,4].includes(Number(giveaway.subLuckMultiplier))?giveaway.subLuckMultiplier:1);
@@ -885,14 +885,14 @@ $('giveawaySubLuckToggle').onclick=()=>{giveaway.subLuckOn=!giveaway.subLuckOn;s
 $('giveawaySubLuckMultiplier').onchange=()=>{giveaway.subLuckMultiplier=Number($('giveawaySubLuckMultiplier').value)||1;saveGiveaway();renderGiveaway();};
 ['giveawayOpenMessage','giveawayEntryMessage','giveawayCloseMessage','giveawayWinnerMessage'].forEach(id=>$(id).addEventListener('change',()=>{readGiveawayMessages();saveGiveaway();}));
 $('openGiveaway').onclick=()=>{
- const keyword=$('giveawayKeyword').value.trim(),title=$('giveawayTitle').value.trim();
+ const keyword=$('giveawayKeyword').value.trim();
  if(!keyword){alert('Set an entry keyword first.');return;}
- giveaway.keyword=keyword;giveaway.title=title;readGiveawayMessages();giveaway.open=true;giveaway.winner='';saveGiveaway();renderGiveaway();
- $('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.open,{title:giveaway.title||'Giveaway',keyword:giveaway.keyword});
+ giveaway.keyword=keyword;readGiveawayMessages();giveaway.open=true;giveaway.winner='';saveGiveaway();renderGiveaway();
+ $('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.open,{keyword:giveaway.keyword});
 };
 $('closeGiveaway').onclick=()=>{
  giveaway.open=false;readGiveawayMessages();saveGiveaway();renderGiveaway();
- $('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.close,{title:giveaway.title||'Giveaway',keyword:giveaway.keyword});
+ $('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.close,{keyword:giveaway.keyword});
 };
 $('addGiveawayEntry').onclick=()=>{
  if(!giveaway.open){alert('Entries are closed.');return;}
@@ -900,7 +900,7 @@ $('addGiveawayEntry').onclick=()=>{
  if(giveaway.entries.some(e=>e.name.toLowerCase()===name.toLowerCase())){$('giveawayEntryStatus').textContent='That viewer has already entered.';return;}
  const subscriber=$('giveawayViewerSubscriber').value==='yes';
  giveaway.entries.push({name,subscriber});readGiveawayMessages();$('giveawayViewer').value='';$('giveawayViewerSubscriber').value='no';
- $('giveawayEntryStatus').textContent=giveawayMessage(giveaway.messages.entry,{user:name,title:giveaway.title||'Giveaway',keyword:giveaway.keyword});
+ $('giveawayEntryStatus').textContent=giveawayMessage(giveaway.messages.entry,{user:name,keyword:giveaway.keyword});
  saveGiveaway();renderGiveaway();
 };
 $('giveawayViewer').addEventListener('keydown',e=>{if(e.key==='Enter')$('addGiveawayEntry').click();});
@@ -913,12 +913,12 @@ $('drawGiveaway').onclick=()=>{
   for(let i=0;i<Math.max(1,Math.min(4,chances));i++)weighted.push(entry.name);
  });
  giveaway.winner=weighted[Math.floor(Math.random()*weighted.length)];readGiveawayMessages();saveGiveaway();renderGiveaway();
- $('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.winner,{winner:giveaway.winner,title:giveaway.title||'Giveaway',keyword:giveaway.keyword});
+ $('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.winner,{winner:giveaway.winner,keyword:giveaway.keyword});
 };
 $('resetGiveaway').onclick=()=>{
  if(!confirm('Reset this giveaway and remove all entries?'))return;
  readGiveawayMessages();
- giveaway={open:false,keyword:$('giveawayKeyword').value.trim()||'pickme',title:$('giveawayTitle').value.trim(),entries:[],winner:'',subLuckOn:giveaway.subLuckOn,subLuckMultiplier:giveaway.subLuckMultiplier,messages:{...giveaway.messages}};
+ giveaway={open:false,keyword:$('giveawayKeyword').value.trim()||'pickme',entries:[],winner:'',subLuckOn:giveaway.subLuckOn,subLuckMultiplier:giveaway.subLuckMultiplier,messages:{...giveaway.messages}};
  saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='';
 };
 renderGiveaway();};
