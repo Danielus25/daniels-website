@@ -153,91 +153,68 @@ header{background:#070b14d9}
 /* Wheel page: match the clean two-column reference layout (no floating decorations). */
 body:has(#randomizer.active){
   background:
-    radial-gradient(ellipse at 50% 16%,#a94b3938 0%,transparent 43%),
-    radial-gradient(ellipse at 12% 75%,#3857a044 0%,transparent 42%),
-    radial-gradient(ellipse at 88% 75%,#3857a044 0%,transparent 42%),
-    linear-gradient(145deg,#171b31 0%,#252238 52%,#171b31 100%) !important;
+    radial-gradient(ellipse at 12% 75%,#123b5b80 0%,transparent 42%),
+    radial-gradient(ellipse at 88% 75%,#6b2a1380 0%,transparent 42%),
+    linear-gradient(145deg,#070b14 0%,#0b1422 52%,#070b14 100%) !important;
 }
 #randomizer .heading h2{
-  background:linear-gradient(100deg,#f04ab8,#83eaff);
+  background:linear-gradient(100deg,#ff8a38 8%,#f4f8ff 48%,#35c5ff 90%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
 }
 #randomizer .wheel-settings{
   width:100%;max-width:1120px;padding:16px 20px;
   display:flex;flex-direction:row;align-items:center;justify-content:center;
   flex-wrap:wrap;gap:10px;
-  background:linear-gradient(145deg,#192541f2,#111a30f5);
-  border-color:#4b5d88;box-shadow:0 14px 36px #0005;
+  background:linear-gradient(145deg,#14243aee,#0c1422f5);
+  border-color:#315674;box-shadow:0 14px 36px #0007;
 }
 #randomizer .wheel-setting-row{
   flex:0 1 auto;min-width:190px;gap:10px;
-  background:#0d172b;border-color:#40547c;
-  color:#eef4ff;font-size:.82rem;
+  background:#0a1422;border-color:#315674;
+  color:#f4f8ff;font-size:.82rem;
 }
 #randomizer .wheel-setting-row button,
 #randomizer #saveWheelSettings,
 #randomizer .wheel-card .tool-btn,
 #randomizer #spinBoth{
-  background:linear-gradient(105deg,#ed43b5 0%,#bd62d4 48%,#63d9f4 100%);
-  border:1px solid #8ce8ff;color:#10162a;
-  border-radius:999px;font-weight:950;
-  box-shadow:0 4px 16px #d84dbb30;
+  background:linear-gradient(105deg,#176fa9 0%,#477e9d 48%,#ff7628 100%);
+  border:1px solid #68b8e5;color:#fff;
+  border-radius:10px;font-weight:900;
+  box-shadow:0 4px 16px #168acb22;
 }
-#randomizer .wheel-settings .tool-field{
-  flex:0 1 170px;min-width:145px;
-}
-#randomizer .wheel-settings select{
-  background:#0a1428;border-color:#53658d;color:#f4f7ff;
-  border-radius:10px;padding:10px;
-}
+#randomizer .wheel-settings .tool-field{flex:0 1 170px;min-width:145px}
+#randomizer .wheel-settings select{background:#071321;border-color:#315674;color:#f4f8ff;border-radius:10px;padding:10px}
 #randomizer #saveWheelSettings{padding:11px 20px}
 #randomizer #wheelAutoStatus{flex:1 0 100%;margin:2px 0 0;text-align:center}
 #randomizer .wheel-page{max-width:1120px}
 #randomizer #spinBoth{width:100%;padding:15px;letter-spacing:.06em}
-#randomizer .wheel-page>.tool-note{color:#c5cce0}
+#randomizer .wheel-page>.tool-note{color:#aabbd0}
 #randomizer .wheel-pair{gap:14px}
 #randomizer .wheel-card{
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   grid-template-rows:auto auto auto auto auto auto minmax(70px,1fr);
-  column-gap:16px;row-gap:8px;
-  padding:18px;border-radius:18px;
-  border:1px solid #53658d;
-  background:linear-gradient(145deg,#1a2746f5,#111a30f7);
-  box-shadow:0 16px 38px #0006;
+  column-gap:16px;row-gap:8px;padding:18px;border-radius:18px;
+  border:1px solid #315674;background:linear-gradient(145deg,#14243aee,#0a1422f5);
+  box-shadow:0 16px 38px #0007;
 }
-#randomizer .wheel-card h3{grid-column:1/-1;grid-row:1;margin:0 0 4px;color:#e8efff}
-#randomizer .wheel-card .wheel-stage{
-  grid-column:1;grid-row:2 / span 3;
-  width:min(100%,290px);margin:0 auto;align-self:center;
-}
+#randomizer .wheel-card h3{grid-column:1/-1;grid-row:1;margin:0 0 4px;color:#d9efff}
+#randomizer .wheel-card .wheel-stage{grid-column:1;grid-row:2 / span 3;width:min(100%,290px);margin:0 auto;align-self:center}
 #randomizer .wheel-card .wheel-spin{grid-column:1;grid-row:5;margin:0;width:100%;padding:12px}
-#randomizer .wheel-card .wheel-result{grid-column:1;grid-row:6;margin:0;align-self:start;background:#0a1428;border-color:#53658d}
+#randomizer .wheel-card .wheel-result{grid-column:1;grid-row:6;margin:0;align-self:start;background:#071321;border-color:#315674}
 #randomizer .wheel-card>.tool-field{grid-column:2;grid-row:2;align-self:stretch}
-#randomizer .wheel-card textarea{
-  min-height:150px;background:#0a1428;color:#f5f7ff;
-  border:1px solid #53658d;border-radius:10px;padding:11px;
-}
+#randomizer .wheel-card textarea{min-height:150px;background:#071321;color:#f4f8ff;border:1px solid #315674;border-radius:10px;padding:11px}
 #randomizer .wheel-card .wheel-actions{grid-column:2;grid-row:3;margin:0;align-content:start}
 #randomizer .wheel-card .wheel-actions .tool-btn{padding:9px 11px;flex:1 1 42%;font-size:.76rem}
-#randomizer .wheel-card .wheel-list-count{grid-column:2;grid-row:4;margin:0;color:#a9eaff}
+#randomizer .wheel-card .wheel-list-count{grid-column:2;grid-row:4;margin:0;color:#9bdcff}
 #randomizer .wheel-card .tool-list{grid-column:2;grid-row:5 / span 2;max-height:170px;margin:0}
-#randomizer .wheel-card .empty-state{background:#101b31;border-color:#53658d;color:#c0cce1}
-#randomizer .wheel-disc{
-  background:#080c18;border-color:#7182a5;
-  box-shadow:0 0 0 5px #0b1428,0 0 24px #0008;
-}
+#randomizer .wheel-card .empty-state{background:#0a1422;border-color:#315674;color:#aabbd0}
+#randomizer .wheel-disc{background:#05070b;border-color:#526174;box-shadow:0 0 0 5px #071321,0 0 24px #0008}
 #randomizer .wheel-disc.has-items{
-  background-image:
-    repeating-conic-gradient(from -90deg,#080c18 0deg 1deg,transparent 1deg var(--slice-angle,360deg)),
-    conic-gradient(from 0deg,#43bdf4,#668ce9,#9a76d4,#df69bf,#ff8bca,#82e4f4,#43bdf4);
-  border-color:#dceaff;
-  box-shadow:0 0 0 5px #0b1428,0 0 28px #70c9f455;
+  background-image:repeating-conic-gradient(from -90deg,#05070b 0deg 1deg,transparent 1deg var(--slice-angle,360deg)),conic-gradient(from 0deg,#29baff,#48b6dc,#7d9eb8,#c18a70,#ff7628,#f7a15d,#29baff);
+  border-color:#d9efff;box-shadow:0 0 0 5px #071321,0 0 28px #29baff44;
 }
-#randomizer .wheel-hub{background:#10172a;border-color:#a4b5d3;color:#f3f6ff}
-#randomizer .wheel-disc.has-items+.wheel-hub{
-  background:linear-gradient(135deg,#ed43b5,#63d9f4);
-  border-color:#fff;color:#10162a;
-}
+#randomizer .wheel-hub{background:#090d14;border-color:#66788c;color:#e7edf5}
+#randomizer .wheel-disc.has-items+.wheel-hub{background:linear-gradient(135deg,#29baff,#ff7628);border-color:#fff;color:#071321}
 #randomizer .wheel-pointer{filter:drop-shadow(0 3px 5px #000b)}
 @media(max-width:760px){
   #randomizer .wheel-card{grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:13px;column-gap:10px}
@@ -246,14 +223,7 @@ body:has(#randomizer.active){
 }
 @media(max-width:520px){
   #randomizer .wheel-card{grid-template-columns:1fr;grid-template-rows:auto}
-  #randomizer .wheel-card h3,
-  #randomizer .wheel-card .wheel-stage,
-  #randomizer .wheel-card .wheel-spin,
-  #randomizer .wheel-card .wheel-result,
-  #randomizer .wheel-card>.tool-field,
-  #randomizer .wheel-card .wheel-actions,
-  #randomizer .wheel-card .wheel-list-count,
-  #randomizer .wheel-card .tool-list{grid-column:1;grid-row:auto}
+  #randomizer .wheel-card h3,#randomizer .wheel-card .wheel-stage,#randomizer .wheel-card .wheel-spin,#randomizer .wheel-card .wheel-result,#randomizer .wheel-card>.tool-field,#randomizer .wheel-card .wheel-actions,#randomizer .wheel-card .wheel-list-count,#randomizer .wheel-card .tool-list{grid-column:1;grid-row:auto}
   #randomizer .wheel-card .wheel-stage{width:min(100%,250px)}
   #randomizer .wheel-card textarea{min-height:110px}
 }
