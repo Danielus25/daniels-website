@@ -206,6 +206,8 @@ body:has(#randomizer.active){
 #randomizer .wheel-card .tool-list{grid-column:2;grid-row:5 / span 2;max-height:170px;margin:0}
 #randomizer .wheel-card .empty-state{background:#0a1422;border-color:#315674;color:#aabbd0}
 #randomizer .wheel-disc{position:relative;overflow:hidden}
+#randomizer .wheel-divider-overlay{position:absolute;inset:0;width:100%;height:100%;z-index:2;overflow:visible;pointer-events:none}
+#randomizer .wheel-entry-label{z-index:3;}
 #randomizer .wheel-entry-label{
  position:absolute;z-index:3;max-width:29%;padding:2px 4px;
  transform:translate(-50%,-50%);color:#05070b;background:transparent;
@@ -984,14 +986,13 @@ function updateWheelDisc(items,discId,hubLabel){
  const disc=$(discId);disc.innerHTML='';
  const count=items.length;
  disc.classList.toggle('has-items',count>0);
- disc.style.setProperty('--slice-angle',(360/Math.max(1,count))+'deg');
  if(!count){disc.style.backgroundImage='none';return;}
  const colors=['#1686c4','#29baff','#477e9d','#ff7628','#d96832','#f7a15d','#237cae','#e58a4b'];
  const step=360/count,stops=[];
  items.forEach((item,index)=>{
   const color=colors[index%colors.length],start=index*step,end=(index+1)*step;
   stops.push(color+' '+start+'deg',color+' '+end+'deg');
-  const angle=(start+end)/2-90,rad=angle*Math.PI/180,radius=34;
+  const angle=(start+end)/2-90,rad=angle*Math.PI/180,radius=31;
   const label=document.createElement('span');
   label.className='wheel-entry-label';
   label.textContent=item;
@@ -1000,10 +1001,27 @@ function updateWheelDisc(items,discId,hubLabel){
   label.style.top=(50+radius*Math.sin(rad))+'%';
   label.style.transform='translate(-50%,-50%) rotate('+angle+'deg)';
   label.style.fontWeight='1000';
-  label.style.webkitTextStroke='0.45px currentColor';
+  label.style.webkitTextStroke='0.7px currentColor';
   disc.append(label);
  });
- disc.style.backgroundImage='repeating-conic-gradient(from -90deg,#05070b 0deg 1deg,transparent 1deg var(--slice-angle,360deg)),conic-gradient(from -90deg,'+stops.join(',')+')';
+ disc.style.backgroundImage='conic-gradient(from 0deg,'+stops.join(',')+')';
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ svg.setAttribute('viewBox','0 0 100 100');
+ svg.setAttribute('class','wheel-divider-overlay');
+ svg.setAttribute('aria-hidden','true');
+ for(let index=0;index<count;index++){
+  const angle=(index*step-90)*Math.PI/180;
+  const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1','50');line.setAttribute('y1','50');
+  line.setAttribute('x2',String(50+49*Math.cos(angle)));
+  line.setAttribute('y2',String(50+49*Math.sin(angle)));
+  line.setAttribute('stroke','#071321');
+  line.setAttribute('stroke-width','1.15');
+  line.setAttribute('stroke-linecap','butt');
+  line.setAttribute('vector-effect','non-scaling-stroke');
+  svg.append(line);
+ }
+ disc.append(svg);
 }
 function updateWheelDiscs(){updateWheelDisc(wheelNames,'nameWheelDisc','NAMES');updateWheelDisc(wheelGames,'gameWheelDisc','GAMES');}
 function renderWheelList(items,listId,countId,kind){const list=$(listId);list.innerHTML='';$(countId).textContent='Live list · '+items.length+' entries';if(!items.length){list.innerHTML='<p class="empty-state">No '+kind+'s added yet.</p>';return;}items.forEach((item,i)=>{const row=document.createElement('div');row.className='player-row';const label=document.createElement('span');label.textContent=(i+1)+'. '+item;const remove=document.createElement('button');remove.type='button';remove.textContent='REMOVE';remove.onclick=()=>{items.splice(i,1);saveWheelLists();renderWheels();};row.append(label,remove);list.append(row);});}
