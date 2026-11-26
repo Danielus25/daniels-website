@@ -965,13 +965,28 @@ $('refreshGiveaway').onclick=()=>{renderGiveaway();$('giveawayEntryStatus').text
 $('clearGiveawayEntries').onclick=()=>{if(!confirm('Clear all current giveaway entries?'))return;giveaway.entries=[];saveGiveaway();renderGiveaway();};
 $('clearGiveawayWinners').onclick=()=>{if(!confirm('Clear the winner history?'))return;giveaway.winners=[];giveaway.winner='';saveGiveaway();renderGiveaway();};
 $('resetGiveaway').onclick=()=>{if(!confirm('Reset the giveaway and clear entries and winners?'))return;giveaway={open:false,keyword:$('giveawayKeyword').value.trim(),entries:[],winner:'',winners:[],subLuckMultiplier:1,activityTimer:0,claimTimer:15,messages:{...giveaway.messages}};saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='Giveaway reset.';};
-/* Future chat bridge: call this with a Kick username whenever they send a chat message. */
-window.danielGiveawayChatMessage=(username)=>{
- const name=String(username||'').trim().replace(/^@/,'');const now=Date.now();
- const entry=giveaway.entries.find(e=>e.name.toLowerCase()===name.toLowerCase());
- if(entry)entry.lastActive=now;
+/* Chat bridge: viewers enter by typing the saved keyword itself (no ! prefix or command). */
+window.danielGiveawayChatMessage=(username,message,isSubscriber=false)=>{
+ const name=String(username||'').trim().replace(/^@/,'');
+ const text=String(message||'').trim();
+ if(!name)return {ok:false,message:'Missing Kick username.'};
+ const now=Date.now();
+ const existing=giveaway.entries.find(e=>e.name.toLowerCase()===name.toLowerCase());
+ if(existing)existing.lastActive=now;
  if(giveaway.activityTimer>0)giveaway.entries=giveaway.entries.filter(e=>now-Number(e.lastActive||0)<=giveaway.activityTimer*60000);
+ const keyword=String(giveaway.keyword||'').trim();
+ let result={ok:false,message:'Chat activity recorded.'};
+ if(giveaway.open&&keyword&&text.toLowerCase()===keyword.toLowerCase()){
+  if(giveaway.entries.some(e=>e.name.toLowerCase()===name.toLowerCase())){
+   result={ok:false,message:'Already entered.'};
+  }else{
+   giveaway.entries.push({name,subscriber:!!isSubscriber,lastActive:now});
+   result={ok:true,message:'Entry accepted.'};
+  }
+ }
  saveGiveaway();renderGiveaway();
+ if(result.ok)$('giveawayEntryStatus').textContent=giveawayMessage(giveaway.messages.entry,{user:name,keyword:giveaway.keyword});
+ return result;
 };
 renderGiveaway();
 
