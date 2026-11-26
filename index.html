@@ -105,7 +105,27 @@ body{background:#03050b url("./flames.svg?v=2") center center / cover fixed no-r
 body:before,body:after{display:none!important}
 body>header,body>main{position:relative;z-index:1}
 header{background:#070b14d9}
-\n</style>
+\n
+/* Giveaway manager layout */
+.giveaway-shell{max-width:850px;margin:16px auto 28px;padding:22px;border:1px solid #315674;border-radius:20px;background:linear-gradient(145deg,#12243aee,#091522f2);box-shadow:0 18px 48px #0008}
+.giveaway-topline{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid #29445e;font-size:.9rem;letter-spacing:.04em}
+.giveaway-live-dot{width:10px;height:10px;border-radius:50%;background:#ff8b38;box-shadow:0 0 12px #ff8b38}
+.giveaway-preview-tag{margin-left:auto;border:1px solid #315674;border-radius:999px;padding:5px 9px;color:#9bdcff;font-size:.68rem;font-weight:900}
+.giveaway-section{padding:18px 0;border-bottom:1px solid #29445e}
+.giveaway-keyword-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px}
+.giveaway-keyword-row input,.giveaway-section input[type=number],.giveaway-section select{width:100%;min-width:0;background:#071321;color:#fff;border:1px solid #315674;border-radius:11px;padding:12px;font:inherit}
+.giveaway-count-card{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px;margin:16px 0;border:1px solid #315674;border-radius:14px;background:#071321aa;color:#aabbd0}
+.giveaway-count-card>div{display:flex;align-items:center;gap:13px}.giveaway-count-card strong{color:#eaf5ff}.giveaway-count{font-size:2.1rem;font-weight:1000;color:#ff9b45;line-height:1}
+.giveaway-label{display:block;margin-bottom:12px}
+.giveaway-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.giveaway-options label{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #29445e;border-radius:11px;background:#091625;color:#dcecff;font-size:.83rem;cursor:pointer}
+.giveaway-options input{accent-color:#29baff}.giveaway-options b{color:#ffad62}
+.giveaway-actions{display:flex;gap:10px;flex-wrap:wrap;padding:18px 0}.giveaway-actions .tool-btn{min-width:112px}
+.giveaway-heading-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.giveaway-heading-row h3{margin:0;color:#dff2ff}
+.giveaway-manager-note{margin:16px 0;padding:13px;border:1px solid #315674;border-radius:11px;background:#0a1b2a;color:#9bdcff;font-size:.84rem;text-align:center}
+.giveaway-advanced{margin-top:18px;border:1px solid #315674;border-radius:12px;padding:13px;background:#081421}.giveaway-advanced summary{font-weight:850;cursor:pointer;color:#9bdcff}
+@media(max-width:540px){.giveaway-shell{padding:15px}.giveaway-options{grid-template-columns:1fr}.giveaway-keyword-row{grid-template-columns:1fr}.giveaway-count-card{align-items:flex-start;flex-direction:column}.giveaway-preview-tag{margin-left:0}}
+</style>
 </head>
 <body>
 <header>
@@ -329,27 +349,67 @@ header{background:#070b14d9}
   </section>
 
   <section class="page" id="giveaways" role="tabpanel">
-    <div class="heading"><h2>GIVEAWAYS</h2><p>Entries, eligibility, and winner selection.</p></div><p class="muted"><a href="#" data-go="dashboard">← Back to Dashboard</a></p>
-    <div class="panel">
-      <span class="pill">GIVEAWAY CONTROL CENTER · LOCAL PREVIEW</span><h3>Set up the giveaway</h3>
-      <div class="tool-grid"><label class="tool-field">Entry keyword<input id="giveawayKeyword" maxlength="30" value="pickme"></label></div>
-      <div class="tool-divider"></div><h3>Subscriber Sub Luck</h3>
-      <p class="muted">Turn Sub Luck on or off and choose the chance multiplier for all subscribers.</p>
-      <div class="tool-grid"><div class="tool-field"><span>Sub Luck</span><button type="button" class="tool-btn" id="giveawaySubLuckToggle" aria-pressed="false">SUB LUCK: OFF</button></div><label class="tool-field">Subscriber chance multiplier<select id="giveawaySubLuckMultiplier"><option value="1">1x chance</option><option value="2">2x chance</option><option value="3">3x chance</option><option value="4">4x chance</option></select></label></div>
-      <p id="giveawaySubLuckStatus" class="tool-note">Sub Luck is OFF. Everyone gets 1 chance.</p>
-      <div class="tool-divider"></div><h3>Custom chat wording</h3>
-      <p class="muted">Use {keyword}, {user}, and {winner} where shown. These messages are saved with the giveaway settings.</p>
-      <div class="tool-grid"><label class="tool-field">When entries open<input id="giveawayOpenMessage" maxlength="220" value="🎁 GIVEAWAY IS OPEN! Type !{keyword} to enter!"></label><label class="tool-field">When someone enters<input id="giveawayEntryMessage" maxlength="220" value="Good luck @{user}! You're entered!"></label><label class="tool-field">When entries close<input id="giveawayCloseMessage" maxlength="220" value="Entries are CLOSED! Good luck everyone!"></label><label class="tool-field">Winner announcement<input id="giveawayWinnerMessage" maxlength="220" value="🏆 Congrats @{winner}! You won the giveaway!"></label></div>
-      <div class="tool-actions"><button class="tool-btn primary" id="openGiveaway">Open entries</button><button class="tool-btn" id="closeGiveaway">Close entries</button><button class="tool-btn danger" id="resetGiveaway">Reset giveaway</button></div>
-      <p id="giveawayStatus" class="tool-status" aria-live="polite">Entries are closed.</p>
-      <div class="tool-divider"></div><h3>Preview a viewer entry</h3>
-      <p class="muted">This simulates a viewer typing the keyword in chat. Mark the viewer as a subscriber to test the selected Sub Luck multiplier. Live subscriber detection and chat collection still need Daniel's bot/backend connection.</p>
-      <div class="tool-grid"><label class="tool-field">Viewer / Kick username<input id="giveawayViewer" maxlength="30" placeholder="Kick username"></label><label class="tool-field">Subscriber status<select id="giveawayViewerSubscriber"><option value="no">Not a subscriber</option><option value="yes">Subscriber</option></select></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="addGiveawayEntry">Enter giveaway</button></div></div>
+    <div class="heading"><h2>🎁 LIVE CHAT GIVEAWAY</h2><p>Choose a word for chat to type. One entry per Kick account. Activity and subscriber odds are optional.</p></div>
+    <div class="giveaway-shell">
+      <div class="giveaway-topline"><span class="giveaway-live-dot"></span><strong id="giveawayStatus">OFFLINE · ENTRIES PAUSED</strong><span class="giveaway-preview-tag">MANAGER PREVIEW</span></div>
+      <div class="giveaway-section">
+        <label class="tool-field giveaway-keyword-field">Giveaway keyword
+          <div class="giveaway-keyword-row"><input id="giveawayKeyword" maxlength="30" value="pickme" placeholder="Enter keyword"><button class="tool-btn primary" id="saveGiveawayKeyword" type="button">SAVE WORD</button></div>
+        </label>
+        <p class="tool-note">You can change this whenever you want, even while the giveaway is live.</p>
+      </div>
+      <div class="giveaway-count-card"><div><span class="giveaway-count" id="giveawayCount">0</span><strong>Current entries</strong></div><span>viewers entered</span></div>
+      <div class="giveaway-section">
+        <label class="tool-field">Activity timer (minutes)<input id="giveawayActivityTimer" type="number" min="0" max="1440" step="1" value="0"></label>
+        <p class="tool-note">0 = off. Example: 10 removes entries after 10 minutes without a chat message.</p>
+      </div>
+      <div class="giveaway-section">
+        <label class="tool-field">Winner claim timer
+          <select id="giveawayClaimTimer"><option value="15">15 seconds</option><option value="20">20 seconds</option><option value="25">25 seconds</option><option value="30">30 seconds</option></select>
+        </label>
+      </div>
+      <div class="giveaway-section">
+        <strong class="giveaway-label">Subscriber luck</strong>
+        <div class="giveaway-options" id="giveawaySubLuckOptions">
+          <label><input type="radio" name="giveawaySubLuck" value="1" checked><span><b>1x</b> · Subscribers get normal odds</span></label>
+          <label><input type="radio" name="giveawaySubLuck" value="2"><span><b>2x</b> · Subscribers get 2x tickets</span></label>
+          <label><input type="radio" name="giveawaySubLuck" value="3"><span><b>3x</b> · Subscribers get 3x tickets</span></label>
+          <label><input type="radio" name="giveawaySubLuck" value="4"><span><b>4x</b> · Subscribers get 4x tickets</span></label>
+          <label><input type="radio" name="giveawaySubLuck" value="5"><span><b>5x</b> · Subscribers get 5x tickets</span></label>
+          <label><input type="radio" name="giveawaySubLuck" value="6"><span><b>6x</b> · Subscribers get 6x tickets</span></label>
+        </div>
+      </div>
+      <div class="giveaway-actions">
+        <button class="tool-btn primary" id="giveawayToggle" type="button">ON</button>
+        <button class="tool-btn" id="drawGiveaway" type="button">DRAW WINNER</button>
+        <button class="tool-btn" id="refreshGiveaway" type="button">REFRESH</button>
+      </div>
       <p id="giveawayEntryStatus" class="tool-status" aria-live="polite"></p>
-      <div class="tool-divider"></div><h3>Entries <span id="giveawayCount" class="pill">0</span></h3><div id="giveawayEntries" class="tool-list"><p class="muted">No entries yet.</p></div>
-      <div class="tool-actions"><button class="tool-btn primary" id="drawGiveaway">🎁 Draw weighted random winner</button></div>
-      <div id="giveawayWinner" class="round-block" aria-live="polite"><h4>WINNER</h4><p class="muted">No winner drawn yet.</p></div>
-      <p class="tool-note">Preview limitation: entries are manually simulated and stored only in this browser. Subscriber status is manually selected here for testing; it is not verified by Kick. Live Kick subscriber detection, shared entries, and automatic chat announcements require Daniel's own backend and bot connection.</p>
+      <div class="giveaway-section">
+        <div class="giveaway-heading-row"><h3>👥 Giveaway entries</h3><button class="tool-btn danger" id="clearGiveawayEntries" type="button">CLEAR</button></div>
+        <div id="giveawayEntries" class="tool-list"><div class="empty-state">No one has entered yet. Entries appear here as chat types the keyword.</div></div>
+      </div>
+      <div class="giveaway-manager-note">Signed in as a SlotBuddy manager. Giveaway controls are enabled in this preview.</div>
+      <div class="giveaway-section">
+        <div class="giveaway-heading-row"><h3>🏆 WINNERS</h3><button class="tool-btn danger" id="clearGiveawayWinners" type="button">CLEAR</button></div>
+        <div id="giveawayWinners" class="tool-list"><div class="empty-state">No winners yet.</div></div>
+      </div>
+      <details class="giveaway-advanced">
+        <summary>Custom chat wording & preview tools</summary>
+        <p class="tool-note">These message templates are saved locally. Live chat announcements and automatic Kick subscriber checks still need Daniel's bot/backend connection.</p>
+        <div class="tool-grid">
+          <label class="tool-field">When entries open<input id="giveawayOpenMessage" maxlength="220" value="🎁 GIVEAWAY IS OPEN! Type !{keyword} to enter!"></label>
+          <label class="tool-field">When someone enters<input id="giveawayEntryMessage" maxlength="220" value="Good luck @{user}! You're entered!"></label>
+          <label class="tool-field">When entries close<input id="giveawayCloseMessage" maxlength="220" value="Entries are CLOSED! Good luck everyone!"></label>
+          <label class="tool-field">Winner announcement<input id="giveawayWinnerMessage" maxlength="220" value="🏆 Congrats @{winner}! You won the giveaway!"></label>
+        </div>
+        <div class="tool-grid">
+          <label class="tool-field">Preview viewer / Kick username<input id="giveawayViewer" maxlength="30" placeholder="Kick username"></label>
+          <label class="tool-field">Subscriber status<select id="giveawayViewerSubscriber"><option value="no">Not a subscriber</option><option value="yes">Subscriber</option></select></label>
+        </div>
+        <div class="tool-actions"><button class="tool-btn primary" id="addGiveawayEntry" type="button">ADD PREVIEW ENTRY</button><button class="tool-btn danger" id="resetGiveaway" type="button">RESET GIVEAWAY</button></div>
+      </details>
+      <p class="tool-note">Preview mode: entries and winners are stored in this browser. Live Kick chat collection, verified subscriber status, shared entries, activity tracking, claim countdowns, and automatic chat announcements require Daniel's own bot/backend connection.</p>
     </div>
   </section>
 
@@ -829,129 +889,87 @@ renderWheel();
 
 const giveawayStoreKey='danielus25_giveaway_preview_v1';
 const defaultGiveawayMessages={
- open:'🎁 {title} is OPEN! Type !{keyword} to enter!',
+ open:'🎁 GIVEAWAY IS OPEN! Type !{keyword} to enter!',
  entry:"Good luck @{user}! You're entered!",
  close:'Entries are CLOSED! Good luck everyone!',
- winner:'🏆 Congrats @{winner}! You won {title}!'
+ winner:'🏆 Congrats @{winner}! You won the giveaway!'
 };
-let giveaway={open:false,keyword:'pickme',entries:[],winner:'',subLuckOn:false,subLuckMultiplier:1,messages:{...defaultGiveawayMessages}};
+let giveaway={open:false,keyword:'pickme',entries:[],winner:'',winners:[],subLuckMultiplier:1,activityTimer:0,claimTimer:15,messages:{...defaultGiveawayMessages}};
 try{
  const saved=JSON.parse(localStorage.getItem(giveawayStoreKey)||'null');
  if(saved&&Array.isArray(saved.entries)){
   giveaway={...giveaway,...saved,messages:{...defaultGiveawayMessages,...(saved.messages||{})}};
-  giveaway.entries=giveaway.entries.map(entry=>typeof entry==='string'?{name:entry,subscriber:false}:({...entry,name:String(entry.name||entry.viewer||''),subscriber:!!entry.subscriber}));
+  giveaway.entries=giveaway.entries.map(entry=>typeof entry==='string'?{name:entry,subscriber:false,lastActive:Date.now()}:({...entry,name:String(entry.name||entry.viewer||''),subscriber:!!entry.subscriber,lastActive:Number(entry.lastActive)||Date.now()}));
+  if(!Array.isArray(giveaway.winners))giveaway.winners=[];
  }
 }catch(e){}
 function saveGiveaway(){try{localStorage.setItem(giveawayStoreKey,JSON.stringify(giveaway));}catch(e){}}
-function giveawayMessage(template,values){
- return String(template||'').replace(/\{(keyword|user|winner)\}/g,(match,key)=>String(values[key]??''));
-}
+function giveawayMessage(template,values){return String(template||'').replace(/\\{(keyword|user|winner)\\}/g,(match,key)=>String(values[key]??''));}
+function readGiveawayMessages(){giveaway.messages={open:$('giveawayOpenMessage').value.trim()||defaultGiveawayMessages.open,entry:$('giveawayEntryMessage').value.trim()||defaultGiveawayMessages.entry,close:$('giveawayCloseMessage').value.trim()||defaultGiveawayMessages.close,winner:$('giveawayWinnerMessage').value.trim()||defaultGiveawayMessages.winner};}
 function renderGiveaway(){
  $('giveawayKeyword').value=giveaway.keyword;
- $('giveawaySubLuckToggle').textContent='SUB LUCK: '+(giveaway.subLuckOn?'ON':'OFF');
- $('giveawaySubLuckToggle').setAttribute('aria-pressed',String(giveaway.subLuckOn));
- $('giveawaySubLuckMultiplier').value=String([1,2,3,4].includes(Number(giveaway.subLuckMultiplier))?giveaway.subLuckMultiplier:1);
- $('giveawaySubLuckMultiplier').disabled=!giveaway.subLuckOn;
- $('giveawaySubLuckStatus').textContent=giveaway.subLuckOn?'Sub Luck is ON. Subscribers get '+giveaway.subLuckMultiplier+'x the chances; everyone else gets 1 chance.':'Sub Luck is OFF. Everyone gets 1 chance.';
- $('giveawayOpenMessage').value=giveaway.messages.open;$('giveawayEntryMessage').value=giveaway.messages.entry;
- $('giveawayCloseMessage').value=giveaway.messages.close;$('giveawayWinnerMessage').value=giveaway.messages.winner;
- $('giveawayStatus').textContent=giveaway.open?'Entries are OPEN · keyword: '+giveaway.keyword:'Entries are CLOSED.';
- $('giveawayCount').textContent=String(giveaway.entries.length);$('giveawayEntries').innerHTML='';
- if(!giveaway.entries.length)$('giveawayEntries').innerHTML='<p class="muted">No entries yet.</p>';
+ $('giveawayActivityTimer').value=String(giveaway.activityTimer||0);
+ $('giveawayClaimTimer').value=String(giveaway.claimTimer||15);
+ document.querySelectorAll('input[name="giveawaySubLuck"]').forEach(el=>el.checked=Number(el.value)===Number(giveaway.subLuckMultiplier||1));
+ $('giveawayOpenMessage').value=giveaway.messages.open;$('giveawayEntryMessage').value=giveaway.messages.entry;$('giveawayCloseMessage').value=giveaway.messages.close;$('giveawayWinnerMessage').value=giveaway.messages.winner;
+ $('giveawayStatus').textContent=giveaway.open?'LIVE · ENTRIES OPEN':'OFFLINE · ENTRIES PAUSED';
+ $('giveawayToggle').textContent=giveaway.open?'OFF':'ON';
+ $('giveawayToggle').classList.toggle('primary',!giveaway.open);
+ $('giveawayCount').textContent=String(giveaway.entries.length);
+ $('giveawayEntries').innerHTML='';
+ if(!giveaway.entries.length)$('giveawayEntries').innerHTML='<div class="empty-state">No one has entered yet. Entries appear here as chat types the keyword.</div>';
  giveaway.entries.forEach((entry,i)=>{
   const row=document.createElement('div');row.className='player-row';
-  const label=document.createElement('span');
-  const isBoosted=!!(giveaway.subLuckOn&&entry.subscriber),chance=isBoosted?Number(giveaway.subLuckMultiplier):1;
-  label.textContent=(i+1)+'. '+entry.name+(entry.subscriber?' · SUB':' · NON-SUB')+' · '+chance+'x chance';
-  const remove=document.createElement('button');remove.textContent='REMOVE';remove.onclick=()=>{giveaway.entries.splice(i,1);if(giveaway.winner===entry.name)giveaway.winner='';saveGiveaway();renderGiveaway();};
+  const label=document.createElement('span');const odds=entry.subscriber?Number(giveaway.subLuckMultiplier||1):1;
+  label.textContent=(i+1)+'. @'+entry.name+(entry.subscriber?' · SUB':'')+' · '+odds+'x tickets';
+  const remove=document.createElement('button');remove.type='button';remove.textContent='REMOVE';remove.onclick=()=>{giveaway.entries.splice(i,1);saveGiveaway();renderGiveaway();};
   row.append(label,remove);$('giveawayEntries').append(row);
  });
- $('giveawayWinner').innerHTML='';
- const heading=document.createElement('h4');heading.textContent='WINNER';
- const result=document.createElement('p');result.className=giveaway.winner?'tool-status':'muted';result.textContent=giveaway.winner?'🏆 '+giveaway.winner:'No winner drawn yet.';
- $('giveawayWinner').append(heading,result);
- $('openGiveaway').disabled=giveaway.open;$('closeGiveaway').disabled=!giveaway.open;
- $('addGiveawayEntry').disabled=!giveaway.open;$('drawGiveaway').disabled=giveaway.open||!giveaway.entries.length;
+ $('giveawayWinners').innerHTML='';
+ if(!giveaway.winners.length)$('giveawayWinners').innerHTML='<div class="empty-state">No winners yet.</div>';
+ giveaway.winners.forEach((winner,i)=>{const row=document.createElement('div');row.className='player-row';const label=document.createElement('strong');label.textContent=(i+1)+'. 🏆 @'+winner.name;const time=document.createElement('span');time.textContent=winner.date||'';row.append(label,time);$('giveawayWinners').append(row);});
+ $('drawGiveaway').disabled=giveaway.open||!giveaway.entries.length;
 }
-function readGiveawayMessages(){
- giveaway.messages={
-  open:$('giveawayOpenMessage').value.trim()||defaultGiveawayMessages.open,
-  entry:$('giveawayEntryMessage').value.trim()||defaultGiveawayMessages.entry,
-  close:$('giveawayCloseMessage').value.trim()||defaultGiveawayMessages.close,
-  winner:$('giveawayWinnerMessage').value.trim()||defaultGiveawayMessages.winner
- };
-}
-$('giveawaySubLuckToggle').onclick=()=>{giveaway.subLuckOn=!giveaway.subLuckOn;saveGiveaway();renderGiveaway();};
-$('giveawaySubLuckMultiplier').onchange=()=>{giveaway.subLuckMultiplier=Number($('giveawaySubLuckMultiplier').value)||1;saveGiveaway();renderGiveaway();};
+$('saveGiveawayKeyword').onclick=()=>{const word=$('giveawayKeyword').value.trim().replace(/^!/,'');if(!word){alert('Enter a keyword first.');return;}giveaway.keyword=word;saveGiveaway();$('giveawayEntryStatus').textContent='Entry keyword saved: !'+word;};
+$('giveawayToggle').onclick=()=>{
+ if(!giveaway.open){const word=$('giveawayKeyword').value.trim().replace(/^!/,'');if(!word){alert('Save an entry keyword first.');return;}giveaway.keyword=word;giveaway.open=true;giveaway.winner='';readGiveawayMessages();saveGiveaway();$('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.open,{keyword:giveaway.keyword});}
+ else{giveaway.open=false;readGiveawayMessages();saveGiveaway();$('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.close,{keyword:giveaway.keyword});}
+ renderGiveaway();
+};
+$('giveawayActivityTimer').onchange=()=>{giveaway.activityTimer=Math.max(0,Math.min(1440,Number($('giveawayActivityTimer').value)||0));saveGiveaway();renderGiveaway();};
+$('giveawayClaimTimer').onchange=()=>{giveaway.claimTimer=Number($('giveawayClaimTimer').value)||15;saveGiveaway();};
+document.querySelectorAll('input[name="giveawaySubLuck"]').forEach(el=>el.addEventListener('change',()=>{giveaway.subLuckMultiplier=Number(document.querySelector('input[name="giveawaySubLuck"]:checked').value)||1;saveGiveaway();renderGiveaway();}));
 ['giveawayOpenMessage','giveawayEntryMessage','giveawayCloseMessage','giveawayWinnerMessage'].forEach(id=>$(id).addEventListener('change',()=>{readGiveawayMessages();saveGiveaway();}));
-$('openGiveaway').onclick=()=>{
- const keyword=$('giveawayKeyword').value.trim();
- if(!keyword){alert('Set an entry keyword first.');return;}
- giveaway.keyword=keyword;readGiveawayMessages();giveaway.open=true;giveaway.winner='';saveGiveaway();renderGiveaway();
- $('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.open,{keyword:giveaway.keyword});
-};
-$('closeGiveaway').onclick=()=>{
- giveaway.open=false;readGiveawayMessages();saveGiveaway();renderGiveaway();
- $('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.close,{keyword:giveaway.keyword});
-};
 $('addGiveawayEntry').onclick=()=>{
- if(!giveaway.open){alert('Entries are closed.');return;}
+ if(!giveaway.open){$('giveawayEntryStatus').textContent='Entries are paused.';return;}
  const name=$('giveawayViewer').value.trim().replace(/^@/,'');if(!name){alert('Enter a viewer name.');return;}
- if(giveaway.entries.some(e=>e.name.toLowerCase()===name.toLowerCase())){$('giveawayEntryStatus').textContent='That viewer has already entered.';return;}
+ if(giveaway.entries.some(e=>e.name.toLowerCase()===name.toLowerCase())){$('giveawayEntryStatus').textContent='That Kick account has already entered.';return;}
  const subscriber=$('giveawayViewerSubscriber').value==='yes';
- giveaway.entries.push({name,subscriber});readGiveawayMessages();$('giveawayViewer').value='';$('giveawayViewerSubscriber').value='no';
+ giveaway.entries.push({name,subscriber,lastActive:Date.now()});readGiveawayMessages();
  $('giveawayEntryStatus').textContent=giveawayMessage(giveaway.messages.entry,{user:name,keyword:giveaway.keyword});
+ $('giveawayViewer').value='';$('giveawayViewerSubscriber').value='no';saveGiveaway();renderGiveaway();
+};
+$('giveawayViewer').addEventListener('keydown',e=>{if(e.key==='Enter')$('addGiveawayEntry').click();});
+$('drawGiveaway').onclick=()=>{
+ if(giveaway.open){$('giveawayEntryStatus').textContent='Pause entries before drawing a winner.';return;}
+ if(!giveaway.entries.length)return;
+ const weighted=[];giveaway.entries.forEach(entry=>{const tickets=entry.subscriber?Number(giveaway.subLuckMultiplier||1):1;for(let i=0;i<Math.max(1,Math.min(6,tickets));i++)weighted.push(entry.name);});
+ const name=weighted[Math.floor(Math.random()*weighted.length)];
+ giveaway.winner=name;giveaway.winners.unshift({name,date:new Date().toLocaleString()});
+ readGiveawayMessages();$('giveawayEntryStatus').textContent='Winner: @'+name+' · claim window: '+giveaway.claimTimer+' seconds. Preview announcement: '+giveawayMessage(giveaway.messages.winner,{winner:name,keyword:giveaway.keyword});
  saveGiveaway();renderGiveaway();
 };
-$('giveawayViewer').addEventListener('keydown',e=>{if(e.key==='Enter')$('addGiveawayEntry').click();});
-$('drawGiveaway').onclick=()=>{
- if(giveaway.open){alert('Close entries before drawing a winner.');return;}
- if(!giveaway.entries.length){alert('There are no entries to draw from.');return;}
- const weighted=[];
- giveaway.entries.forEach(entry=>{
-  const chances=giveaway.subLuckOn&&entry.subscriber?Number(giveaway.subLuckMultiplier):1;
-  for(let i=0;i<Math.max(1,Math.min(4,chances));i++)weighted.push(entry.name);
- });
- giveaway.winner=weighted[Math.floor(Math.random()*weighted.length)];readGiveawayMessages();saveGiveaway();renderGiveaway();
- $('giveawayEntryStatus').textContent='Preview announcement: '+giveawayMessage(giveaway.messages.winner,{winner:giveaway.winner,keyword:giveaway.keyword});
-};
-$('resetGiveaway').onclick=()=>{
- if(!confirm('Reset this giveaway and remove all entries?'))return;
- readGiveawayMessages();
- giveaway={open:false,keyword:$('giveawayKeyword').value.trim()||'pickme',entries:[],winner:'',subLuckOn:giveaway.subLuckOn,subLuckMultiplier:giveaway.subLuckMultiplier,messages:{...giveaway.messages}};
- saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='';
-};
-renderGiveaway();};
-    row.append(label,remove);$('giveawayEntries').append(row);
-  });
-  $('giveawayWinner').innerHTML='';
-  const heading=document.createElement('h4');heading.textContent='WINNER';
-  const result=document.createElement('p');result.className=giveaway.winner?'tool-status':'muted';result.textContent=giveaway.winner?'🏆 '+giveaway.winner:'No winner drawn yet.';
-  $('giveawayWinner').append(heading,result);
-  $('openGiveaway').disabled=giveaway.open;$('closeGiveaway').disabled=!giveaway.open;
-  $('addGiveawayEntry').disabled=!giveaway.open;$('drawGiveaway').disabled=giveaway.open||!giveaway.entries.length;
-}
-$('openGiveaway').onclick=()=>{
-  const keyword=$('giveawayKeyword').value.trim(),title=$('giveawayTitle').value.trim();
-  if(!keyword){alert('Set an entry keyword first.');return;}
-  giveaway.keyword=keyword;giveaway.title=title;giveaway.open=true;giveaway.winner='';saveGiveaway();renderGiveaway();
-};
-$('closeGiveaway').onclick=()=>{giveaway.open=false;saveGiveaway();renderGiveaway();};
-$('addGiveawayEntry').onclick=()=>{
-  if(!giveaway.open){alert('Entries are closed.');return;}
-  const name=$('giveawayViewer').value.trim().replace(/^@/,'');if(!name){alert('Enter a viewer name.');return;}
-  if(giveaway.entries.some(n=>n.toLowerCase()===name.toLowerCase())){$('giveawayEntryStatus').textContent='That viewer has already entered.';return;}
-  giveaway.entries.push(name);$('giveawayViewer').value='';$('giveawayEntryStatus').textContent=name+' entered with keyword '+giveaway.keyword+'.';saveGiveaway();renderGiveaway();
-};
-$('giveawayViewer').addEventListener('keydown',e=>{if(e.key==='Enter')$('addGiveawayEntry').click();});
-$('drawGiveaway').onclick=()=>{
-  if(giveaway.open){alert('Close entries before drawing a winner.');return;}
-  if(!giveaway.entries.length){alert('There are no entries to draw from.');return;}
-  giveaway.winner=giveaway.entries[Math.floor(Math.random()*giveaway.entries.length)];saveGiveaway();renderGiveaway();
-};
-$('resetGiveaway').onclick=()=>{
-  if(!confirm('Reset this giveaway and remove all entries?'))return;
-  giveaway={open:false,keyword:$('giveawayKeyword').value.trim()||'pickme',title:$('giveawayTitle').value.trim(),entries:[],winner:''};saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='';
+$('refreshGiveaway').onclick=()=>{renderGiveaway();$('giveawayEntryStatus').textContent='Giveaway display refreshed.';};
+$('clearGiveawayEntries').onclick=()=>{if(!confirm('Clear all current giveaway entries?'))return;giveaway.entries=[];saveGiveaway();renderGiveaway();};
+$('clearGiveawayWinners').onclick=()=>{if(!confirm('Clear the winner history?'))return;giveaway.winners=[];giveaway.winner='';saveGiveaway();renderGiveaway();};
+$('resetGiveaway').onclick=()=>{if(!confirm('Reset the giveaway and clear entries and winners?'))return;giveaway={open:false,keyword:$('giveawayKeyword').value.trim()||'pickme',entries:[],winner:'',winners:[],subLuckMultiplier:1,activityTimer:0,claimTimer:15,messages:{...giveaway.messages}};saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='Giveaway reset.';};
+/* Future chat bridge: call this with a Kick username whenever they send a chat message. */
+window.danielGiveawayChatMessage=(username)=>{
+ const name=String(username||'').trim().replace(/^@/,'');if(!name)return;
+ const entry=giveaway.entries.find(e=>e.name.toLowerCase()===name.toLowerCase());if(!entry)return;
+ entry.lastActive=Date.now();
+ if(giveaway.activityTimer>0){const cutoff=Date.now()-giveaway.activityTimer*60000;giveaway.entries= giveaway.entries.filter(e=>Date.now()-Number(e.lastActive||0)<=giveaway.activityTimer*60000);}
+ saveGiveaway();renderGiveaway();
 };
 renderGiveaway();
 
