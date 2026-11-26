@@ -369,15 +369,16 @@ header{background:#070b14d9}
         </label>
       </div>
       <div class="giveaway-section">
-        <strong class="giveaway-label">Subscriber luck</strong>
-        <div class="giveaway-options" id="giveawaySubLuckOptions">
-          <label><input type="radio" name="giveawaySubLuck" value="1" checked><span><b>1x</b> · Subscribers get normal odds</span></label>
-          <label><input type="radio" name="giveawaySubLuck" value="2"><span><b>2x</b> · Subscribers get 2x tickets</span></label>
-          <label><input type="radio" name="giveawaySubLuck" value="3"><span><b>3x</b> · Subscribers get 3x tickets</span></label>
-          <label><input type="radio" name="giveawaySubLuck" value="4"><span><b>4x</b> · Subscribers get 4x tickets</span></label>
-          <label><input type="radio" name="giveawaySubLuck" value="5"><span><b>5x</b> · Subscribers get 5x tickets</span></label>
-          <label><input type="radio" name="giveawaySubLuck" value="6"><span><b>6x</b> · Subscribers get 6x tickets</span></label>
-        </div>
+        <label class="tool-field giveaway-label" for="giveawaySubLuckMultiplier">Subscriber luck
+          <select id="giveawaySubLuckMultiplier">
+            <option value="1">1x · Subscribers get normal odds</option>
+            <option value="2">2x · Subscribers get 2x tickets</option>
+            <option value="3">3x · Subscribers get 3x tickets</option>
+            <option value="4">4x · Subscribers get 4x tickets</option>
+            <option value="5">5x · Subscribers get 5x tickets</option>
+            <option value="6">6x · Subscribers get 6x tickets</option>
+          </select>
+        </label>
       </div>
       <div class="giveaway-actions">
         <button class="tool-btn primary" id="giveawayToggle" type="button">ON</button>
@@ -910,7 +911,7 @@ function renderGiveaway(){
  $('giveawayKeyword').value=giveaway.keyword;
  $('giveawayActivityTimer').value=String(giveaway.activityTimer||0);
  $('giveawayClaimTimer').value=String(giveaway.claimTimer||15);
- document.querySelectorAll('input[name="giveawaySubLuck"]').forEach(el=>el.checked=Number(el.value)===Number(giveaway.subLuckMultiplier||1));
+ $('giveawaySubLuckMultiplier').value=String(Math.max(1,Math.min(6,Number(giveaway.subLuckMultiplier)||1)));
  $('giveawayOpenMessage').value=giveaway.messages.open;$('giveawayEntryMessage').value=giveaway.messages.entry;$('giveawayCloseMessage').value=giveaway.messages.close;$('giveawayWinnerMessage').value=giveaway.messages.winner;
  $('giveawayStatus').textContent=giveaway.open?'LIVE · ENTRIES OPEN':'OFFLINE · ENTRIES PAUSED';
  $('giveawayToggle').textContent=giveaway.open?'OFF':'ON';
@@ -938,7 +939,7 @@ $('giveawayToggle').onclick=()=>{
 };
 $('giveawayActivityTimer').onchange=()=>{giveaway.activityTimer=Math.max(0,Math.min(1440,Number($('giveawayActivityTimer').value)||0));saveGiveaway();renderGiveaway();};
 $('giveawayClaimTimer').onchange=()=>{giveaway.claimTimer=Number($('giveawayClaimTimer').value)||15;saveGiveaway();};
-document.querySelectorAll('input[name="giveawaySubLuck"]').forEach(el=>el.addEventListener('change',()=>{giveaway.subLuckMultiplier=Number(document.querySelector('input[name="giveawaySubLuck"]:checked').value)||1;saveGiveaway();renderGiveaway();}));
+$('giveawaySubLuckMultiplier').onchange=()=>{giveaway.subLuckMultiplier=Number($('giveawaySubLuckMultiplier').value)||1;saveGiveaway();renderGiveaway();};
 ['giveawayOpenMessage','giveawayEntryMessage','giveawayCloseMessage','giveawayWinnerMessage'].forEach(id=>$(id).addEventListener('change',()=>{readGiveawayMessages();saveGiveaway();}));
 $('addGiveawayEntry').onclick=()=>{
  if(!giveaway.open){$('giveawayEntryStatus').textContent='Entries are paused.';return;}
