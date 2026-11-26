@@ -695,7 +695,7 @@ function renderBonusHunt(){
  $('startingBalance').textContent=bonusMoney(h?.startingBalance);
  $('bonusCount').textContent=String(entries.length);
  $('totalPayout').textContent=bonusMoney(payout);
- $('bonusQueueStatus').textContent=bonusState.queueOn?'Bonus Hunt calls are ON. Cozies calls are OFF.':'Both queues are OFF. !slot requests are paused.';
+ $('bonusQueueStatus').textContent=bonusState.queueOn?'Bonus Hunt calls are ON. New !slot requests go to this queue.':'Bonus Hunt calls are OFF.';
  $('bonusDuplicateToggle').textContent='DUPLICATE CALLS: '+(bonusState.duplicateCalls?'ON':'OFF');
  $('bonusQueueToggle').textContent='BONUS HUNT !SLOT: '+(bonusState.queueOn?'ON':'OFF');
  $('bonusCallLimit').value=String(bonusState.callLimit||1);
