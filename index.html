@@ -118,7 +118,6 @@ header{background:#070b14d9}
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="tournaments" onclick="showPage('tournaments')">TOURNAMENT</button>
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="predictions" onclick="showPage('predictions')">BRACKET GUESSES</button>
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="cozies" onclick="showPage('cozies')">COZIES</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="slotcalls" onclick="showPage('slotcalls')">SLOT CALLS</button>
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="dashboard" onclick="showPage('dashboard')">DASHBOARD</button>
   </nav>
 </header>
@@ -129,7 +128,7 @@ header{background:#070b14d9}
   <section class="hero">
     <div class="eyebrow">⚡ ORANGE HEAT · BLUE FIRE ⚡</div>
     <h1>WELCOME TO<br>DANIELUS25</h1>
-    <p>One home for the stream, casino links, tournaments, bonus hunts, slot calls, and community games. Pick a section below and come hang out.</p>
+    <p>One home for the stream, casino links, tournaments, bonus hunts, and community games. Pick a section below and come hang out.</p>
   </section>
     <div class="heading"><h2>THE STREAM HUB</h2><p>Everything in one place. Choose where you want to go.</p></div>
     <div class="cards">
@@ -138,7 +137,6 @@ header{background:#070b14d9}
       <a class="card orange" href="#" data-go="predictions"><div class="icon">🔮</div><h3>Bracket Predictions</h3><p>Viewers predict winners and earn points for correct picks.</p><span class="visit">MAKE PICKS →</span></a>
       <a class="card blue" href="#" data-go="bonus"><div class="icon">💰</div><h3>Bonus Hunts</h3><p>Track bonuses, costs, payouts, and profit.</p><span class="visit">OPEN BONUS HUNTS →</span></a>
       <a class="card orange" href="#" data-go="cozies"><div class="icon">☕</div><h3>Cozies</h3><p>Track cozy-night bonuses, games, and payouts.</p><span class="visit">OPEN COZIES →</span></a>
-      <a class="card blue" href="#" data-go="slotcalls"><div class="icon">🎮</div><h3>Slot Calls</h3><p>Viewer game requests and a dedicated !slot queue.</p><span class="visit">OPEN SLOT CALLS →</span></a>
       <a class="card blue" href="#" data-go="balance"><div class="icon">🧮</div><h3>Guess the Balance</h3><p>One locked-in guess per Kick account.</p><span class="visit">OPEN GAME →</span></a>
       <a class="card orange" href="#" data-go="randomizer"><div class="icon">🎡</div><h3>Wheel & Randomizer</h3><p>Pick a viewer and announce the result in chat.</p><span class="visit">OPEN RANDOMIZER →</span></a>
       <a class="card blue" href="#" data-go="giveaways"><div class="icon">🎁</div><h3>Giveaways</h3><p>Manage entries, eligibility, and winner selection.</p><span class="visit">OPEN GIVEAWAYS →</span></a>
@@ -284,12 +282,7 @@ header{background:#070b14d9}
 
   <section class="page" id="cozies" role="tabpanel">
     <div class="heading"><h2>COZIES</h2><p>Keep cozy stream nights organized.</p></div>
-    <div class="panel"><span class="pill">COZY NIGHT TRACKER</span><h3>Games · Bonuses · Payouts</h3><p>Keep a separate record of bonuses that pop during cozy streams, including the game, bonus amount, and payout. Cozy-night records stay separate from the main Bonus Hunt and Slot Calls.</p><div class="feature-list"><div class="feature"><b>☕ Cozy session</b><small>Start and name a cozy stream session.</small></div><div class="feature"><b>🎰 Bonus log</b><small>Record each bonus as it pops up.</small></div><div class="feature"><b>💵 Payout tracking</b><small>Enter the result and see session totals.</small></div><div class="feature"><b>📚 Session history</b><small>Keep past cozy sessions available to review.</small></div></div></div>
-  </section>
-
-  <section class="page" id="slotcalls" role="tabpanel">
-    <div class="heading"><h2>SLOT CALLS</h2><p>Viewer requests in a dedicated queue.</p></div>
-    <div class="panel"><span class="pill">CHAT COMMAND: !slot</span><h3>One active request per viewer</h3><p>Viewers type <b>!slot + game name</b> in Kick chat. Daniel can call the next game, remove or clear requests, and turn slot calls on or off. The bot can announce when calls open, when a request is added, and when calls close.</p><div class="feature-list"><div class="feature"><b>📥 Request queue</b><small>See the viewer name and requested game.</small></div><div class="feature"><b>⏭️ Call next</b><small>Advance to the next request and announce it in chat.</small></div><div class="feature"><b>🔔 Chat announcements</b><small>Tell viewers when calls open, their request is added, and calls close.</small></div><div class="feature"><b>🧹 Queue controls</b><small>Remove requests, clear the queue, and manage call status.</small></div></div></div>
+    <div class="panel"><span class="pill">COZY NIGHT TRACKER</span><h3>Games · Bonuses · Payouts</h3><p>Keep a separate record of bonuses that pop during cozy streams, including the game, bonus amount, and payout. Cozy-night records and the Cozies !slot queue stay separate from the main Bonus Hunt.</p><div class="feature-list"><div class="feature"><b>☕ Cozy session</b><small>Start and name a cozy stream session.</small></div><div class="feature"><b>🎰 Bonus log</b><small>Record each bonus as it pops up.</small></div><div class="feature"><b>💵 Payout tracking</b><small>Enter the result and see session totals.</small></div><div class="feature"><b>📚 Session history</b><small>Keep past cozy sessions available to review.</small></div></div></div>
   </section>
 
   <section class="page" id="balance" role="tabpanel">
@@ -703,7 +696,7 @@ function renderBonusHunt(){
  $('totalPayout').textContent=bonusMoney(payout);
  $('bonusQueueStatus').textContent=bonusState.queueOn?'Bonus Hunt calls are ON. Cozies calls are OFF.':'Both queues are OFF. !slot requests are paused.';
  $('bonusDuplicateToggle').textContent='DUPLICATE CALLS: '+(bonusState.duplicateCalls?'ON':'OFF');
- $('bonusQueueToggle').textContent='SLOT CALLS: '+(bonusState.queueOn?'ON':'OFF');
+ $('bonusQueueToggle').textContent='BONUS HUNT !SLOT: '+(bonusState.queueOn?'ON':'OFF');
  $('bonusCallLimit').value=String(bonusState.callLimit||1);
  $('startHunt').disabled=!!h;$('endHunt').disabled=!h;
  const ranked=entries.filter(b=>b.opened).slice().sort((a,b)=>bonusMultiplier(b)-bonusMultiplier(a));
