@@ -966,7 +966,7 @@ function renderCozyQueue(){
   const row=document.createElement('div');row.className='player-row';
   const label=document.createElement('span');label.textContent='#'+(index+1)+' @'+item.viewer+' · '+item.game;
   const edit=document.createElement('button');edit.type='button';edit.textContent='EDIT GAME';
-  edit.onclick=()=>{const next=prompt('Edit @'+item.viewer+'’s pending game:',item.game);if(next===null)return;const game=next.trim();if(!game)return;item.game=game;saveCozyQueueState();renderCozyQueue();};
+  edit.onclick=()=>{const next=prompt('Edit @'+item.viewer+'’s pending game:',item.game);if(next===null)return;const game=next.trim();if(!game)return;item.game=game;saveCozyQueueState();renderCozies();};
   row.append(label,edit);list.append(row);
  });
 }
@@ -1018,9 +1018,10 @@ function editSlotRequest(queue,viewer,game){
 /* These handlers are ready for a future shared BotRix/backend bridge; browser storage is not live chat integration. */
 window.danielSlotCommands={
  slot(viewer,game){const queue=bonusState.queueOn?bonusState.queue:cozyQueueState.queueOn?cozyQueueState.queue:null;if(!queue)return {ok:false,message:'Slot calls are currently OFF.'};const result=addSlotRequest(queue,viewer,game,queue===cozyQueueState.queue?cozyBonusState.callLimit:1);if(result.ok){if(queue===bonusState.queue){saveBonusState();renderBonusHunt();}else{saveCozyQueueState();renderCozies();}}return result;},
- editslot(viewer,game){const queue=bonusState.queueOn?bonusState.queue:cozyQueueState.queueOn?cozyQueueState.queue:null;if(!queue)return {ok:false,message:'Slot calls are currently OFF.'};const result=editSlotRequest(queue,viewer,game);if(result.ok){if(queue===bonusState.queue){saveBonusState();renderBonusHunt();}else{saveCozyQueueState();renderCozyQueue();}}return result;}
+ editslot(viewer,game){const queue=bonusState.queueOn?bonusState.queue:cozyQueueState.queueOn?cozyQueueState.queue:null;if(!queue)return {ok:false,message:'Slot calls are currently OFF.'};const result=editSlotRequest(queue,viewer,game);if(result.ok){if(queue===bonusState.queue){saveBonusState();renderBonusHunt();}else{saveCozyQueueState();renderCozies();}}return result;}
 };
 renderCozyQueue();
+renderCozies();
 
 
 let savedTab='home';
