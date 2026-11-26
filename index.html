@@ -206,10 +206,6 @@ body:has(#randomizer.active){
 #randomizer .wheel-card .tool-list{grid-column:2;grid-row:5 / span 2;max-height:170px;margin:0}
 #randomizer .wheel-card .empty-state{background:#0a1422;border-color:#315674;color:#aabbd0}
 #randomizer .wheel-disc{position:relative;overflow:hidden}
-#randomizer .wheel-divider{
- position:absolute;z-index:2;left:50%;top:0;width:2px;height:50%;
- background:#05070b;transform-origin:50% 100%;pointer-events:none;
-}
 #randomizer .wheel-entry-label{
  position:absolute;z-index:3;max-width:29%;padding:2px 4px;
  transform:translate(-50%,-50%);color:#fff;font-size:clamp(8px,1.05vw,13px);
@@ -993,10 +989,6 @@ function updateWheelDisc(items,discId,hubLabel){
  items.forEach((item,index)=>{
   const color=colors[index%colors.length],start=index*step,end=(index+1)*step;
   stops.push(color+' '+start+'deg',color+' '+end+'deg');
-  const divider=document.createElement('span');
-  divider.className='wheel-divider';
-  divider.style.transform='rotate('+(index*step)+'deg)';
-  disc.append(divider);
   const angle=(start+end)/2-90,rad=angle*Math.PI/180,radius=34;
   const label=document.createElement('span');
   label.className='wheel-entry-label';
@@ -1005,9 +997,13 @@ function updateWheelDisc(items,discId,hubLabel){
   label.style.left=(50+radius*Math.cos(rad))+'%';
   label.style.top=(50+radius*Math.sin(rad))+'%';
   label.style.transform='translate(-50%,-50%) rotate('+angle+'deg)';
+  label.style.backgroundColor=color;
+  label.style.borderRadius='4px';
+  label.style.padding='2px 5px';
+  label.style.boxShadow='0 1px 3px #0009';
   disc.append(label);
  });
- disc.style.backgroundImage='conic-gradient(from -90deg,'+stops.join(',')+')';
+ disc.style.backgroundImage='repeating-conic-gradient(from -90deg,#05070b 0deg 1deg,transparent 1deg var(--slice-angle,360deg)),conic-gradient(from -90deg,'+stops.join(',')+')';
 }
 function updateWheelDiscs(){updateWheelDisc(wheelNames,'nameWheelDisc','NAMES');updateWheelDisc(wheelGames,'gameWheelDisc','GAMES');}
 function renderWheelList(items,listId,countId,kind){const list=$(listId);list.innerHTML='';$(countId).textContent='Live list · '+items.length+' entries';if(!items.length){list.innerHTML='<p class="empty-state">No '+kind+'s added yet.</p>';return;}items.forEach((item,i)=>{const row=document.createElement('div');row.className='player-row';const label=document.createElement('span');label.textContent=(i+1)+'. '+item;const remove=document.createElement('button');remove.type='button';remove.textContent='REMOVE';remove.onclick=()=>{items.splice(i,1);saveWheelLists();renderWheels();};row.append(label,remove);list.append(row);});}
