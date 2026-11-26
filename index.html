@@ -142,6 +142,13 @@ header{background:#070b14d9}
 @media(max-width:760px){.wheel-pair{grid-template-columns:1fr}.wheel-card{padding:16px}.wheel-stage{width:min(100%,270px)}}
 @media(max-width:480px){.wheel-add{grid-template-columns:1fr}.wheel-combo{grid-template-columns:1fr}.wheel-list-head{align-items:flex-start;flex-direction:column}}
 
+
+.wheel-settings{display:grid;gap:12px;margin-bottom:18px}.wheel-setting-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line,#315674);border-radius:10px}.wheel-page{max-width:1080px;margin:0 auto}.wheel-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.wheel-card{min-width:0;padding:20px;border:1px solid #315674;border-radius:20px;background:linear-gradient(145deg,#14243aee,#0a1422f5);box-shadow:0 18px 42px #0007;overflow:hidden}.wheel-card h3{text-align:center;color:#d9efff;margin:0 0 12px;letter-spacing:.1em}
+.wheel-stage{position:relative;width:min(100%,300px);aspect-ratio:1;margin:14px auto 10px;display:grid;place-items:center}.wheel-disc{width:88%;height:88%;border-radius:50%;border:5px solid #526174;box-shadow:0 0 0 5px #071321,0 0 24px #0008;background:#05070b;transition:background 1s ease,transform 4.2s cubic-bezier(.12,.72,.08,1);will-change:transform}.wheel-disc.has-items{background:conic-gradient(from 0deg,#29baff,#48b6dc,#7d9eb8,#c18a70,#ff7628,#f7a15d,#29baff);border-color:#d9efff;box-shadow:0 0 0 5px #071321,0 0 32px #ff8b4a55,0 0 38px #29baff44}
+.wheel-pointer{position:absolute;z-index:3;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:27px solid #fff;filter:drop-shadow(0 3px 5px #000b)}.wheel-hub{position:absolute;z-index:2;width:25%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:#090d14;border:3px solid #66788c;color:#e7edf5;font-size:.7rem;font-weight:1000;letter-spacing:.05em}
+.wheel-disc.has-items+.wheel-hub{background:linear-gradient(135deg,#29baff,#ff7628);border-color:#fff;color:#071321}.wheel-result{min-height:42px;margin:10px 0 14px;padding:10px;text-align:center;border:1px solid #315674;border-radius:11px;background:#071321;color:#fff;font-weight:900;overflow-wrap:anywhere}.wheel-card textarea{width:100%;min-height:112px;resize:vertical}.wheel-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.wheel-actions .tool-btn{flex:1 1 auto}.wheel-list-count{margin:14px 0 7px;color:#9bdcff;font-size:.82rem;font-weight:850}.wheel-list{max-height:190px;overflow:auto}.wheel-spin{width:100%;padding:13px;background:linear-gradient(100deg,#176fa9,#a75a36,#ff7628);border-color:#80cfff;color:#fff;letter-spacing:.08em}.wheel-spin-both{width:100%;padding:15px;font-size:1rem;letter-spacing:.06em;color:#fff;background:linear-gradient(105deg,#287fba,#a75a36,#ff7628);border-color:#ffad75}.wheel-page>.tool-note{text-align:center}
+@media(max-width:760px){.wheel-pair{grid-template-columns:1fr}.wheel-card{padding:16px}.wheel-stage{width:min(100%,270px)}}
 </style>
 </head>
 <body>
@@ -353,19 +360,43 @@ header{background:#070b14d9}
   </section>
 
   <section class="page" id="randomizer" role="tabpanel">
-    <div class="heading"><h2>WHEEL OF NAMES &amp; GAMES</h2><p>Two separate wheels, with independent spins or one spin together.</p></div>
+    <div class="heading"><h2>WHEEL OF NAMES</h2><p>Two wheels for names and games, with optional slot-call auto-add.</p></div>
     <p class="muted"><a href="#" data-go="dashboard">← Back to Dashboard</a></p>
+    <div class="panel wheel-settings">
+      <div class="wheel-setting-row"><strong>AUTO-ADD FROM !slot</strong><button class="tool-btn" id="wheelAutoAdd" type="button" aria-pressed="false">OFF</button></div>
+      <div class="wheel-setting-row"><strong>DUPLICATES</strong><button class="tool-btn" id="wheelDuplicates" type="button" aria-pressed="false">OFF</button></div>
+      <label class="tool-field">ENTRIES PER PERSON<select id="wheelEntriesPerPerson"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label>
+      <button class="tool-btn primary" id="saveWheelSettings" type="button">SAVE SETTINGS</button>
+      <p class="tool-note" id="wheelAutoStatus">OFF — !slot calls still work normally, but nothing is added to either wheel.</p>
+    </div>
     <div class="wheel-page">
+      <button class="tool-btn wheel-spin-both" id="spinBoth" type="button">🎡 SPIN BOTH WHEELS</button>
+      <p class="tool-note">Spin the name and game wheels together.</p>
       <div class="wheel-pair">
         <section class="wheel-card">
-          <h3>NAME WHEEL</h3>
+          <h3>WHEEL 1 · NAMES</h3>
           <div class="wheel-stage"><span class="wheel-pointer"></span><div class="wheel-disc" id="nameWheelDisc"></div><span class="wheel-hub">NAMES</span></div>
-          <p class="wheel-result" id="nameWheelResult" aria-live="polite">Waiting for a spin</p>
-          <div class="tool-grid wheel-add"><label class="tool-field">Add a name<input id="wheelName" maxlength="40" placeholder="Kick username"></label><button class="tool-btn primary" id="addWheelName" type="button">ADD NAME</button></div>
-          <div class="wheel-list-head"><span id="wheelCount">0 names</span><button class="tool-btn danger" id="clearWheel" type="button">CLEAR NAMES</button></div>
-          <div id="wheelList" class="tool-list"><p class="empty-state">Add names to the wheel.</p></div>
-          <button class="tool-btn wheel-spin" id="spinWheel" type="button">SPIN NAMES</button>
+          <button class="tool-btn wheel-spin" id="spinWheel" type="button">🎡 SPIN WHEEL 1</button>
+          <p class="wheel-result" id="nameWheelResult" aria-live="polite">Ready to spin!</p>
+          <label class="tool-field">NAMES — ONE PER LINE<textarea id="wheelNamesText" rows="5" placeholder="Enter one name per line"></textarea></label>
+          <div class="wheel-actions"><button class="tool-btn primary" id="saveNames" type="button">SAVE NAMES</button><button class="tool-btn" id="shuffleNames" type="button">🔀 SHUFFLE</button><button class="tool-btn danger" id="clearWheel" type="button">CLEAR WHEEL</button></div>
+          <p class="wheel-list-count" id="wheelCount">Live list · 0 entries</p>
+          <div id="wheelList" class="tool-list"><p class="empty-state">No names added yet.</p></div>
         </section>
+        <section class="wheel-card">
+          <h3>WHEEL 2 · GAMES</h3>
+          <div class="wheel-stage"><span class="wheel-pointer"></span><div class="wheel-disc" id="gameWheelDisc"></div><span class="wheel-hub">GAMES</span></div>
+          <button class="tool-btn wheel-spin" id="spinGames" type="button">🎡 SPIN WHEEL 2</button>
+          <p class="wheel-result" id="gameWheelResult" aria-live="polite">Ready to spin!</p>
+          <label class="tool-field">GAMES — ONE PER LINE<textarea id="wheelGamesText" rows="5" placeholder="Enter one game per line"></textarea></label>
+          <div class="wheel-actions"><button class="tool-btn primary" id="saveGames" type="button">SAVE GAMES</button><button class="tool-btn" id="shuffleGames" type="button">🔀 SHUFFLE</button><button class="tool-btn" id="editGame" type="button">EDIT A GAME</button><button class="tool-btn danger" id="clearGames" type="button">CLEAR WHEEL</button></div>
+          <p class="wheel-list-count" id="gameWheelCount">Live list · 0 entries</p>
+          <div id="gameWheelList" class="tool-list"><p class="empty-state">No games added yet.</p></div>
+        </section>
+      </div>
+      <p class="tool-note">Lists and settings are saved in this browser. The live shared-list and Kick chat connection still require Daniel’s backend/Kick integration.</p>
+    </div>
+  </section>
         <section class="wheel-card">
           <h3>GAME WHEEL</h3>
           <div class="wheel-stage"><span class="wheel-pointer"></span><div class="wheel-disc" id="gameWheelDisc"></div><span class="wheel-hub">GAMES</span></div>
@@ -874,59 +905,29 @@ $('revealBalance').onclick=()=>{
 };
 renderBalanceGame();
 
-const wheelStoreKey='danielus25_wheel_preview_v1';
-const gameWheelStoreKey='danielus25_game_wheel_preview_v1';
-let wheelNames=[],wheelGames=[];
-try{const saved=JSON.parse(localStorage.getItem(wheelStoreKey)||'[]');if(Array.isArray(saved))wheelNames=saved;}catch(e){}
-try{const saved=JSON.parse(localStorage.getItem(gameWheelStoreKey)||'[]');if(Array.isArray(saved))wheelGames=saved;}catch(e){}
+const wheelStoreKey='danielus25_wheel_preview_v1',gameWheelStoreKey='danielus25_game_wheel_preview_v1',wheelSettingsKey='danielus25_wheel_settings_v1';
+let wheelNames=[],wheelGames=[],wheelSettings={autoAdd:false,duplicates:false,perPerson:1};
+try{const v=JSON.parse(localStorage.getItem(wheelStoreKey)||'[]');if(Array.isArray(v))wheelNames=v;}catch(e){}
+try{const v=JSON.parse(localStorage.getItem(gameWheelStoreKey)||'[]');if(Array.isArray(v))wheelGames=v;}catch(e){}
+try{wheelSettings={...wheelSettings,...JSON.parse(localStorage.getItem(wheelSettingsKey)||'{}')};}catch(e){}
 function saveWheelLists(){try{localStorage.setItem(wheelStoreKey,JSON.stringify(wheelNames));localStorage.setItem(gameWheelStoreKey,JSON.stringify(wheelGames));}catch(e){}}
-function renderWheelList(items,listId,countId,kind){
- const list=$(listId);list.innerHTML='';$(countId).textContent=items.length+' '+kind+(items.length===1?'':'s');
- if(!items.length){list.innerHTML='<p class="empty-state">Add '+kind+'s to the wheel.</p>';return;}
- items.forEach((item,i)=>{const row=document.createElement('div');row.className='player-row';const label=document.createElement('span');label.textContent=(i+1)+'. '+item;const remove=document.createElement('button');remove.type='button';remove.textContent='REMOVE';remove.onclick=()=>{items.splice(i,1);saveWheelLists();renderWheels();};row.append(label,remove);list.append(row);});
-}
-function renderWheels(){renderWheelList(wheelNames,'wheelList','wheelCount','name');renderWheelList(wheelGames,'gameWheelList','gameWheelCount','game');}
-function addWheelItem(inputId,items){const input=$(inputId),value=input.value.trim().replace(/^@/,'');if(!value)return;if(items.some(x=>x.toLowerCase()===value.toLowerCase())){alert('That entry is already on this wheel.');return;}items.push(value);input.value='';saveWheelLists();renderWheels();}
-$('addWheelName').onclick=()=>addWheelItem('wheelName',wheelNames);
-$('addWheelGame').onclick=()=>addWheelItem('wheelGame',wheelGames);
-$('wheelName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addWheelName').click();});
-$('wheelGame').addEventListener('keydown',e=>{if(e.key==='Enter')$('addWheelGame').click();});
-$('clearWheel').onclick=()=>{if(!confirm('Clear all names from the name wheel?'))return;wheelNames=[];saveWheelLists();renderWheels();$('nameWheelResult').textContent='Waiting for a spin';$('nameWheelDisc').style.transform='rotate(0deg)';$('nameWheelDisc').dataset.rotation='0';};
-$('clearGames').onclick=()=>{if(!confirm('Clear all games from the game wheel?'))return;wheelGames=[];saveWheelLists();renderWheels();$('gameWheelResult').textContent='Waiting for a spin';$('gameWheelDisc').style.transform='rotate(0deg)';$('gameWheelDisc').dataset.rotation='0';};
-function shuffleItems(items){for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];}}
-$('shuffleBoth').onclick=()=>{shuffleItems(wheelNames);shuffleItems(wheelGames);saveWheelLists();renderWheels();$('nameWheelResult').textContent='Names shuffled!';$('gameWheelResult').textContent='Games shuffled!';};
-function spinOneWheel(items,discId,resultId,label){
- if(!items.length){alert('Add at least one '+label+' first.');return false;}
- const chosen=items[Math.floor(Math.random()*items.length)],disc=$(discId),current=Number(disc.dataset.rotation||0);
- const next=current+1440+Math.floor(Math.random()*720);
- disc.dataset.rotation=String(next);disc.style.transform='rotate('+next+'deg)';$(resultId).textContent='Spinning...';
- setTimeout(()=>{$(resultId).textContent='🏆 '+chosen;},4300);return true;
-}
-$('spinWheel').onclick=()=>spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name');
-$('spinGames').onclick=()=>spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game');
-$('spinBoth').onclick=()=>{if(!wheelNames.length||!wheelGames.length){alert('Add at least one name and one game before spinning both wheels.');return;}spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name');spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game');};
-renderWheels();};
-    row.append(label,remove);$('wheelList').append(row);
-  });
-}
-$('addWheelName').onclick=()=>{
-  const name=$('wheelName').value.trim().replace(/^@/,'');if(!name)return;
-  if(wheelNames.some(n=>n.toLowerCase()===name.toLowerCase())){alert('That viewer is already on the wheel.');return;}
-  wheelNames.push(name);$('wheelName').value='';saveWheel();renderWheel();
-};
-$('wheelName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addWheelName').click();});
-$('clearWheel').onclick=()=>{if(!confirm('Clear all names from the wheel?'))return;wheelNames=[];saveWheel();renderWheel();$('wheelResult').innerHTML='<h4>RESULT</h4><p class="muted">Your random pick will appear here.</p>';};
-$('spinWheel').onclick=()=>{
-  if(!wheelNames.length){alert('Add at least one viewer first.');return;}
-  const winner=wheelNames[Math.floor(Math.random()*wheelNames.length)];
-  const games=$('wheelGames').value.split(',').map(x=>x.trim()).filter(Boolean);
-  const game=games.length?games[Math.floor(Math.random()*games.length)]:null;
-  $('wheelResult').innerHTML='';
-  const title=document.createElement('h4');title.textContent='🎉 RANDOM PICK';
-  const result=document.createElement('p');result.className='tool-status';result.textContent=winner+(game?' · Game: '+game:'');
-  $('wheelResult').append(title,result);
-};
-renderWheel();
+function updateWheelDiscs(){$('nameWheelDisc').classList.toggle('has-items',wheelNames.length>0);$('gameWheelDisc').classList.toggle('has-items',wheelGames.length>0);}
+function renderWheelList(items,listId,countId,kind){const list=$(listId);list.innerHTML='';$(countId).textContent='Live list · '+items.length+' entries';if(!items.length){list.innerHTML='<p class="empty-state">No '+kind+'s added yet.</p>';return;}items.forEach((item,i)=>{const row=document.createElement('div');row.className='player-row';const label=document.createElement('span');label.textContent=(i+1)+'. '+item;const remove=document.createElement('button');remove.type='button';remove.textContent='REMOVE';remove.onclick=()=>{items.splice(i,1);saveWheelLists();renderWheels();};row.append(label,remove);list.append(row);});}
+function renderWheels(){$('wheelNamesText').value=wheelNames.join('\n');$('wheelGamesText').value=wheelGames.join('\n');renderWheelList(wheelNames,'wheelList','wheelCount','name');renderWheelList(wheelGames,'gameWheelList','gameWheelCount','game');updateWheelDiscs();}
+function readWheelTextarea(id){return $(id).value.split(/\r?\n/).map(x=>x.trim().replace(/^@/,'')).filter(Boolean);}
+function saveWheelText(textId,which){const entries=readWheelTextarea(textId);if(!wheelSettings.duplicates){const seen=new Set();for(const v of entries){const key=v.toLowerCase();if(seen.has(key)){alert('Duplicate entries are OFF. Remove repeated entries before saving.');return;}seen.add(key);}}if(which==='names')wheelNames=entries;else wheelGames=entries;saveWheelLists();renderWheels();}
+function shuffleWheel(items){for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];}}
+$('saveNames').onclick=()=>saveWheelText('wheelNamesText','names');$('saveGames').onclick=()=>saveWheelText('wheelGamesText','games');
+$('shuffleNames').onclick=()=>{shuffleWheel(wheelNames);saveWheelLists();renderWheels();};$('shuffleGames').onclick=()=>{shuffleWheel(wheelGames);saveWheelLists();renderWheels();};
+$('clearWheel').onclick=()=>{if(!confirm('Clear the name wheel?'))return;wheelNames=[];saveWheelLists();renderWheels();$('nameWheelResult').textContent='Ready to spin!';$('nameWheelDisc').style.transform='rotate(0deg)';$('nameWheelDisc').dataset.rotation='0';};
+$('clearGames').onclick=()=>{if(!confirm('Clear the game wheel?'))return;wheelGames=[];saveWheelLists();renderWheels();$('gameWheelResult').textContent='Ready to spin!';$('gameWheelDisc').style.transform='rotate(0deg)';$('gameWheelDisc').dataset.rotation='0';};
+$('editGame').onclick=()=>{if(!wheelGames.length){alert('Add a game first.');return;}const old=prompt('Which game do you want to edit? Enter its current name:',wheelGames[0]);if(old===null)return;const index=wheelGames.findIndex(x=>x.toLowerCase()===old.trim().toLowerCase());if(index<0){alert('That game was not found.');return;}const updated=prompt('Enter the updated game name:',wheelGames[index]);if(updated===null||!updated.trim())return;wheelGames[index]=updated.trim();saveWheelLists();renderWheels();};
+function renderWheelSettings(){$('wheelAutoAdd').textContent=wheelSettings.autoAdd?'ON':'OFF';$('wheelAutoAdd').setAttribute('aria-pressed',String(wheelSettings.autoAdd));$('wheelAutoAdd').classList.toggle('primary',wheelSettings.autoAdd);$('wheelDuplicates').textContent=wheelSettings.duplicates?'ON':'OFF';$('wheelDuplicates').setAttribute('aria-pressed',String(wheelSettings.duplicates));$('wheelDuplicates').classList.toggle('primary',wheelSettings.duplicates);$('wheelEntriesPerPerson').value=String(wheelSettings.perPerson);$('wheelAutoStatus').textContent=wheelSettings.autoAdd?'ON — accepted !slot requests can add the viewer and requested game to the wheels in this browser.':'OFF — !slot calls still work normally, but nothing is added to either wheel.';}
+$('wheelAutoAdd').onclick=()=>{wheelSettings.autoAdd=!wheelSettings.autoAdd;renderWheelSettings();};$('wheelDuplicates').onclick=()=>{wheelSettings.duplicates=!wheelSettings.duplicates;renderWheelSettings();};$('saveWheelSettings').onclick=()=>{wheelSettings.perPerson=Math.max(1,Math.min(10,Number($('wheelEntriesPerPerson').value)||1));try{localStorage.setItem(wheelSettingsKey,JSON.stringify(wheelSettings));}catch(e){}renderWheelSettings();};
+function addSlotToWheels(viewer,game){if(!wheelSettings.autoAdd)return;const name=String(viewer||'').trim().replace(/^@/,'');const title=String(game||'').trim();if(!name||!title)return;const existing=wheelNames.filter(x=>x.toLowerCase()===name.toLowerCase()).length;if(existing<wheelSettings.perPerson&&(wheelSettings.duplicates||!existing))wheelNames.push(name);if(wheelSettings.duplicates||!wheelGames.some(x=>x.toLowerCase()===title.toLowerCase()))wheelGames.push(title);saveWheelLists();renderWheels();}
+function spinOneWheel(items,discId,resultId,label){if(!items.length){alert('Add at least one '+label+' first.');return false;}const chosen=items[Math.floor(Math.random()*items.length)],disc=$(discId),current=Number(disc.dataset.rotation||0),next=current+1440+Math.floor(Math.random()*720);disc.dataset.rotation=String(next);disc.style.transform='rotate('+next+'deg)';$(resultId).textContent='Spinning...';setTimeout(()=>{$(resultId).textContent='🏆 '+chosen;},4300);return true;}
+$('spinWheel').onclick=()=>spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name');$('spinGames').onclick=()=>spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game');$('spinBoth').onclick=()=>{if(!wheelNames.length||!wheelGames.length){alert('Add at least one name and one game before spinning both wheels.');return;}spinOneWheel(wheelNames,'nameWheelDisc','nameWheelResult','name');spinOneWheel(wheelGames,'gameWheelDisc','gameWheelResult','game');};
+renderWheels();renderWheelSettings();
 
 const giveawayStoreKey='danielus25_giveaway_preview_v1';
 let giveaway={open:false,keyword:'',entries:[],winner:'',winners:[],subLuckMultiplier:1,activityTimer:0,claimTimer:15};
@@ -1073,7 +1074,7 @@ function editSlotRequest(queue,viewer,game){
 }
 /* These handlers are ready for a future shared BotRix/backend bridge; browser storage is not live chat integration. */
 window.danielSlotCommands={
- slot(viewer,game){const queue=bonusState.queueOn?bonusState.queue:cozyQueueState.queueOn?cozyQueueState.queue:null;if(!queue)return {ok:false,message:'Slot calls are currently OFF.'};const result=addSlotRequest(queue,viewer,game,queue===cozyQueueState.queue?cozyBonusState.callLimit:1);if(result.ok){if(queue===bonusState.queue){saveBonusState();renderBonusHunt();}else{saveCozyQueueState();renderCozies();}}return result;},
+ slot(viewer,game){const queue=bonusState.queueOn?bonusState.queue:cozyQueueState.queueOn?cozyQueueState.queue:null;if(!queue)return {ok:false,message:'Slot calls are currently OFF.'};const result=addSlotRequest(queue,viewer,game,queue===cozyQueueState.queue?cozyBonusState.callLimit:1);if(result.ok){addSlotToWheels(viewer,game);if(queue===bonusState.queue){saveBonusState();renderBonusHunt();}else{saveCozyQueueState();renderCozies();}}return result;},
  editslot(viewer,game){const queue=bonusState.queueOn?bonusState.queue:cozyQueueState.queueOn?cozyQueueState.queue:null;if(!queue)return {ok:false,message:'Slot calls are currently OFF.'};const result=editSlotRequest(queue,viewer,game);if(result.ok){if(queue===bonusState.queue){saveBonusState();renderBonusHunt();}else{saveCozyQueueState();renderCozies();}}return result;}
 };
 renderCozyQueue();
