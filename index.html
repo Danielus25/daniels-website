@@ -209,7 +209,8 @@ body:has(#randomizer.active){
 #randomizer .wheel-entry-label{
  position:absolute;z-index:3;max-width:29%;padding:2px 4px;
  transform:translate(-50%,-50%);color:#05070b;background:transparent;
- font-size:clamp(8px,1.05vw,13px);line-height:1.1;font-weight:900;
+ font-size:clamp(9px,1.12vw,14px);line-height:1.1;font-weight:1000;
+ -webkit-text-stroke:.45px currentColor;
  text-align:center;text-shadow:none;box-shadow:none;border-radius:0;
  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;
 }
@@ -998,6 +999,8 @@ function updateWheelDisc(items,discId,hubLabel){
   label.style.left=(50+radius*Math.cos(rad))+'%';
   label.style.top=(50+radius*Math.sin(rad))+'%';
   label.style.transform='translate(-50%,-50%) rotate('+angle+'deg)';
+  label.style.fontWeight='1000';
+  label.style.webkitTextStroke='0.45px currentColor';
   disc.append(label);
  });
  disc.style.backgroundImage='repeating-conic-gradient(from -90deg,#05070b 0deg 1deg,transparent 1deg var(--slice-angle,360deg)),conic-gradient(from -90deg,'+stops.join(',')+')';
