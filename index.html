@@ -283,6 +283,7 @@ header{background:#070b14d9}
   <section class="page" id="cozies" role="tabpanel">
     <div class="heading"><h2>COZIES</h2><p>Keep cozy stream nights organized.</p></div>
     <div class="panel"><span class="pill">COZY NIGHT TRACKER</span><h3>Games · Bonuses · Payouts</h3><p>Keep a separate record of bonuses that pop during cozy streams, including the game, bonus amount, and payout. Cozy-night records and the Cozies !slot queue stay separate from the main Bonus Hunt.</p><div class="feature-list"><div class="feature"><b>☕ Cozy session</b><small>Start and name a cozy stream session.</small></div><div class="feature"><b>🎰 Bonus log</b><small>Record each bonus as it pops up.</small></div><div class="feature"><b>💵 Payout tracking</b><small>Enter the result and see session totals.</small></div><div class="feature"><b>📚 Session history</b><small>Keep past cozy sessions available to review.</small></div></div></div>
+    <section class="panel bonus-panel"><div class="bonus-head"><div><h2>☕ Cozies Slot Queue</h2><p class="muted">A separate line from the Bonus Hunt queue.</p></div><button class="tool-btn" id="cozyQueueToggle">COZIES !SLOT: OFF</button></div><div class="tool-actions"><button class="tool-btn danger" id="cozyQueueClear">CLEAR QUEUE</button></div><p class="tool-status" id="cozyQueueStatus">Cozies calls are OFF.</p><div id="cozyQueueList" class="tool-list"><p class="empty-state">The Cozies queue is empty.</p></div></section>
   </section>
 
   <section class="page" id="balance" role="tabpanel">
@@ -729,9 +730,11 @@ $('startHunt').onclick=()=>{if(bonusState.hunt){alert('End the current hunt befo
 $('endHunt').onclick=()=>{if(!bonusState.hunt)return;const entered=$('finalBalanceInput').value.trim(),finalBalance=entered===''?bonusPayoutTotal():Number(entered);if(!Number.isFinite(finalBalance)||finalBalance<0){alert('Enter a valid final bankroll balance.');return;}bonusState.past.unshift({name:bonusState.hunt.name,startedAt:bonusState.hunt.startedAt,endedAt:new Date().toISOString(),startingBalance:bonusState.hunt.startingBalance,finalBalance,count:bonusState.entries.length,totalPayout:bonusPayoutTotal(),entries:JSON.parse(JSON.stringify(bonusState.entries))});bonusState.hunt=null;saveBonusState();renderBonusHunt();};
 $('clearBonuses').onclick=()=>{if(!confirm('Clear all bonuses from the current hunt?'))return;bonusState.entries=[];saveBonusState();renderBonusHunt();};
 $('bonusDuplicateToggle').onclick=()=>{bonusState.duplicateCalls=!bonusState.duplicateCalls;saveBonusState();renderBonusHunt();};
-$('bonusQueueToggle').onclick=()=>{bonusState.queueOn=!bonusState.queueOn;saveBonusState();renderBonusHunt();};
+$('bonusQueueToggle').onclick=()=>{bonusState.queueOn=!bonusState.queueOn;if(bonusState.queueOn){cozyQueueState.queueOn=false;saveCozyQueueState();renderCozyQueue();}saveBonusState();renderBonusHunt();};
 $('saveBonusCallLimit').onclick=()=>{bonusState.callLimit=Number($('bonusCallLimit').value)||1;saveBonusState();$('adminMessage').textContent='Maximum pending calls per viewer set to '+bonusState.callLimit+' (preview only).';};
 $('bonusQueueClear').onclick=()=>{bonusState.queue=[];saveBonusState();renderBonusHunt();};
+$('cozyQueueToggle').onclick=()=>{cozyQueueState.queueOn=!cozyQueueState.queueOn;if(cozyQueueState.queueOn){bonusState.queueOn=false;saveBonusState();renderBonusHunt();}saveCozyQueueState();renderCozyQueue();};
+$('cozyQueueClear').onclick=()=>{cozyQueueState.queue=[];saveCozyQueueState();renderCozyQueue();};
 $('bonusQueueRefresh').onclick=()=>{$('bonusQueueActionMessage').textContent='Queue refresh is waiting for Daniel’s Kick connection.';};
 $('addBonus').onclick=()=>{const viewer=$('bonusViewer').value.trim().replace(/^@/,''),game=$('bonusGame').value.trim(),type=$('bonusType').value,spinCost=Number($('bonusSpinCost').value||0),value=Number($('bonusValue').value||0);if(!game||!viewer){alert('Enter both the viewer and game name.');return;}if(!Number.isFinite(spinCost)||spinCost<0||!Number.isFinite(value)||value<0){alert('Enter valid dollar amounts.');return;}if(!bonusState.hunt){alert('Start a bonus hunt first.');return;}if(!bonusState.duplicateCalls&&bonusState.entries.some(b=>b.game.toLowerCase()===game.toLowerCase())){alert('That game is already in this hunt. Turn duplicate calls ON to allow it.');return;}bonusState.entries.push({viewer,game,type,spinCost,value,payout:0,opened:false});saveBonusState();$('bonusViewer').value='';$('bonusGame').value='';$('bonusSpinCost').value='';$('bonusValue').value='';renderBonusHunt();};
 $('clearBonusList').onclick=()=>{if(!confirm('Clear all bonuses from this hunt?'))return;bonusState.entries=[];saveBonusState();renderBonusHunt();};
@@ -862,6 +865,44 @@ $('resetGiveaway').onclick=()=>{
   giveaway={open:false,keyword:$('giveawayKeyword').value.trim()||'pickme',title:$('giveawayTitle').value.trim(),entries:[],winner:''};saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='';
 };
 renderGiveaway();
+
+/* Separate Cozies queue and pending-request edit support (local preview only). */
+const cozyQueueStoreKey='danielus25_cozies_queue_preview_v1';
+let cozyQueueState={queueOn:false,queue:[]};
+try{const saved=JSON.parse(localStorage.getItem(cozyQueueStoreKey)||'null');if(saved&&typeof saved==='object')cozyQueueState={...cozyQueueState,...saved};}catch(e){}
+function saveCozyQueueState(){try{localStorage.setItem(cozyQueueStoreKey,JSON.stringify(cozyQueueState));}catch(e){}}
+function renderCozyQueue(){
+ $('cozyQueueToggle').textContent='COZIES !SLOT: '+(cozyQueueState.queueOn?'ON':'OFF');
+ $('cozyQueueStatus').textContent=cozyQueueState.queueOn?'Cozies calls are ON. New !slot requests go to this queue.':'Cozies calls are OFF.';
+ const list=$('cozyQueueList');list.innerHTML=cozyQueueState.queue.length?'':'<p class="empty-state">The Cozies queue is empty.</p>';
+ cozyQueueState.queue.forEach((item,index)=>{
+  const row=document.createElement('div');row.className='player-row';
+  const label=document.createElement('span');label.textContent='#'+(index+1)+' @'+item.viewer+' · '+item.game;
+  const edit=document.createElement('button');edit.type='button';edit.textContent='EDIT GAME';
+  edit.onclick=()=>{const next=prompt('Edit @'+item.viewer+'’s pending game:',item.game);if(next===null)return;const game=next.trim();if(!game)return;item.game=game;saveCozyQueueState();renderCozyQueue();};
+  row.append(label,edit);list.append(row);
+ });
+}
+function normalizeSlotUser(name){return String(name||'').trim().replace(/^@/,'').toLowerCase();}
+function addSlotRequest(queue,viewer,game){
+ const who=String(viewer||'').trim().replace(/^@/,'');const title=String(game||'').trim();
+ if(!who||!title)return {ok:false,message:'Use !slot followed by a game name.'};
+ if(queue.some(item=>normalizeSlotUser(item.viewer)===normalizeSlotUser(who)))return {ok:false,message:'You already have a pending request. Use !editslot to change it.'};
+ queue.push({viewer:who,game:title,requestedAt:Date.now()});return {ok:true,message:'Your game was added to the queue.'};
+}
+function editSlotRequest(queue,viewer,game){
+ const who=normalizeSlotUser(viewer),title=String(game||'').trim();const item=queue.find(x=>normalizeSlotUser(x.viewer)===who);
+ if(!item)return {ok:false,message:'You do not have a pending slot request to edit.'};
+ if(!title)return {ok:false,message:'Use !editslot followed by your new game name.'};
+ item.game=title;return {ok:true,message:'Your pending game was updated. Your place in line stayed the same.'};
+}
+/* These handlers are ready for a future shared BotRix/backend bridge; browser storage is not live chat integration. */
+window.danielSlotCommands={
+ slot(viewer,game){const queue=bonusState.queueOn?bonusState.queue:cozyQueueState.queueOn?cozyQueueState.queue:null;if(!queue)return {ok:false,message:'Slot calls are currently OFF.'};const result=addSlotRequest(queue,viewer,game);if(result.ok){if(queue===bonusState.queue){saveBonusState();renderBonusHunt();}else{saveCozyQueueState();renderCozyQueue();}}return result;},
+ editslot(viewer,game){const queue=bonusState.queueOn?bonusState.queue:cozyQueueState.queueOn?cozyQueueState.queue:null;if(!queue)return {ok:false,message:'Slot calls are currently OFF.'};const result=editSlotRequest(queue,viewer,game);if(result.ok){if(queue===bonusState.queue){saveBonusState();renderBonusHunt();}else{saveCozyQueueState();renderCozyQueue();}}return result;}
+};
+renderCozyQueue();
+
 
 let savedTab='home';
 try{savedTab=location.hash.slice(1)||localStorage.getItem('danielus25_active_tab')||'home';}catch(e){savedTab=location.hash.slice(1)||'home';}
