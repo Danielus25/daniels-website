@@ -354,7 +354,7 @@ header{background:#070b14d9}
       <div class="giveaway-topline"><span class="giveaway-live-dot"></span><strong id="giveawayStatus">OFFLINE · ENTRIES PAUSED</strong><span class="giveaway-preview-tag">MANAGER PREVIEW</span></div>
       <div class="giveaway-section">
         <label class="tool-field giveaway-keyword-field">Giveaway keyword
-          <div class="giveaway-keyword-row"><input id="giveawayKeyword" maxlength="30" value="pickme" placeholder="Enter keyword"><button class="tool-btn primary" id="saveGiveawayKeyword" type="button">SAVE WORD</button></div>
+          <div class="giveaway-keyword-row"><input id="giveawayKeyword" maxlength="30" value="" placeholder="Enter keyword"><button class="tool-btn primary" id="saveGiveawayKeyword" type="button">SAVE WORD</button></div>
         </label>
         <p class="tool-note">You can change this whenever you want, even while the giveaway is live.</p>
       </div>
@@ -895,7 +895,7 @@ const defaultGiveawayMessages={
  close:'Entries are CLOSED! Good luck everyone!',
  winner:'🏆 Congrats @{winner}! You won the giveaway!'
 };
-let giveaway={open:false,keyword:'pickme',entries:[],winner:'',winners:[],subLuckMultiplier:1,activityTimer:0,claimTimer:15,messages:{...defaultGiveawayMessages}};
+let giveaway={open:false,keyword:'',entries:[],winner:'',winners:[],subLuckMultiplier:1,activityTimer:0,claimTimer:15,messages:{...defaultGiveawayMessages}};
 try{
  const saved=JSON.parse(localStorage.getItem(giveawayStoreKey)||'null');
  if(saved&&Array.isArray(saved.entries)){
@@ -964,7 +964,7 @@ $('drawGiveaway').onclick=()=>{
 $('refreshGiveaway').onclick=()=>{renderGiveaway();$('giveawayEntryStatus').textContent='Giveaway display refreshed.';};
 $('clearGiveawayEntries').onclick=()=>{if(!confirm('Clear all current giveaway entries?'))return;giveaway.entries=[];saveGiveaway();renderGiveaway();};
 $('clearGiveawayWinners').onclick=()=>{if(!confirm('Clear the winner history?'))return;giveaway.winners=[];giveaway.winner='';saveGiveaway();renderGiveaway();};
-$('resetGiveaway').onclick=()=>{if(!confirm('Reset the giveaway and clear entries and winners?'))return;giveaway={open:false,keyword:$('giveawayKeyword').value.trim()||'pickme',entries:[],winner:'',winners:[],subLuckMultiplier:1,activityTimer:0,claimTimer:15,messages:{...giveaway.messages}};saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='Giveaway reset.';};
+$('resetGiveaway').onclick=()=>{if(!confirm('Reset the giveaway and clear entries and winners?'))return;giveaway={open:false,keyword:$('giveawayKeyword').value.trim(),entries:[],winner:'',winners:[],subLuckMultiplier:1,activityTimer:0,claimTimer:15,messages:{...giveaway.messages}};saveGiveaway();renderGiveaway();$('giveawayEntryStatus').textContent='Giveaway reset.';};
 /* Future chat bridge: call this with a Kick username whenever they send a chat message. */
 window.danielGiveawayChatMessage=(username)=>{
  const name=String(username||'').trim().replace(/^@/,'');const now=Date.now();
