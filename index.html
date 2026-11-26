@@ -381,7 +381,7 @@ header{background:#070b14d9}
         </label>
       </div>
       <div class="giveaway-actions">
-        <button class="tool-btn primary" id="giveawayToggle" type="button">ON</button>
+        <button class="tool-btn" id="giveawayToggle" type="button" aria-pressed="false">OFF</button>
         <button class="tool-btn" id="drawGiveaway" type="button">DRAW WINNER</button>
         <button class="tool-btn" id="refreshGiveaway" type="button">REFRESH</button>
       </div>
@@ -914,8 +914,9 @@ function renderGiveaway(){
  $('giveawaySubLuckMultiplier').value=String(Math.max(1,Math.min(6,Number(giveaway.subLuckMultiplier)||1)));
  $('giveawayOpenMessage').value=giveaway.messages.open;$('giveawayEntryMessage').value=giveaway.messages.entry;$('giveawayCloseMessage').value=giveaway.messages.close;$('giveawayWinnerMessage').value=giveaway.messages.winner;
  $('giveawayStatus').textContent=giveaway.open?'LIVE · ENTRIES OPEN':'OFFLINE · ENTRIES PAUSED';
- $('giveawayToggle').textContent=giveaway.open?'OFF':'ON';
- $('giveawayToggle').classList.toggle('primary',!giveaway.open);
+ $('giveawayToggle').textContent=giveaway.open?'ON':'OFF';
+ $('giveawayToggle').setAttribute('aria-pressed',giveaway.open?'true':'false');
+ $('giveawayToggle').classList.toggle('primary',giveaway.open);
  $('giveawayCount').textContent=String(giveaway.entries.length);
  $('giveawayEntries').innerHTML='';
  if(!giveaway.entries.length)$('giveawayEntries').innerHTML='<div class="empty-state">No one has entered yet. Entries appear here as chat types the keyword.</div>';
