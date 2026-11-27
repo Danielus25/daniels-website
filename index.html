@@ -573,6 +573,15 @@ body:has(#randomizer.active){
   <footer class="footer">© <span id="year"></span> Danielus25 · All rights reserved</footer>
 </main>
 <script>
+/* Always open the site at the top, including browser refresh and back/forward restores. */
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.addEventListener('pageshow', function(){
+  var root = document.documentElement;
+  var previousBehavior = root.style.scrollBehavior;
+  root.style.scrollBehavior = 'auto';
+  window.scrollTo(0, 0);
+  requestAnimationFrame(function(){ root.style.scrollBehavior = previousBehavior; });
+});
 /* Independent navigation bootstrap: kept separate from the app tools script. */
 (function(){
   function activatePage(name){
