@@ -250,7 +250,7 @@ body:has(#randomizer.active){
 </head>
 <body>
 <header>
-  <div class="top"><a class="brand" href="#" data-home>🔥 <span>DANIELUS25</span></a><button class="kick" type="button" disabled aria-label="Kick sign-in will be connected later">SIGN IN WITH KICK</button></div>
+  <div class="top"><a class="brand" href="#" data-home>🔥 <span>DANIELUS25</span></a><button class="kick" id="kickSignInButton" type="button" aria-label="Sign in with Kick">SIGN IN WITH KICK</button></div>
   <nav class="tabs" role="tablist" aria-label="Website sections">
     <button type="button" class="tab" role="tab" aria-selected="true" data-tab="home" onclick="showPage('home')">HOME</button>
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="promo" onclick="showPage('promo')">PROMO</button>
@@ -638,7 +638,69 @@ try{
   const saved=JSON.parse(localStorage.getItem(tourneyStoreKey)||'null');
   if(saved&&Array.isArray(saved.players)&&Array.isArray(saved.rounds))tourneyState={...tourneyState,...saved};
 }catch(e){}
+
 const $=id=>document.getElementById(id);
+
+/* Kick OAuth sign-in for Daniel's website. The signed session is kept only
+   in this browser tab; Kick access/refresh tokens stay on the Edge Function. */
+const KICK_AUTH_URL='https://kwvbfqqeubisunidtckx.supabase.co/functions/v1/kick-auth';
+const kickSignInButton=$('kickSignInButton');
+let kickSession='';
+function renderKickSignIn(user){
+  if(!kickSignInButton)return;
+  kickSignInButton.disabled=false;
+  if(user){
+    const username=String(user.name||'Kick user');
+    kickSignInButton.textContent='SIGN OUT · '+username;
+    kickSignInButton.setAttribute('aria-label','Sign out of Kick account '+username);
+    kickSignInButton.title='Signed in to Kick as '+username+'. Click to sign out.';
+  }else{
+    kickSignInButton.textContent='SIGN IN WITH KICK';
+    kickSignInButton.setAttribute('aria-label','Sign in with Kick');
+    kickSignInButton.title='Sign in with Kick';
+  }
+}
+async function restoreKickSession(){
+  const fragment=location.hash.slice(1);
+  const sessionMatch=fragment.match(/(?:^|&)kick_session=([^&]+)/);
+  if(sessionMatch){
+    try{
+      kickSession=decodeURIComponent(sessionMatch[1]);
+      sessionStorage.setItem('danielus25_kick_session',kickSession);
+    }catch(error){
+      kickSession='';
+      sessionStorage.removeItem('danielus25_kick_session');
+    }
+    history.replaceState(null,'',location.pathname+location.search+'#home');
+  }else{
+    try{kickSession=sessionStorage.getItem('danielus25_kick_session')||'';}catch(error){kickSession='';}
+  }
+  if(!kickSession){renderKickSignIn(null);return;}
+  try{
+    const response=await fetch(KICK_AUTH_URL+'/me',{
+      method:'GET',
+      headers:{Authorization:'Bearer '+kickSession}
+    });
+    if(!response.ok)throw new Error('Kick session expired');
+    const result=await response.json();
+    if(!result.user)throw new Error('No Kick user returned');
+    renderKickSignIn(result.user);
+  }catch(error){
+    kickSession='';
+    try{sessionStorage.removeItem('danielus25_kick_session');}catch(e){}
+    renderKickSignIn(null);
+  }
+}
+kickSignInButton?.addEventListener('click',()=>{
+  if(kickSession){
+    kickSession='';
+    try{sessionStorage.removeItem('danielus25_kick_session');}catch(error){}
+    renderKickSignIn(null);
+    return;
+  }
+  window.location.href=KICK_AUTH_URL+'/login';
+});
+restoreKickSession();
 function saveTourneyState(){try{localStorage.setItem(tourneyStoreKey,JSON.stringify(tourneyState));}catch(e){}}
 function tournamentPlayerLabel(p){return typeof p==='string'?p:(p.name||'Player');}
 function tournamentPlayerGame(p){return typeof p==='string'?'':(p.game||'');}
