@@ -1076,6 +1076,7 @@ renderPredictions();
 
 const bonusStoreKey='danielus25_bonus_hunt_preview_v2';
 let bonusState={hunt:null,entries:[],past:[],duplicateCalls:false,queueOn:false,callLimit:1,queue:[]};
+let bonusQueueItemToRemove=null;
 try{const saved=JSON.parse(localStorage.getItem(bonusStoreKey)||'null');if(saved&&typeof saved==='object')bonusState={...bonusState,...saved};}catch(e){}
 function saveBonusState(){try{localStorage.setItem(bonusStoreKey,JSON.stringify(bonusState));}catch(e){}}
 const BONUS_HUNT_API_URL='https://kwvbfqqeubisunidtckx.supabase.co/functions/v1/bonus-hunt';
@@ -1140,11 +1141,12 @@ function renderBonusHunt(){
   const label=document.createElement('span');label.textContent='#'+(i+1)+' @'+x.viewer+' · '+x.game;
   const add=document.createElement('button');add.type='button';add.className='tool-btn primary';add.textContent='ADD TO BONUS LIST';
   add.onclick=()=>{
-   $('bonusViewer').value=String(x.viewer||'').replace(/^@/,'');
-   $('bonusGame').value=String(x.game||'');
+   bonusQueueItemToRemove={viewer:String(x.viewer||'').replace(/^@/,''),game:String(x.game||'')};
+   $('bonusViewer').value=bonusQueueItemToRemove.viewer;
+   $('bonusGame').value=bonusQueueItemToRemove.game;
    $('bonusViewer').scrollIntoView({behavior:'smooth',block:'center'});
    $('bonusViewer').focus({preventScroll:true});
-   $('bonusQueueActionMessage').textContent='Viewer and game filled in below. Choose the bonus type, spin cost and bonus amount, then press ADD BONUS.';
+   $('bonusQueueActionMessage').textContent='Viewer and game filled in below. After you press ADD BONUS, this request will be removed from the call queue.';
   };
   row.append(label,add);q.append(row);
  });
@@ -1176,7 +1178,7 @@ $('bonusQueueClear').onclick=async()=>{if(!confirm('Clear the shared Bonus Hunt 
 $('cozyQueueToggle').onclick=()=>{cozyQueueState.queueOn=!cozyQueueState.queueOn;if(cozyQueueState.queueOn){bonusState.queueOn=false;saveBonusState();renderBonusHunt();}saveCozyQueueState();renderCozies();};
 $('cozyQueueClear').onclick=()=>{cozyQueueState.queue=[];saveCozyQueueState();renderCozies();};
 $('bonusQueueRefresh').onclick=async()=>{$('bonusQueueActionMessage').textContent='Refreshing shared Bonus Hunt queue…';if(await loadSharedBonusState())$('bonusQueueActionMessage').textContent='Shared Bonus Hunt queue refreshed.';};
-$('addBonus').onclick=()=>{const viewer=$('bonusViewer').value.trim().replace(/^@/,''),game=$('bonusGame').value.trim(),type=$('bonusType').value,spinCost=Number($('bonusSpinCost').value||0),value=Number($('bonusValue').value||0);if(!game||!viewer){alert('Enter both the viewer and game name.');return;}if(!Number.isFinite(spinCost)||spinCost<0||!Number.isFinite(value)||value<0){alert('Enter valid dollar amounts.');return;}if(!bonusState.hunt){alert('Start a bonus hunt first.');return;}if(!bonusState.duplicateCalls&&bonusState.entries.some(b=>b.game.toLowerCase()===game.toLowerCase())){alert('That game is already in this hunt. Turn duplicate calls ON to allow it.');return;}bonusState.entries.push({viewer,game,type,spinCost,value,payout:0,opened:false});saveBonusState();$('bonusViewer').value='';$('bonusGame').value='';$('bonusSpinCost').value='';$('bonusValue').value='';renderBonusHunt();};
+$('addBonus').onclick=async()=>{const viewer=$('bonusViewer').value.trim().replace(/^@/,''),game=$('bonusGame').value.trim(),type=$('bonusType').value,spinCost=Number($('bonusSpinCost').value||0),value=Number($('bonusValue').value||0);if(!game||!viewer){alert('Enter both the viewer and game name.');return;}if(!Number.isFinite(spinCost)||spinCost<0||!Number.isFinite(value)||value<0){alert('Enter valid dollar amounts.');return;}if(!bonusState.hunt){alert('Start a bonus hunt first.');return;}if(!bonusState.duplicateCalls&&bonusState.entries.some(b=>b.game.toLowerCase()===game.toLowerCase())){alert('That game is already in this hunt. Turn duplicate calls ON to allow it.');return;}const queuedItem=bonusQueueItemToRemove&&bonusQueueItemToRemove.viewer.toLowerCase()===viewer.toLowerCase()&&bonusQueueItemToRemove.game.toLowerCase()===game.toLowerCase()?{...bonusQueueItemToRemove}:null;bonusState.entries.push({viewer,game,type,spinCost,value,payout:0,opened:false});saveBonusState();$('bonusViewer').value='';$('bonusGame').value='';$('bonusSpinCost').value='';$('bonusValue').value='';bonusQueueItemToRemove=null;renderBonusHunt();if(queuedItem){$('bonusQueueActionMessage').textContent='Bonus added. Removing the request from the call queue…';try{if(!kickSession||!window.kickDashboardAuthorized)throw new Error('Sign in with an authorized organizer account to remove the call from the shared queue.');const response=await fetch(BONUS_HUNT_API_URL+'/remove-queued-slot',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},body:JSON.stringify(queuedItem)});const result=await response.json();if(!response.ok)throw new Error(result.error||'Could not remove the request from the queue.');if(result.state)applySharedBonusState(result.state);$('bonusQueueActionMessage').textContent='Bonus added and removed from the call queue.';}catch(error){$('bonusQueueActionMessage').textContent='Bonus was added, but the call is still in the queue: '+(error.message||'queue removal failed')+'.';await loadSharedBonusState();}}};
 $('clearBonusList').onclick=()=>{if(!confirm('Clear all bonuses from this hunt?'))return;bonusState.entries=[];saveBonusState();renderBonusHunt();};
 $('clearEndingPayouts').onclick=()=>{if(!confirm('Clear saved payout results?'))return;bonusState.entries.forEach(b=>{b.opened=false;b.payout=0;});saveBonusState();renderBonusHunt();};
 $('clearAllPastHunts').onclick=()=>{if(!confirm('Delete all past hunt records?'))return;bonusState.past=[];saveBonusState();renderBonusHunt();};
