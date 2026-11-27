@@ -592,7 +592,7 @@ body:has(#randomizer.active){
       tab.setAttribute('aria-selected',String(tab.getAttribute('data-tab')===name));
     });
     try{localStorage.setItem('danielus25_active_tab',name);}catch(e){}
-    if(location.hash!=='#'+name){
+    if(location.hash!=='#'+name && !location.hash.includes('kick_session=')){
       try{history.replaceState(null,'',location.pathname+location.search+'#'+name);}catch(e){}
     }
     // Open each section at the top instead of retaining the previous section's scroll position.
