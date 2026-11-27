@@ -702,6 +702,7 @@ async function restoreKickSession(){
 }
 kickSignInButton?.addEventListener('click',()=>{
   if(kickSession){
+    if(!window.confirm('Are you sure you want to sign out of Kick?'))return;
     kickSession='';
     try{sessionStorage.removeItem('danielus25_kick_session');}catch(error){}
     renderKickSignIn(null);
