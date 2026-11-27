@@ -259,7 +259,7 @@ body:has(#randomizer.active){
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="tournaments" onclick="showPage('tournaments')">TOURNAMENT</button>
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="predictions" onclick="showPage('predictions')">BRACKET GUESSES</button>
     <button type="button" class="tab" role="tab" aria-selected="false" data-tab="cozies" onclick="showPage('cozies')">COZIES</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="dashboard" onclick="showPage('dashboard')">DASHBOARD</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="dashboard" onclick="showPage('dashboard')" hidden>DASHBOARD</button>
   </nav>
 </header>
 <main class="wrap">
@@ -596,6 +596,7 @@ window.addEventListener('pageshow', function(){
 /* Independent navigation bootstrap: kept separate from the app tools script. */
 (function(){
   function activatePage(name){
+    if(name==='dashboard' && window.kickDashboardAuthorized!==true) name='home';
     var pages=document.querySelectorAll('.page');
     var tabs=document.querySelectorAll('.tabs [data-tab]');
     var found=false;
@@ -637,6 +638,7 @@ window.addEventListener('pageshow', function(){
 const tabs=[...document.querySelectorAll('[data-tab]')];
 const pages=[...document.querySelectorAll('.page')];
 function showPage(name){
+  if(name==='dashboard' && window.kickDashboardAuthorized!==true) name='home';
   if(!pages.some(p=>p.id===name)) name='home';
   pages.forEach(p=>p.classList.toggle('active',p.id===name));
   tabs.forEach(t=>t.setAttribute('aria-selected',String(t.dataset.tab===name)));
@@ -671,6 +673,10 @@ let currentKickUser=null;
 let kickHeartbeatTimer=null;
 function renderKickSignIn(user){
   currentKickUser=user||null;
+  window.kickDashboardAuthorized=!!(user && ['74981535','44093684'].includes(String(user.user_id||'')));
+  const dashboardTab=document.querySelector('[data-tab="dashboard"]');
+  if(dashboardTab) dashboardTab.hidden=!window.kickDashboardAuthorized;
+  if(!window.kickDashboardAuthorized && document.getElementById('dashboard')?.classList.contains('active')) showPage('home');
   if(kickSignInButton){
     kickSignInButton.disabled=false;
     if(user){
