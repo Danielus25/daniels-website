@@ -1135,7 +1135,19 @@ function renderBonusHunt(){
  $('lowestSlotName').textContent=low?.game||'Waiting for payouts';
  $('lowestSlotDetails').textContent=low?('@'+low.viewer+' · Spin '+bonusMoney(low.spinCost)+' · Payout '+bonusMoney(low.payout)+' · '+bonusMultiplier(low).toFixed(2)+'x'):'Game, viewer, spin cost, payout and multiplier will show here.';
  const q=$('bonusQueueList');q.innerHTML=bonusState.queue.length?'':'<p class="empty-state">The Bonus Hunt queue is empty.</p>';
- bonusState.queue.forEach((x,i)=>{const row=document.createElement('div');row.className='player-row';row.textContent='#'+(i+1)+' @'+x.viewer+' · '+x.game;q.append(row);});
+ bonusState.queue.forEach((x,i)=>{
+  const row=document.createElement('div');row.className='player-row';
+  const label=document.createElement('span');label.textContent='#'+(i+1)+' @'+x.viewer+' · '+x.game;
+  const add=document.createElement('button');add.type='button';add.className='tool-btn primary';add.textContent='ADD TO BONUS LIST';
+  add.onclick=()=>{
+   $('bonusViewer').value=String(x.viewer||'').replace(/^@/,'');
+   $('bonusGame').value=String(x.game||'');
+   $('bonusViewer').scrollIntoView({behavior:'smooth',block:'center'});
+   $('bonusViewer').focus({preventScroll:true});
+   $('bonusQueueActionMessage').textContent='Viewer and game filled in below. Choose the bonus type, spin cost and bonus amount, then press ADD BONUS.';
+  };
+  row.append(label,add);q.append(row);
+ });
  const list=$('bonusList');list.innerHTML='';
  if(!entries.length)list.innerHTML='<p class="empty-state">No bonuses added yet. Use ADD BONUS beside a queued game to fill in the caller and game.</p>';
  entries.forEach((b,i)=>{
