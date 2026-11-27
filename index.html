@@ -638,10 +638,17 @@ window.addEventListener('pageshow', function(){
     activatePage(tab.getAttribute('data-tab'));
   },true);
   window.addEventListener('hashchange',function(){
-    activatePage(location.hash.slice(1)||'home');
+    var requested=location.hash.slice(1);
+    if(requested.includes('kick_session=')) return;
+    if(!document.getElementById(requested)?.classList.contains('page')) requested=localStorage.getItem('danielus25_active_tab')||'home';
+    activatePage(requested);
   });
   var initial=location.hash.slice(1);
-  if(!initial){try{initial=localStorage.getItem('danielus25_active_tab')||'home';}catch(e){initial='home';}}
+  if(!initial.includes('kick_session=') && document.getElementById(initial)?.classList.contains('page')) {
+    // Keep the page named in the URL.
+  } else {
+    try{initial=localStorage.getItem('danielus25_active_tab')||'home';}catch(e){initial='home';}
+  }
   activatePage(initial);
 })();
 </script>
@@ -771,7 +778,10 @@ async function restoreKickSession(){
       kickSession='';
       localStorage.removeItem('danielus25_kick_session');
     }
-    history.replaceState(null,'',location.pathname+location.search+'#home');
+    var returnTab='home';
+      try{returnTab=localStorage.getItem('danielus25_active_tab')||'home';}catch(e){}
+      if(!document.getElementById(returnTab)?.classList.contains('page')) returnTab='home';
+      history.replaceState(null,'',location.pathname+location.search+'#'+returnTab);
   }else{
     try{kickSession=localStorage.getItem('danielus25_kick_session')||'';}catch(error){kickSession='';}
   }
@@ -1456,9 +1466,15 @@ renderCozies();
 
 
 let savedTab='home';
-try{savedTab=location.hash.slice(1)||localStorage.getItem('danielus25_active_tab')||'home';}catch(e){savedTab=location.hash.slice(1)||'home';}
+try{
+  const hashTab=location.hash.slice(1);
+  savedTab=pages.some(p=>p.id===hashTab)?hashTab:(localStorage.getItem('danielus25_active_tab')||'home');
+}catch(e){savedTab='home';}
 showPage(savedTab);
-window.addEventListener('hashchange',()=>showPage(location.hash.slice(1)||'home'));
+window.addEventListener('hashchange',()=>{
+  const hashTab=location.hash.slice(1);
+  if(pages.some(p=>p.id===hashTab)) showPage(hashTab);
+});
 
 
 </script>
