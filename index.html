@@ -1140,13 +1140,27 @@ function renderBonusHunt(){
   const row=document.createElement('div');row.className='player-row';
   const label=document.createElement('span');label.textContent='#'+(i+1)+' @'+x.viewer+' · '+x.game;
   const add=document.createElement('button');add.type='button';add.className='tool-btn primary';add.textContent='ADD TO BONUS LIST';
-  add.onclick=()=>{
-   bonusQueueItemToRemove={viewer:String(x.viewer||'').replace(/^@/,''),game:String(x.game||'')};
-   $('bonusViewer').value=bonusQueueItemToRemove.viewer;
-   $('bonusGame').value=bonusQueueItemToRemove.game;
+  add.onclick=async()=>{
+   const queuedItem={viewer:String(x.viewer||'').replace(/^@/,''),game:String(x.game||'')};
+   $('bonusViewer').value=queuedItem.viewer;
+   $('bonusGame').value=queuedItem.game;
    $('bonusViewer').scrollIntoView({behavior:'smooth',block:'center'});
    $('bonusViewer').focus({preventScroll:true});
-   $('bonusQueueActionMessage').textContent='Viewer and game filled in below. After you press ADD BONUS, this request will be removed from the call queue.';
+   add.disabled=true;
+   $('bonusQueueActionMessage').textContent='Adding the game to your bonus list queue and removing the request…';
+   try{
+    if(!kickSession||!window.kickDashboardAuthorized)throw new Error('Sign in with an authorized organizer account to remove the call from the shared queue.');
+    const response=await fetch(BONUS_HUNT_API_URL+'/remove-queued-slot',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},body:JSON.stringify(queuedItem)});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'Could not remove the request from the queue.');
+    bonusQueueItemToRemove=null;
+    if(result.state)applySharedBonusState(result.state);
+    $('bonusQueueActionMessage').textContent=result.chatSent?'Request removed from the queue. Chat message sent!':'Request removed from the queue. Chat message was not sent: '+(result.chatError||'Kick chat unavailable');
+   }catch(error){
+    add.disabled=false;
+    $('bonusQueueActionMessage').textContent=error.message||'Could not remove the request from the queue.';
+    await loadSharedBonusState();
+   }
   };
   row.append(label,add);q.append(row);
  });
