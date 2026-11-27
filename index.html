@@ -449,6 +449,16 @@ body:has(#randomizer.active){
 
   <section class="page" id="dashboard" role="tabpanel">
     <div class="heading"><h2>STREAM DASHBOARD</h2><p>Quick access to Daniel's extra stream tools.</p></div>
+    <div class="panel" style="max-width:850px;margin:0 auto 18px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="font-size:1.8rem">🟢</div>
+        <div style="min-width:0;flex:1">
+          <h3 style="margin:0 0 5px">KICK ACCOUNT SIGNED IN</h3>
+          <p id="dashboardKickStatus" class="muted" style="margin:0" aria-live="polite">Checking sign-in status…</p>
+        </div>
+        <span id="dashboardKickBadge" class="pill">CHECKING</span>
+      </div>
+    </div>
     <div class="cards">
       <a class="card orange" href="#" data-go="randomizer"><div class="icon">🎡</div><h3>Randomizer</h3><p>Pick a viewer or name at random.</p><span class="visit">OPEN RANDOMIZER →</span></a>
       <a class="card blue" href="#" data-go="giveaways"><div class="icon">🎁</div><h3>Keyword Giveaway</h3><p>Manage keyword entries and draw a winner.</p><span class="visit">OPEN GIVEAWAY →</span></a>
@@ -655,18 +665,32 @@ const $=id=>document.getElementById(id);
 const KICK_AUTH_URL='https://kwvbfqqeubisunidtckx.supabase.co/functions/v1/kick-auth';
 const kickSignInButton=$('kickSignInButton');
 let kickSession='';
+let currentKickUser=null;
 function renderKickSignIn(user){
-  if(!kickSignInButton)return;
-  kickSignInButton.disabled=false;
-  if(user){
-    const username=String(user.name||'Kick user');
-    kickSignInButton.textContent='SIGNED IN · '+username+' (ID '+String(user.user_id||'')+')';
-    kickSignInButton.setAttribute('aria-label','Sign out of Kick account '+username);
-    kickSignInButton.title='Signed in to Kick as '+username+'. Click to sign out.';
-  }else{
-    kickSignInButton.textContent='SIGN IN WITH KICK';
-    kickSignInButton.setAttribute('aria-label','Sign in with Kick');
-    kickSignInButton.title='Sign in with Kick';
+  currentKickUser=user||null;
+  if(kickSignInButton){
+    kickSignInButton.disabled=false;
+    if(user){
+      const username=String(user.name||'Kick user');
+      kickSignInButton.textContent='SIGNED IN · '+username+' (ID '+String(user.user_id||'')+')';
+      kickSignInButton.setAttribute('aria-label','Sign out of Kick account '+username);
+      kickSignInButton.title='Signed in to Kick as '+username+'. Click to sign out.';
+    }else{
+      kickSignInButton.textContent='SIGN IN WITH KICK';
+      kickSignInButton.setAttribute('aria-label','Sign in with Kick');
+      kickSignInButton.title='Sign in with Kick';
+    }
+  }
+  const status=$('dashboardKickStatus');
+  const badge=$('dashboardKickBadge');
+  if(status&&badge){
+    if(user){
+      status.textContent=String(user.name||'Kick user')+' is signed in'+(user.user_id?' · Kick ID '+user.user_id:'')+'.';
+      badge.textContent='SIGNED IN';
+    }else{
+      status.textContent='No Kick account is signed in on this browser. Use the button at the top of the page to sign in.';
+      badge.textContent='SIGNED OUT';
+    }
   }
 }
 async function restoreKickSession(){
