@@ -449,15 +449,16 @@ body:has(#randomizer.active){
 
   <section class="page" id="dashboard" role="tabpanel">
     <div class="heading"><h2>STREAM DASHBOARD</h2><p>Quick access to Daniel's extra stream tools.</p></div>
-    <div class="panel" style="max-width:850px;margin:0 auto 18px">
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <div style="font-size:1.8rem">🟢</div>
+    <div class="panel" style="max-width:950px;margin:0 auto 18px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+        <div style="font-size:1.8rem">👥</div>
         <div style="min-width:0;flex:1">
-          <h3 style="margin:0 0 5px">KICK ACCOUNT SIGNED IN</h3>
-          <p id="dashboardKickStatus" class="muted" style="margin:0" aria-live="polite">Checking sign-in status…</p>
+          <h3 style="margin:0 0 5px">KICK SIGN-IN ACTIVITY</h3>
+          <p id="dashboardKickStatus" class="muted" style="margin:0" aria-live="polite">Sign in with an organizer account to view the roster.</p>
         </div>
-        <span id="dashboardKickBadge" class="pill">CHECKING</span>
+        <button class="tool-btn" id="refreshKickRoster" type="button">REFRESH LIST</button>
       </div>
+      <div id="dashboardKickRoster" class="tool-list"><p class="muted">Sign-in list will appear here.</p></div>
     </div>
     <div class="cards">
       <a class="card orange" href="#" data-go="randomizer"><div class="icon">🎡</div><h3>Randomizer</h3><p>Pick a viewer or name at random.</p><span class="visit">OPEN RANDOMIZER →</span></a>
@@ -643,6 +644,7 @@ function showPage(name){
   try{localStorage.setItem('danielus25_active_tab',name);}catch(e){}
   if(location.hash!=='#'+name) history.replaceState(null,'',location.pathname+location.search+'#'+name);
   if(name==='predictions') renderPredictions();
+  if(name==='dashboard') loadDashboardPresence();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -666,6 +668,7 @@ const KICK_AUTH_URL='https://kwvbfqqeubisunidtckx.supabase.co/functions/v1/kick-
 const kickSignInButton=$('kickSignInButton');
 let kickSession='';
 let currentKickUser=null;
+let kickHeartbeatTimer=null;
 function renderKickSignIn(user){
   currentKickUser=user||null;
   if(kickSignInButton){
@@ -681,18 +684,65 @@ function renderKickSignIn(user){
       kickSignInButton.title='Sign in with Kick';
     }
   }
+  if(user) startKickHeartbeat();
+  else if(kickHeartbeatTimer){clearInterval(kickHeartbeatTimer);kickHeartbeatTimer=null;}
   const status=$('dashboardKickStatus');
-  const badge=$('dashboardKickBadge');
-  if(status&&badge){
-    if(user){
-      status.textContent=String(user.name||'Kick user')+' is signed in'+(user.user_id?' · Kick ID '+user.user_id:'')+'.';
-      badge.textContent='SIGNED IN';
-    }else{
-      status.textContent='No Kick account is signed in on this browser. Use the button at the top of the page to sign in.';
-      badge.textContent='SIGNED OUT';
-    }
+  if(status) status.textContent=user
+    ? 'Signed in as '+String(user.name||'Kick user')+'. Organizer accounts can view the shared sign-in list below.'
+    : 'Sign in with an organizer account to view the shared sign-in list.';
+  if(!user){
+    const roster=$('dashboardKickRoster');
+    if(roster) roster.innerHTML='<p class="muted">Sign in with an organizer account to view sign-in activity.</p>';
   }
 }
+async function startKickHeartbeat(){
+  if(!kickSession)return;
+  const send=()=>fetch(KICK_AUTH_URL+'/heartbeat',{method:'POST',headers:{Authorization:'Bearer '+kickSession}}).catch(()=>{});
+  await send();
+  if(kickHeartbeatTimer)clearInterval(kickHeartbeatTimer);
+  kickHeartbeatTimer=setInterval(send,30000);
+}
+function formatKickDate(value){
+  if(!value)return '—';
+  const date=new Date(value);
+  return Number.isNaN(date.getTime())?'—':date.toLocaleString();
+}
+async function loadDashboardPresence(){
+  const roster=$('dashboardKickRoster');
+  const status=$('dashboardKickStatus');
+  if(!roster||!status)return;
+  if(!kickSession){status.textContent='Sign in with an organizer account to view sign-in activity.';return;}
+  status.textContent='Loading shared sign-in activity…';
+  try{
+    const response=await fetch(KICK_AUTH_URL+'/presence',{headers:{Authorization:'Bearer '+kickSession}});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'Could not load sign-in list.');
+    const accounts=result.accounts||[];
+    const active=accounts.filter(account=>account.currently_signed_in).length;
+    status.textContent=accounts.length+' accounts · '+active+' currently signed in. List refreshes automatically while this dashboard is open.';
+    roster.replaceChildren();
+    if(!accounts.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='No sign-in history yet.';roster.append(empty);return;}
+    accounts.forEach(account=>{
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line,rgba(255,255,255,.12))';
+      if(account.profile_picture){
+        const img=document.createElement('img');img.src=account.profile_picture;img.alt='';img.width=42;img.height=42;
+        img.style.cssText='width:42px;height:42px;border-radius:50%;object-fit:cover';row.append(img);
+      }else{
+        const avatar=document.createElement('div');avatar.textContent='👤';avatar.style.cssText='width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.08)';row.append(avatar);
+      }
+      const info=document.createElement('div');info.style.cssText='min-width:0;flex:1';
+      const name=document.createElement('strong');name.textContent=String(account.username||'Kick user');info.append(name);
+      const details=document.createElement('p');details.className='muted';details.style.cssText='margin:3px 0 0;font-size:.82rem';
+      details.textContent='First sign-in: '+formatKickDate(account.first_signed_in_at)+' · Last active: '+formatKickDate(account.last_active_at);
+      info.append(details);row.append(info);
+      const badge=document.createElement('span');badge.className='pill';badge.textContent=account.currently_signed_in?'SIGNED IN':'SIGNED OUT';
+      row.append(badge);roster.append(row);
+    });
+  }catch(error){status.textContent=error.message;roster.replaceChildren();}
+}
+$('refreshKickRoster')?.addEventListener('click',loadDashboardPresence);
+setInterval(()=>{if(document.getElementById('dashboard')?.classList.contains('active'))loadDashboardPresence();},30000);
 async function restoreKickSession(){
   const fragment=location.hash.slice(1);
   const sessionMatch=fragment.match(/(?:^|&)kick_session=([^&]+)/);
@@ -724,9 +774,11 @@ async function restoreKickSession(){
     renderKickSignIn(null);
   }
 }
-kickSignInButton?.addEventListener('click',()=>{
+kickSignInButton?.addEventListener('click',async()=>{
   if(kickSession){
     if(!window.confirm('Are you sure you want to sign out of Kick?'))return;
+    const oldSession=kickSession;
+    try{await fetch(KICK_AUTH_URL+'/logout',{method:'POST',headers:{Authorization:'Bearer '+oldSession}});}catch(error){}
     kickSession='';
     try{sessionStorage.removeItem('danielus25_kick_session');}catch(error){}
     renderKickSignIn(null);
