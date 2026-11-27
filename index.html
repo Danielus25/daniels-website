@@ -651,7 +651,7 @@ function renderKickSignIn(user){
   kickSignInButton.disabled=false;
   if(user){
     const username=String(user.name||'Kick user');
-    kickSignInButton.textContent='SIGN OUT · '+username;
+    kickSignInButton.textContent='SIGNED IN · '+username+' (ID '+String(user.user_id||'')+')';
     kickSignInButton.setAttribute('aria-label','Sign out of Kick account '+username);
     kickSignInButton.title='Signed in to Kick as '+username+'. Click to sign out.';
   }else{
