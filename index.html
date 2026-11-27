@@ -46,6 +46,15 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 @media(max-width:540px){.bracket-view{gap:16px}.bracket-view>.round-block{flex-basis:220px}.bracket-view>.round-block:not(:last-child)::after{right:-16px}}
 .match-row select{background:#071321;color:#fff;border:1px solid #315674;border-radius:8px;padding:8px;max-width:100%}
 .tool-note{font-size:.78rem;color:#9eafc4;line-height:1.5;margin-top:18px}
+.kick-activity-box{padding:0;overflow:hidden}
+.kick-activity-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;list-style:none;cursor:pointer;padding:17px 20px;color:#d9efff;font-weight:900;letter-spacing:.04em}
+.kick-activity-summary::-webkit-details-marker{display:none}
+.kick-activity-summary:after{content:"";display:none}
+.kick-activity-hint{font-size:.76rem;font-weight:700;letter-spacing:0;color:#9eafc4}
+.kick-activity-chevron{display:inline-block;margin-left:5px;color:#8ed7ff;transition:transform .18s ease}
+.kick-activity-box[open] .kick-activity-chevron{transform:rotate(180deg)}
+.kick-activity-content{padding:0 20px 18px;border-top:1px solid rgba(255,255,255,.1)}
+@media(max-width:540px){.kick-activity-summary{align-items:flex-start;flex-direction:column}.kick-activity-content{padding:0 14px 14px}}
 .tool-bottom{justify-content:end}
 .tournament-panel{max-width:980px}.tournament-panel .player-row{flex-wrap:wrap}.tournament-panel .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tournament-panel input{min-width:0}@media(max-width:540px){.tournament-panel .tool-grid{grid-template-columns:1fr}}
 @media(max-width:540px){.tool-grid{grid-template-columns:1fr}.tool-bottom{justify-content:start}.match-row{align-items:flex-start;flex-direction:column}}
@@ -449,17 +458,19 @@ body:has(#randomizer.active){
 
   <section class="page" id="dashboard" role="tabpanel">
     <div class="heading"><h2>STREAM DASHBOARD</h2><p>Quick access to Daniel's extra stream tools.</p></div>
-    <div class="panel" style="max-width:950px;margin:0 auto 18px">
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-        <div style="font-size:1.8rem">👥</div>
-        <div style="min-width:0;flex:1">
-          <h3 style="margin:0 0 5px">KICK SIGN-IN ACTIVITY</h3>
-          <p id="dashboardKickStatus" class="muted" style="margin:0" aria-live="polite">Sign in with an organizer account to view the roster.</p>
+    <details class="panel kick-activity-box" style="max-width:950px;margin:0 auto 18px">
+      <summary class="kick-activity-summary">
+        <span>👥 KICK SIGN-IN ACTIVITY</span>
+        <span class="kick-activity-hint">Click to view sign-in names <span class="kick-activity-chevron">⌄</span></span>
+      </summary>
+      <div class="kick-activity-content">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px">
+          <p id="dashboardKickStatus" class="muted" style="margin:0;flex:1" aria-live="polite">Sign in with an organizer account to view the roster.</p>
+          <button class="tool-btn" id="refreshKickRoster" type="button">REFRESH LIST</button>
         </div>
-        <button class="tool-btn" id="refreshKickRoster" type="button">REFRESH LIST</button>
+        <div id="dashboardKickRoster" class="tool-list"><p class="muted">Sign-in list will appear here.</p></div>
       </div>
-      <div id="dashboardKickRoster" class="tool-list"><p class="muted">Sign-in list will appear here.</p></div>
-    </div>
+    </details>
     <div class="cards">
       <a class="card orange" href="#" data-go="randomizer"><div class="icon">🎡</div><h3>Randomizer</h3><p>Pick a viewer or name at random.</p><span class="visit">OPEN RANDOMIZER →</span></a>
       <a class="card blue" href="#" data-go="giveaways"><div class="icon">🎁</div><h3>Keyword Giveaway</h3><p>Manage keyword entries and draw a winner.</p><span class="visit">OPEN GIVEAWAY →</span></a>
