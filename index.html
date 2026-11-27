@@ -1078,6 +1078,41 @@ const bonusStoreKey='danielus25_bonus_hunt_preview_v2';
 let bonusState={hunt:null,entries:[],past:[],duplicateCalls:false,queueOn:false,callLimit:1,queue:[]};
 try{const saved=JSON.parse(localStorage.getItem(bonusStoreKey)||'null');if(saved&&typeof saved==='object')bonusState={...bonusState,...saved};}catch(e){}
 function saveBonusState(){try{localStorage.setItem(bonusStoreKey,JSON.stringify(bonusState));}catch(e){}}
+const BONUS_HUNT_API_URL='https://kwvbfqqeubisunidtckx.supabase.co/functions/v1/bonus-hunt';
+function applySharedBonusState(state){
+ if(!state)return;
+ bonusState.queueOn=!!state.queue_enabled;
+ bonusState.duplicateCalls=!!state.duplicate_calls;
+ bonusState.callLimit=Math.max(1,Math.min(10,Number(state.max_pending_per_viewer)||1));
+ bonusState.queue=Array.isArray(state.queue)?state.queue:[];
+ saveBonusState();
+ renderBonusHunt();
+}
+async function loadSharedBonusState(){
+ try{
+  const response=await fetch(BONUS_HUNT_API_URL+'/state',{cache:'no-store'});
+  const result=await response.json();
+  if(!response.ok||!result.state)throw new Error(result.error||'Could not refresh shared Bonus Hunt queue.');
+  applySharedBonusState(result.state);
+  return true;
+ }catch(error){
+  const status=$('bonusQueueActionMessage');
+  if(status)status.textContent=error.message||'Could not refresh shared Bonus Hunt queue.';
+  return false;
+ }
+}
+async function saveSharedBonusSettings(patch){
+ if(!kickSession||!window.kickDashboardAuthorized)throw new Error('Sign in with Daniel or Jessica’s organizer account to change Bonus Hunt settings.');
+ const response=await fetch(BONUS_HUNT_API_URL+'/settings',{
+  method:'POST',
+  headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},
+  body:JSON.stringify(patch)
+ });
+ const result=await response.json();
+ if(!response.ok)throw new Error(result.error||'Could not save Bonus Hunt settings.');
+ if(result.state)applySharedBonusState(result.state);
+ return result;
+}
 function bonusMoney(v){return '$'+Number(v||0).toFixed(2);}
 function bonusPayoutTotal(){return bonusState.entries.reduce((n,b)=>n+Number(b.payout||0),0);}
 function bonusMultiplier(b){const cost=Number(b.spinCost||0);return cost>0?Number(b.payout||0)/cost:0;}
@@ -1122,13 +1157,13 @@ $('refreshBonus').onclick=renderBonusHunt;
 $('startHunt').onclick=()=>{if(bonusState.hunt){alert('End the current hunt before starting another.');return;}const name=$('huntName').value.trim()||'Bonus Hunt',balance=Number($('startingBalanceInput').value);if($('startingBalanceInput').value.trim()===''||!Number.isFinite(balance)||balance<0){alert('Enter a valid starting balance.');return;}bonusState.hunt={name,startingBalance:balance,startedAt:new Date().toISOString()};bonusState.entries=[];$('finalBalanceInput').value='';saveBonusState();renderBonusHunt();};
 $('endHunt').onclick=()=>{if(!bonusState.hunt)return;const entered=$('finalBalanceInput').value.trim(),finalBalance=entered===''?bonusPayoutTotal():Number(entered);if(!Number.isFinite(finalBalance)||finalBalance<0){alert('Enter a valid final bankroll balance.');return;}bonusState.past.unshift({name:bonusState.hunt.name,startedAt:bonusState.hunt.startedAt,endedAt:new Date().toISOString(),startingBalance:bonusState.hunt.startingBalance,finalBalance,count:bonusState.entries.length,totalPayout:bonusPayoutTotal(),entries:JSON.parse(JSON.stringify(bonusState.entries))});bonusState.hunt=null;saveBonusState();renderBonusHunt();};
 $('clearBonuses').onclick=()=>{if(!confirm('Clear all bonuses from the current hunt?'))return;bonusState.entries=[];saveBonusState();renderBonusHunt();};
-$('bonusDuplicateToggle').onclick=()=>{bonusState.duplicateCalls=!bonusState.duplicateCalls;saveBonusState();renderBonusHunt();};
-$('bonusQueueToggle').onclick=()=>{bonusState.queueOn=!bonusState.queueOn;if(bonusState.queueOn){cozyQueueState.queueOn=false;saveCozyQueueState();renderCozyQueue();}saveBonusState();renderBonusHunt();};
-$('saveBonusCallLimit').onclick=()=>{bonusState.callLimit=Number($('bonusCallLimit').value)||1;saveBonusState();$('adminMessage').textContent='Maximum pending calls per viewer set to '+bonusState.callLimit+' (preview only).';};
-$('bonusQueueClear').onclick=()=>{bonusState.queue=[];saveBonusState();renderBonusHunt();};
+$('bonusDuplicateToggle').onclick=async()=>{const next=!bonusState.duplicateCalls;$('bonusQueueActionMessage').textContent='Saving duplicate-call setting…';try{await saveSharedBonusSettings({duplicate_calls:next});$('bonusQueueActionMessage').textContent='Duplicate calls '+(next?'enabled':'disabled')+'.';}catch(error){$('bonusQueueActionMessage').textContent=error.message;await loadSharedBonusState();}};
+$('bonusQueueToggle').onclick=async()=>{const next=!bonusState.queueOn;$('bonusQueueActionMessage').textContent='Saving Bonus Hunt slot-call setting…';try{await saveSharedBonusSettings({queue_enabled:next});if(next){cozyQueueState.queueOn=false;saveCozyQueueState();renderCozyQueue();}$('bonusQueueActionMessage').textContent='Bonus Hunt slot calls '+(next?'turned ON':'turned OFF')+'.';}catch(error){$('bonusQueueActionMessage').textContent=error.message;await loadSharedBonusState();}};
+$('saveBonusCallLimit').onclick=async()=>{const limit=Math.max(1,Math.min(10,Number($('bonusCallLimit').value)||1));$('bonusQueueActionMessage').textContent='Saving pending-call limit…';try{await saveSharedBonusSettings({max_pending_per_viewer:limit});$('adminMessage').textContent='Maximum pending calls per viewer set to '+limit+'.';$('bonusQueueActionMessage').textContent='Pending-call limit saved.';}catch(error){$('bonusQueueActionMessage').textContent=error.message;await loadSharedBonusState();}};
+$('bonusQueueClear').onclick=async()=>{if(!confirm('Clear the shared Bonus Hunt slot queue for everyone?'))return;$('bonusQueueActionMessage').textContent='Clearing shared queue…';try{await saveSharedBonusSettings({clear_queue:true});$('bonusQueueActionMessage').textContent='Shared Bonus Hunt queue cleared.';}catch(error){$('bonusQueueActionMessage').textContent=error.message;await loadSharedBonusState();}};
 $('cozyQueueToggle').onclick=()=>{cozyQueueState.queueOn=!cozyQueueState.queueOn;if(cozyQueueState.queueOn){bonusState.queueOn=false;saveBonusState();renderBonusHunt();}saveCozyQueueState();renderCozies();};
 $('cozyQueueClear').onclick=()=>{cozyQueueState.queue=[];saveCozyQueueState();renderCozies();};
-$('bonusQueueRefresh').onclick=()=>{$('bonusQueueActionMessage').textContent='Queue refresh is waiting for Daniel’s Kick connection.';};
+$('bonusQueueRefresh').onclick=async()=>{$('bonusQueueActionMessage').textContent='Refreshing shared Bonus Hunt queue…';if(await loadSharedBonusState())$('bonusQueueActionMessage').textContent='Shared Bonus Hunt queue refreshed.';};
 $('addBonus').onclick=()=>{const viewer=$('bonusViewer').value.trim().replace(/^@/,''),game=$('bonusGame').value.trim(),type=$('bonusType').value,spinCost=Number($('bonusSpinCost').value||0),value=Number($('bonusValue').value||0);if(!game||!viewer){alert('Enter both the viewer and game name.');return;}if(!Number.isFinite(spinCost)||spinCost<0||!Number.isFinite(value)||value<0){alert('Enter valid dollar amounts.');return;}if(!bonusState.hunt){alert('Start a bonus hunt first.');return;}if(!bonusState.duplicateCalls&&bonusState.entries.some(b=>b.game.toLowerCase()===game.toLowerCase())){alert('That game is already in this hunt. Turn duplicate calls ON to allow it.');return;}bonusState.entries.push({viewer,game,type,spinCost,value,payout:0,opened:false});saveBonusState();$('bonusViewer').value='';$('bonusGame').value='';$('bonusSpinCost').value='';$('bonusValue').value='';renderBonusHunt();};
 $('clearBonusList').onclick=()=>{if(!confirm('Clear all bonuses from this hunt?'))return;bonusState.entries=[];saveBonusState();renderBonusHunt();};
 $('clearEndingPayouts').onclick=()=>{if(!confirm('Clear saved payout results?'))return;bonusState.entries.forEach(b=>{b.opened=false;b.payout=0;});saveBonusState();renderBonusHunt();};
@@ -1138,6 +1173,8 @@ $('jessicaAboveGambas').onclick=()=>sortBonusTypes('daniel');
 $('gambasAboveSupers').onclick=()=>sortBonusTypes('gamba');
 $('supersLast').onclick=()=>sortBonusTypes('supers');
 renderBonusHunt();
+loadSharedBonusState();
+setInterval(()=>{if(document.visibilityState==='visible')loadSharedBonusState();},5000);
 
 const balanceStoreKey='danielus25_balance_preview_v1';
 let balanceGame={open:true,entries:[],final:null};
