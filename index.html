@@ -755,14 +755,14 @@ async function restoreKickSession(){
   if(sessionMatch){
     try{
       kickSession=decodeURIComponent(sessionMatch[1]);
-      sessionStorage.setItem('danielus25_kick_session',kickSession);
+      localStorage.setItem('danielus25_kick_session',kickSession);
     }catch(error){
       kickSession='';
-      sessionStorage.removeItem('danielus25_kick_session');
+      localStorage.removeItem('danielus25_kick_session');
     }
     history.replaceState(null,'',location.pathname+location.search+'#home');
   }else{
-    try{kickSession=sessionStorage.getItem('danielus25_kick_session')||'';}catch(error){kickSession='';}
+    try{kickSession=localStorage.getItem('danielus25_kick_session')||'';}catch(error){kickSession='';}
   }
   if(!kickSession){renderKickSignIn(null);return;}
   try{
@@ -776,7 +776,7 @@ async function restoreKickSession(){
     renderKickSignIn(result.user);
   }catch(error){
     kickSession='';
-    try{sessionStorage.removeItem('danielus25_kick_session');}catch(e){}
+    try{localStorage.removeItem('danielus25_kick_session');}catch(e){}
     renderKickSignIn(null);
   }
 }
@@ -786,7 +786,7 @@ kickSignInButton?.addEventListener('click',async()=>{
     const oldSession=kickSession;
     try{await fetch(KICK_AUTH_URL+'/logout',{method:'POST',headers:{Authorization:'Bearer '+oldSession}});}catch(error){}
     kickSession='';
-    try{sessionStorage.removeItem('danielus25_kick_session');}catch(error){}
+    try{localStorage.removeItem('danielus25_kick_session');}catch(error){}
     renderKickSignIn(null);
     return;
   }
