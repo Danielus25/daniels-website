@@ -729,6 +729,8 @@ function renderKickSignIn(user){
     const roster=$('dashboardKickRoster');
     if(roster) roster.innerHTML='<p class="muted">Sign in with an organizer account to view sign-in activity.</p>';
   }
+  // Refresh Guess the Balance organizer controls immediately after Kick auth resolves.
+  if(typeof window.refreshBalanceOrganizerUI==='function') window.refreshBalanceOrganizerUI();
 }
 async function startKickHeartbeat(){
   if(!kickSession)return;
@@ -1268,6 +1270,7 @@ async function syncCompletedBonusHunt(hunt){
   }
 }
 function moneyGuess(v){return '$'+Number(v||0).toFixed(2);}
+window.refreshBalanceOrganizerUI=()=>renderBalanceGame();
 function renderBalanceGame(){
   $('balanceCurrentEndBalance').textContent=balanceGame.final===null?'—':moneyGuess(balanceGame.final);
   $('balanceCurrentEndStatus').textContent=balanceGame.final===null?'Waiting for your next completed Bonus Hunt.':'Latest completed hunt: '+(balanceGame.finalHuntName||'Bonus Hunt')+(balanceGame.completedAt?' · '+new Date(balanceGame.completedAt).toLocaleString():'');
