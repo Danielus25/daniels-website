@@ -1082,12 +1082,23 @@ function saveBonusState(){try{localStorage.setItem(bonusStoreKey,JSON.stringify(
 const BONUS_HUNT_API_URL='https://kwvbfqqeubisunidtckx.supabase.co/functions/v1/bonus-hunt';
 function applySharedBonusState(state){
  if(!state)return;
- bonusState.queueOn=!!state.queue_enabled;
- bonusState.duplicateCalls=!!state.duplicate_calls;
- bonusState.callLimit=Math.max(1,Math.min(10,Number(state.max_pending_per_viewer)||1));
- bonusState.queue=Array.isArray(state.queue)?state.queue:[];
+ const nextQueueOn=!!state.queue_enabled;
+ const nextDuplicateCalls=!!state.duplicate_calls;
+ const nextCallLimit=Math.max(1,Math.min(10,Number(state.max_pending_per_viewer)||1));
+ const nextQueue=Array.isArray(state.queue)?state.queue:[];
+ const changed=bonusState.queueOn!==nextQueueOn||
+  bonusState.duplicateCalls!==nextDuplicateCalls||
+  bonusState.callLimit!==nextCallLimit||
+  JSON.stringify(bonusState.queue)!==JSON.stringify(nextQueue);
+ bonusState.queueOn=nextQueueOn;
+ bonusState.duplicateCalls=nextDuplicateCalls;
+ bonusState.callLimit=nextCallLimit;
+ bonusState.queue=nextQueue;
  saveBonusState();
- renderBonusHunt();
+ // The shared state is polled every five seconds. Do not rebuild the bonus list
+ // unless its shared queue/settings actually changed, or an active payout input
+ // loses the numbers being typed into it.
+ if(changed)renderBonusHunt();
 }
 async function loadSharedBonusState(){
  try{
