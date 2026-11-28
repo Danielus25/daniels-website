@@ -59,7 +59,7 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 .kick-activity-content{padding:0 20px 18px;border-top:1px solid rgba(255,255,255,.1)}
 @media(max-width:540px){.kick-activity-summary{align-items:flex-start;flex-direction:column}.kick-activity-content{padding:0 14px 14px}}
 .tool-bottom{justify-content:end}
-.tournament-player-slot{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,.65fr) minmax(110px,.45fr) auto;align-items:center;gap:10px;padding:12px;border:1px solid #29445e;background:#0a1422;border-radius:12px}.tournament-player-slot .slot-title{font-weight:900;color:#e6f2ff}.tournament-player-slot .slot-details{color:#aabbd0;font-size:.85rem}.tournament-player-slot input{width:100%;min-width:0;background:#071321;border:1px solid #315674;border-radius:9px;color:#fff;padding:9px}.tournament-player-slot button{border:0;background:transparent;color:#ffad8b;font-weight:900;cursor:pointer}.tournament-player-slot button:disabled{opacity:.35;cursor:not-allowed}@media(max-width:700px){.tournament-player-slot{grid-template-columns:1fr 1fr}.tournament-player-slot .slot-title,.tournament-player-slot .slot-details{grid-column:1/-1}}.tournament-panel{max-width:980px}.tournament-panel .player-row{flex-wrap:wrap}.tournament-panel .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tournament-panel input{min-width:0}@media(max-width:540px){.tournament-panel .tool-grid{grid-template-columns:1fr}}
+.tournament-player-slot{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,.65fr) minmax(110px,.45fr) auto;align-items:center;gap:10px;padding:12px;border:1px solid #29445e;background:#0a1422;border-radius:12px}.tournament-player-slot .slot-title{font-weight:900;color:#e6f2ff}.tournament-player-slot .slot-details{color:#aabbd0;font-size:.85rem}.tournament-player-slot input{width:100%;min-width:0;background:#071321;border:1px solid #315674;border-radius:9px;color:#fff;padding:9px}.tournament-player-slot button{border:0;background:transparent;color:#ffad8b;font-weight:900;cursor:pointer}.tournament-player-slot button:disabled{opacity:.35;cursor:not-allowed}@media(max-width:700px){.tournament-player-slot{grid-template-columns:1fr 1fr}.tournament-player-slot .slot-title,.tournament-player-slot .slot-details{grid-column:1/-1}}.tournament-panel{max-width:980px}.tournament-match-player{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}.tournament-match-player .tool-btn{text-align:left;white-space:normal;min-height:48px}.tournament-match-player input{width:100%;max-width:220px;min-width:0;background:#071321;border:1px solid #315674;border-radius:9px;color:#fff;padding:9px}.round-high-payout{margin:10px 0 2px;padding:10px 12px;border:1px solid #315674;border-radius:10px;background:#0a1422}.tournament-panel .player-row{flex-wrap:wrap}.tournament-panel .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tournament-panel input{min-width:0}@media(max-width:540px){.tournament-panel .tool-grid{grid-template-columns:1fr}}
 @media(max-width:540px){.tool-grid{grid-template-columns:1fr}.tool-bottom{justify-content:start}.match-row{align-items:flex-start;flex-direction:column}}
 
 .bonus-panel{max-width:1000px;margin:16px auto;padding:22px;background:linear-gradient(145deg,#14243a,#0c1422);border:1px solid #315674;border-radius:18px}
@@ -882,7 +882,8 @@ function tournamentSlotDisplay(slot){
   const name='@'+tournamentPlayerLabel(player);
   const game=String(tournamentPlayerGame(player)||'').trim();
   const type=String(typeof player==='string'?'':(player.slotType||player.slot_type||'')).trim().toUpperCase();
-  const details=[game,type].filter(Boolean).join(' · ');
+  const buyIn=tournamentPlayerBuyIn(player);
+  const details=[game,type,'Buy-in: $'+buyIn.toFixed(2)].filter(Boolean).join(' · ');
   return 'Player '+match[1]+' — '+name+(details?' · '+details:'');
 }
 function buildTournamentFirstRound(){
@@ -934,20 +935,30 @@ function renderTourney(){
       const block=document.createElement('div');block.className='round-block';
       const title=document.createElement('h4');title.textContent=roundNames[ri];block.append(title);
       round.forEach((match,mi)=>{
+        if(!match.payouts||typeof match.payouts!=='object')match.payouts={};
         const row=document.createElement('div');row.className='match-row';
         const matchTitle=document.createElement('strong');matchTitle.textContent='Match '+(mi+1);row.append(matchTitle);
         [match.a,match.b].forEach((name,side)=>{
+          const player=tournamentSlotPlayer(name);
+          const competitor=document.createElement('div');competitor.className='tournament-match-player';
           const pick=document.createElement('button');pick.type='button';pick.className='tool-btn'+(match.winner===name?' primary':'');
           pick.textContent=tournamentSlotDisplay(name);
-          pick.disabled=!tournamentSlotPlayer(name);
+          pick.disabled=!player;
           pick.title=pick.disabled?'Waiting for this player to enter.':'Click to advance '+tournamentSlotDisplay(name);
           pick.onclick=()=>setTournamentWinner(ri,mi,name);
-          row.append(pick);
+          competitor.append(pick);
+          const payoutLabel=document.createElement('label');payoutLabel.className='slot-field-label';payoutLabel.textContent='Game payout ($)';
+          const payoutInput=document.createElement('input');payoutInput.type='number';payoutInput.min='0';payoutInput.step='0.01';payoutInput.placeholder='Enter opening payout';payoutInput.value=player&&match.payouts[name]!=null?Number(match.payouts[name]).toFixed(2):'';payoutInput.disabled=!player;payoutInput.setAttribute('aria-label',roundNames[ri]+' Match '+(mi+1)+' '+name+' game payout');
+          payoutInput.onchange=()=>{match.payouts[name]=Math.max(0,Number(payoutInput.value||0));saveTourneyState();renderTourney();};
+          payoutLabel.append(payoutInput);competitor.append(payoutLabel);row.append(competitor);
         });
         if(match.winner){const win=document.createElement('span');win.className='tool-status';win.textContent='✓ '+match.winner+' advances';row.append(win);}
         block.append(row);
       });
-      $('bracketView').append(block);
+      const roundPayouts=round.flatMap((match,mi)=>[match.a,match.b].map(name=>({name,match:mi+1,payout:Number(match.payouts?.[name]||0),player:tournamentSlotPlayer(name)}))).filter(item=>item.player&&item.payout>0).sort((a,b)=>b.payout-a.payout);
+      const high=document.createElement('p');high.className='tool-status round-high-payout';
+      high.textContent=roundPayouts.length?'🏆 Highest game payout this round: '+tournamentPlayerGame(roundPayouts[0].player)+' — @'+tournamentPlayerLabel(roundPayouts[0].player)+' · $'+roundPayouts[0].payout.toFixed(2)+' (Match '+roundPayouts[0].match+')':'Highest game payout this round: Add payouts after opening the games.';
+      block.append(high);
     });
   }
   renderTournamentWinners();
