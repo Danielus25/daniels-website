@@ -689,7 +689,7 @@ document.querySelector('[data-home]').addEventListener('click',e=>{e.preventDefa
 document.getElementById('year').textContent=new Date().getFullYear();
 
 const tourneyStoreKey='danielus25_tournament_preview_v2';
-let tourneyState={name:'',limit:8,entriesPerPerson:1,duplicateGames:false,callsOn:false,guessesOn:false,open:false,players:[],savedPlayers:[],rounds:[],results:[],activeMatch:null};
+let tourneyState={name:'',limit:8,entriesPerPerson:1,duplicateGames:false,callsOn:false,guessesOn:false,open:false,players:[],savedPlayers:[],rounds:[],results:[],activeMatch:null,slotBuyIns:[]};
 // Initialized before Tournament rendering; synchronized from the shared API once loaded.
 let sharedQueueEnabled=false;
 try{
@@ -913,15 +913,16 @@ function renderTourney(){
     row.append(title,details);
     if(p){
       const gameInput=document.createElement('input');gameInput.value=tournamentPlayerGame(p);gameInput.placeholder='Game name';gameInput.maxLength=60;gameInput.setAttribute('aria-label','Player '+(i+1)+' game');
-      gameInput.onchange=()=>{if(typeof p==='string')tourneyState.players[i]={name:p,game:gameInput.value,buyIn:0};else p.game=gameInput.value;saveTourneyState();renderTourney();};
-      const buyInput=document.createElement('input');buyInput.type='number';buyInput.min='0';buyInput.step='0.01';buyInput.value=tournamentPlayerBuyIn(p);buyInput.placeholder='Buy-in ($)';buyInput.setAttribute('aria-label','Player '+(i+1)+' buy-in');
-      buyInput.onchange=()=>{const n=Number(buyInput.value||0);if(typeof p==='string')tourneyState.players[i]={name:p,game:'',buyIn:n};else p.buyIn=n;saveTourneyState();renderTourney();};
-      row.append(gameInput,buyInput);
+      gameInput.onchange=()=>{if(typeof p==='string')tourneyState.players[i]={name:p,game:gameInput.value,buyIn:Number(tourneyState.slotBuyIns?.[i]||0)};else p.game=gameInput.value;saveTourneyState();renderTourney();};
+      row.append(gameInput);
     }else{
       const blank=document.createElement('span');blank.className='slot-details';blank.textContent='';row.append(blank);
     }
+    const buyInput=document.createElement('input');buyInput.type='number';buyInput.min='0';buyInput.step='0.01';buyInput.value=p?tournamentPlayerBuyIn(p):Number(tourneyState.slotBuyIns?.[i]||0);buyInput.placeholder='Buy-in ($)';buyInput.setAttribute('aria-label','Player '+(i+1)+' buy-in');
+    buyInput.onchange=()=>{const n=Number(buyInput.value||0);if(p){if(typeof p==='string')tourneyState.players[i]={name:p,game:'',buyIn:n};else p.buyIn=n;}else{if(!Array.isArray(tourneyState.slotBuyIns))tourneyState.slotBuyIns=[];tourneyState.slotBuyIns[i]=n;}saveTourneyState();renderTourney();};
+    row.append(buyInput);
     const remove=document.createElement('button');remove.type='button';remove.textContent='REMOVE';remove.disabled=!p;
-    remove.onclick=()=>{tourneyState.players.splice(i,1);saveTourneyState();renderTourney();};
+    remove.onclick=()=>{tourneyState.players.splice(i,1);if(Array.isArray(tourneyState.slotBuyIns))tourneyState.slotBuyIns.splice(i,1);saveTourneyState();renderTourney();};
     row.append(remove);$('playerList').append(row);
   }
   $('bracketView').innerHTML='';
@@ -985,7 +986,7 @@ function addTournamentPlayer(name,game,buyIn){
   const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
   if(count>=cap){alert(name+' has reached the entries-per-person limit.');return false;}
   if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
-  tourneyState.players.push({name,game,buyIn});
+  tourneyState.players.push({name,game,buyIn:Number(tourneyState.slotBuyIns?.[tourneyState.players.length]??buyIn)||0});
   tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();return true;
 }
 $('saveTourney').onclick=()=>{
@@ -1195,7 +1196,7 @@ async function syncTournamentSlotEntries(){
       if(tourneyState.players.some(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()&&(p.game||'').trim().toLowerCase()===game.toLowerCase())) {
         importedIds.push(entry.id); continue;
       }
-      tourneyState.players.push({name,game,buyIn:0,slotType});
+      tourneyState.players.push({name,game,buyIn:Number(tourneyState.slotBuyIns?.[tourneyState.players.length]||0),slotType});
       importedIds.push(entry.id); added++;
     }
     if(added){tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();}
