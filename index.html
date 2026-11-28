@@ -437,6 +437,10 @@ body:has(#randomizer.active){
     <section class="panel bonus-panel"><div class="bonus-head"><h2>Cozies</h2><div class="tool-actions"><button class="tool-btn" id="cozyGambasAboveSupers">GAMBAS ABOVE SUPERS</button><button class="tool-btn" id="cozySupersLast">SUPERS LAST</button><button class="tool-btn danger" id="clearCozyBonusList">CLEAR ALL</button></div></div><div class="tool-grid bonus-entry-fields"><label class="tool-field">Viewer<input id="cozyBonusViewer" placeholder="Kick username"></label><label class="tool-field">Game<input id="cozyBonusGame" placeholder="Game name"></label><label class="tool-field">Bonus type<select id="cozyBonusType"><option>Regular</option><option>Gamba</option><option>Super</option><option>Epic</option></select></label><label class="tool-field">Spin cost ($)<input id="cozyBonusSpinCost" type="number" min="0" step="0.01" placeholder="0.00"></label><label class="tool-field">Bonus amount ($)<input id="cozyBonusValue" type="number" min="0" step="0.01" placeholder="0.00"></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="addCozyBonus">ADD BONUS</button></div></div><div id="cozyBonusList" class="tool-list"><p class="empty-state">No Cozies bonuses added yet.</p></div></section>
   </section>
   <section class="page" id="balance" role="tabpanel">
+    <div class="panel">
+      <div class="bonus-head"><h2>🎰 CURRENT BONUS HUNT END BALANCE</h2><strong id="balanceCurrentEndBalance">$0.00</strong></div>
+      <p id="balanceCurrentEndStatus" class="tool-status" aria-live="polite">Waiting for your next completed Bonus Hunt.</p>
+    </div>
     <div class="heading"><h2>GUESS THE BALANCE</h2><p>One guess. Lock it in.</p></div>
     <div class="panel">
       <span class="pill">LOCAL GUESSING GAME PREVIEW</span><h3>Who can get closest?</h3>
@@ -448,7 +452,7 @@ body:has(#randomizer.active){
       <p id="balanceStatus" class="tool-status" aria-live="polite">Entries are OPEN.</p>
       <div class="tool-divider"></div>
       <h3>Organizer · Reveal result</h3>
-      <div class="tool-grid"><label class="tool-field">Final balance ($)<input id="balanceFinal" type="number" min="0" step="0.01" placeholder="Enter final balance"></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="revealBalance">Reveal winner</button></div></div>
+      <div class="tool-grid"><label class="tool-field">Final balance from latest completed hunt ($)<input id="balanceFinal" type="number" min="0" step="0.01" placeholder="Waiting for completed hunt" readonly></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="revealBalance">Reveal winner</button></div></div>
       <p id="balanceWinner" class="tool-status" aria-live="polite"></p>
       <div class="tool-divider"></div><h3>Entries <span id="balanceCount" class="pill">0</span></h3>
       <div id="balanceList" class="tool-list"><p class="muted">No guesses yet.</p></div>
@@ -1197,7 +1201,7 @@ function renderBonusHunt(){
 function escapeBonus(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 $('refreshBonus').onclick=renderBonusHunt;
 $('startHunt').onclick=()=>{if(bonusState.hunt){alert('End the current hunt before starting another.');return;}const name=$('huntName').value.trim()||'Bonus Hunt',balance=Number($('startingBalanceInput').value);if($('startingBalanceInput').value.trim()===''||!Number.isFinite(balance)||balance<0){alert('Enter a valid starting balance.');return;}bonusState.hunt={name,startingBalance:balance,startedAt:new Date().toISOString()};bonusState.entries=[];$('finalBalanceInput').value='';saveBonusState();renderBonusHunt();};
-$('endHunt').onclick=()=>{if(!bonusState.hunt)return;const entered=$('finalBalanceInput').value.trim(),finalBalance=entered===''?bonusPayoutTotal():Number(entered);if(!Number.isFinite(finalBalance)||finalBalance<0){alert('Enter a valid final bankroll balance.');return;}bonusState.past.unshift({name:bonusState.hunt.name,startedAt:bonusState.hunt.startedAt,endedAt:new Date().toISOString(),startingBalance:bonusState.hunt.startingBalance,finalBalance,count:bonusState.entries.length,totalPayout:bonusPayoutTotal(),entries:JSON.parse(JSON.stringify(bonusState.entries))});bonusState.hunt=null;saveBonusState();renderBonusHunt();};
+$('endHunt').onclick=()=>{if(!bonusState.hunt)return;const entered=$('finalBalanceInput').value.trim(),finalBalance=entered===''?bonusPayoutTotal():Number(entered);if(!Number.isFinite(finalBalance)||finalBalance<0){alert('Enter a valid final bankroll balance.');return;}bonusState.past.unshift({name:bonusState.hunt.name,startedAt:bonusState.hunt.startedAt,endedAt:new Date().toISOString(),startingBalance:bonusState.hunt.startingBalance,finalBalance,count:bonusState.entries.length,totalPayout:bonusPayoutTotal(),entries:JSON.parse(JSON.stringify(bonusState.entries))});bonusState.hunt=null;saveBonusState();renderBonusHunt();if(typeof renderBalanceGame==='function')renderBalanceGame();};
 $('clearBonuses').onclick=()=>{if(!confirm('Clear all bonuses from the current hunt?'))return;bonusState.entries=[];saveBonusState();renderBonusHunt();};
 $('bonusDuplicateToggle').onclick=async()=>{const next=!bonusState.duplicateCalls;$('bonusQueueActionMessage').textContent='Saving duplicate-call setting…';try{await saveSharedBonusSettings({duplicate_calls:next});$('bonusQueueActionMessage').textContent='Duplicate calls '+(next?'enabled':'disabled')+'.';}catch(error){$('bonusQueueActionMessage').textContent=error.message;await loadSharedBonusState();}};
 $('bonusQueueToggle').onclick=async()=>{const next=!bonusState.queueOn;$('bonusQueueActionMessage').textContent='Saving Bonus Hunt slot-call setting…';try{await saveSharedBonusSettings({queue_enabled:next});if(next){cozyQueueState.queueOn=false;saveCozyQueueState();renderCozyQueue();}$('bonusQueueActionMessage').textContent='Bonus Hunt slot calls '+(next?'turned ON':'turned OFF')+'.';}catch(error){$('bonusQueueActionMessage').textContent=error.message;await loadSharedBonusState();}};
@@ -1223,6 +1227,12 @@ let balanceGame={open:true,entries:[],final:null};
 try{const saved=JSON.parse(localStorage.getItem(balanceStoreKey)||'null');if(saved&&Array.isArray(saved.entries))balanceGame={...balanceGame,...saved};}catch(e){}
 function saveBalanceGame(){try{localStorage.setItem(balanceStoreKey,JSON.stringify(balanceGame));}catch(e){}}
 function renderBalanceGame(){
+  const latestCompletedHunt=Array.isArray(bonusState.past)&&bonusState.past.length?bonusState.past[0]:null;
+  const latestEndingBalance=latestCompletedHunt&&Number.isFinite(Number(latestCompletedHunt.finalBalance))?Number(latestCompletedHunt.finalBalance):null;
+  $('balanceCurrentEndBalance').textContent=latestEndingBalance===null?'—':money(latestEndingBalance);
+  $('balanceCurrentEndStatus').textContent=latestCompletedHunt?'Latest completed hunt: '+(latestCompletedHunt.name||'Bonus Hunt')+' · '+new Date(latestCompletedHunt.endedAt).toLocaleString():'Waiting for your next completed Bonus Hunt.';
+  $('balanceFinal').value=latestEndingBalance===null?'':String(latestEndingBalance);
+  $('revealBalance').disabled=latestEndingBalance===null;
   $('balanceStatus').textContent=balanceGame.open?'Entries are OPEN.':'Entries are CLOSED.';
   $('toggleBalanceEntries').textContent=balanceGame.open?'Close entries':'Open entries';
   $('submitBalanceGuess').disabled=!balanceGame.open;
@@ -1265,8 +1275,9 @@ $('submitBalanceGuess').onclick=()=>{
 };
 $('toggleBalanceEntries').onclick=()=>{balanceGame.open=!balanceGame.open;saveBalanceGame();renderBalanceGame();};
 $('revealBalance').onclick=()=>{
-  const raw=$('balanceFinal').value,final=Number(raw);
-  if(raw.trim()===''||!Number.isFinite(final)||final<0){alert('Enter the final balance first.');return;}
+  const latestCompletedHunt=Array.isArray(bonusState.past)&&bonusState.past.length?bonusState.past[0]:null;
+  const final=latestCompletedHunt?Number(latestCompletedHunt.finalBalance):NaN;
+  if(!Number.isFinite(final)||final<0){alert('End a Bonus Hunt first so its final balance can be pulled in automatically.');return;}
   if(!balanceGame.entries.length){alert('There are no guesses to score.');return;}
   balanceGame.open=false;balanceGame.final=final;saveBalanceGame();renderBalanceGame();
 };
