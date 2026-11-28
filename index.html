@@ -452,6 +452,9 @@ body:has(#randomizer.active){
       <p id="balanceWinner" class="tool-status" aria-live="polite"></p>
       <div class="tool-divider"></div><h3>Entries <span id="balanceCount" class="pill">0</span></h3>
       <div id="balanceList" class="tool-list"><p class="muted">No guesses yet.</p></div>
+      <div class="tool-divider"></div>
+      <div class="bonus-head"><h3>🏆 Final results</h3><button class="tool-btn danger" id="clearBalanceResults">CLEAR ALL</button></div>
+      <p id="balanceFinalResultsMessage" class="tool-status" aria-live="polite">Final results will appear here after the balance is revealed.</p>
       <p class="tool-note">Preview limitation: names and guesses are stored only in this browser. One entry per typed name is enforced locally; Kick account verification and shared entries require Daniel's backend.</p>
     </div>
   </section>
@@ -1236,8 +1239,22 @@ function renderBalanceGame(){
     $('balanceFinal').value=String(balanceGame.final);
     const ranked=[...balanceGame.entries].sort((a,b)=>Math.abs(a.guess-balanceGame.final)-Math.abs(b.guess-balanceGame.final));
     $('balanceWinner').textContent=ranked.length?'🏆 Closest guess: '+ranked[0].viewer+' · '+money(ranked[0].guess)+' (off by '+money(Math.abs(ranked[0].guess-balanceGame.final))+')':'No entries to score.';
-  }else $('balanceWinner').textContent='';
+    $('balanceFinalResultsMessage').textContent='Final Bonus Hunt balance: '+money(balanceGame.final)+'.';
+  }else {
+    $('balanceWinner').textContent='';
+    if($('balanceFinalResultsMessage'))$('balanceFinalResultsMessage').textContent='Final results will appear here after the balance is revealed.';
+  }
 }
+$('clearBalanceResults').onclick=()=>{
+  if(!confirm('Clear all names, guesses, and the final Bonus Hunt balance?'))return;
+  balanceGame.entries=[];
+  balanceGame.final=null;
+  balanceGame.open=false;
+  $('balanceFinal').value='';
+  saveBalanceGame();
+  renderBalanceGame();
+  $('balanceFinalResultsMessage').textContent='All names and the final Bonus Hunt balance have been cleared. The results panel is ready for the next round.';
+};
 $('submitBalanceGuess').onclick=()=>{
   if(!balanceGame.open){alert('Entries are closed.');return;}
   const viewer=$('balanceViewer').value.trim().replace(/^@/,'');
