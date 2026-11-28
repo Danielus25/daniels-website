@@ -940,6 +940,7 @@ $('saveTourney').onclick=()=>{
   tourneyState.entriesPerPerson=parseInt($('entriesPerPerson').value,10)||1;
   saveTourneyState();renderTourney();
 };
+$('saveTourneyOrganizer').onclick=()=>$('saveTourney').click();
 $('tourneyLimit').onchange=()=>{$('saveTourney').click();};
 $('entriesPerPerson').onchange=()=>{$('saveTourney').click();};
 $('duplicateToggle').addEventListener('click',function(e){
