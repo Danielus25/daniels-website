@@ -725,7 +725,7 @@ function renderKickSignIn(user){
   if(status) status.textContent=user
     ? 'Signed in as '+String(user.name||'Kick user')+'. Organizer accounts can view the shared sign-in list below.'
     : 'Sign in with an organizer account to view the shared sign-in list.';
-  if(user && window.kickDashboardAuthorized && typeof syncTournamentSlotEntries==='function') syncTournamentSlotEntries();
+  if(user && window.kickDashboardAuthorized){if(typeof publishTournamentConfig==='function') publishTournamentConfig();if(typeof syncTournamentSlotEntries==='function') syncTournamentSlotEntries();}
   if(!user){
     const roster=$('dashboardKickRoster');
     if(roster) roster.innerHTML='<p class="muted">Sign in with an organizer account to view sign-in activity.</p>';
