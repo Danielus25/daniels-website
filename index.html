@@ -333,9 +333,9 @@ body:has(#randomizer.active){
         <div class="tool-field tool-bottom"><button class="tool-btn primary" id="addPlayer">ADD TO BRACKET</button></div>
       </div>
       <div class="tool-divider"></div>
-      <h3>Players <span id="playerCount" class="pill">0 / 8 players</span></h3>
+      <h3>Players <span id="playerCount" class="pill">0 / 4 players</span></h3>
       <div class="feature-list">
-        <div class="feature"><b>Open spots</b><small id="openSpots">8 open spots</small></div>
+        <div class="feature"><b>Open spots</b><small id="openSpots">4 open spots</small></div>
         <div class="feature"><b>Entry status</b><small id="entryStatus">Entries are closed.</small></div>
       </div>
       <p class="muted">Add players with a username and game. Each player appears in the bracket as soon as you press ADD TO BRACKET.</p>
@@ -1011,7 +1011,14 @@ $('saveTourney').onclick=()=>{
   saveTourneyState();renderTourney();
 };
 $('saveTourneyOrganizer').onclick=()=>$('saveTourney').click();
-$('tourneyLimit').onchange=()=>{$('saveTourney').click();};
+$('tourneyLimit').onchange=()=>{
+  const limit=Number($('tourneyLimit').value);
+  if(![4,8,12,16,32].includes(limit)){renderTourney();return;}
+  if(tourneyState.players.length>limit){alert('The current player list is larger than that bracket size.');renderTourney();return;}
+  tourneyState.limit=limit;
+  saveTourneyState();
+  renderTourney();
+};
 $('entriesPerPerson').onchange=()=>{$('saveTourney').click();};
 $('duplicateToggle').addEventListener('click',function(e){
   e.preventDefault();
