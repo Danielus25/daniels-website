@@ -445,9 +445,9 @@ body:has(#randomizer.active){
     <div class="panel">
       <h3>Who can get closest?</h3>
       <div class="tool-grid">
-        <label class="tool-field">Your name<input id="balanceViewer" maxlength="30" placeholder="Type the name you want displayed"></label>
         <label class="tool-field">Your guess ($)<input id="balanceGuess" type="number" min="0" step="0.01" placeholder="0.00"></label>
       </div>
+      <p class="tool-status">Your Kick username will be added automatically when you lock in your guess.</p>
       <div class="tool-actions"><button class="tool-btn primary" id="submitBalanceGuess">Lock in my guess</button></div>
       <p id="balanceStatus" class="tool-status" aria-live="polite">Entries are paused.</p>
       <div class="tool-divider"></div>
@@ -1296,7 +1296,7 @@ function renderBalanceGame(){
   $('revealBalance').disabled=!window.kickDashboardAuthorized||balanceGame.final===null||balanceGame.open||balanceGame.entryCount===0||balanceGame.revealed;
   $('toggleBalanceEntries').disabled=!window.kickDashboardAuthorized;
   $('clearBalanceResults').disabled=!window.kickDashboardAuthorized;
-  if(!kickSession)$('balanceOrganizerStatus').textContent='Sign in with Kick to submit a guess. Type the name you want displayed.';
+  if(!kickSession)$('balanceOrganizerStatus').textContent='Sign in with Kick to submit a guess.';
 }
 $('clearBalanceResults').onclick=async()=>{
   if(!window.kickDashboardAuthorized){alert('Organizer sign-in required.');return;}
@@ -1314,15 +1314,14 @@ $('clearBalanceResults').onclick=async()=>{
 $('submitBalanceGuess').onclick=async()=>{
   if(!kickSession){alert('Sign in with Kick before submitting a guess.');return;}
   if(!balanceGame.open){alert('Entries are paused.');return;}
-  const viewer=$('balanceViewer').value.trim().replace(/^@/,'');
   const raw=$('balanceGuess').value,guess=Number(raw);
-  if(!viewer||raw.trim()===''||!Number.isFinite(guess)||guess<0){alert('Enter the name you want displayed and a valid guess.');return;}
+  if(raw.trim()===''||!Number.isFinite(guess)||guess<0){alert('Enter a valid guess.');return;}
   $('submitBalanceGuess').disabled=true;
   try{
-    const response=await fetch(GUESS_BALANCE_API_URL+'/guess',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},body:JSON.stringify({display_name:viewer,guess})});
+    const response=await fetch(GUESS_BALANCE_API_URL+'/guess',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},body:JSON.stringify({guess})});
     const result=await response.json();
     if(!response.ok)throw new Error(result.error||'Could not lock in your guess.');
-    $('balanceViewer').value='';$('balanceGuess').value='';
+    $('balanceGuess').value='';
     await loadBalanceGame();
     $('balanceStatus').textContent='Your guess is locked in! You cannot change it.';
   }catch(error){$('balanceStatus').textContent=error.message;renderBalanceGame();}
@@ -1336,7 +1335,7 @@ $('toggleBalanceEntries').onclick=async()=>{
     const result=await response.json();
     if(!response.ok)throw new Error(result.error||'Could not update GTB status.');
     await loadBalanceGame();
-    $('balanceOrganizerStatus').textContent=next?'GTB is ON. Viewers can sign in, type their display name, and lock in one guess.':'Entries are paused. Saved guesses will stay in this round if it reopens.';
+    $('balanceOrganizerStatus').textContent=next?'GTB is ON. Viewers can sign in and lock in one guess.':'Entries are paused. Saved guesses will stay in this round if it reopens.';
   }catch(error){$('balanceOrganizerStatus').textContent=error.message;}
 };
 $('revealBalance').onclick=async()=>{
