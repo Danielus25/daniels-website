@@ -866,7 +866,6 @@ kickSignInButton?.addEventListener('click',async()=>{
   }
   window.location.href=KICK_AUTH_URL+'/login';
 });
-restoreKickSession();
 function saveTourneyState(sync=true){try{localStorage.setItem(tourneyStoreKey,JSON.stringify(tourneyState));}catch(e){} if(sync&&typeof publishTournamentConfig==='function') publishTournamentConfig();}
 function tournamentPlayerLabel(p){return typeof p==='string'?p:(p.name||'Player');}
 function tournamentPlayerGame(p){return typeof p==='string'?'':(p.game||'');}
@@ -1011,7 +1010,7 @@ $('removeSavedPlayers').onclick=()=>{
 };
 $('openTourneyEntries').onclick=async()=>{tourneyState.open=true;saveTourneyState(false);renderTourney();$('queueImportStatus').textContent='Opening Tournament entries…';const saved=await publishTournamentConfig();if(!saved){tourneyState.open=false;saveTourneyState(false);renderTourney();$('queueImportStatus').textContent='Tournament was not opened on the server. Sign in as an authorized organizer and try again.';return;}$('queueImportStatus').textContent='Tournament entries are OPEN and synced. REG/SUPER games will now be added to the bracket.';await syncTournamentSlotEntries();};
 $('closeTourneyEntries').onclick=()=>{tourneyState.open=false;saveTourneyState();renderTourney();};
-$('makeBracket').onclick=()=>{
+$('shufflePlayers').onclick=()=>{
   if(tourneyState.players.length<2){alert('Add at least two players first.');return;}
   if(tourneyState.rounds.length&&!confirm('Replace the current bracket?'))return;
   tourneyState.savedPlayers=JSON.parse(JSON.stringify(tourneyState.players));
@@ -1022,7 +1021,6 @@ $('makeBracket').onclick=()=>{
   const round=[];for(let i=0;i<shuffled.length;i+=2)round.push({a:shuffled[i],b:shuffled[i+1],winner:shuffled[i+1]==='BYE'?shuffled[i]:''});
   tourneyState.rounds=[round];tourneyState.results=[];saveTourneyState();renderTourney();
 };
-$('shufflePlayers').onclick=()=>{$('makeBracket').click();};
 $('startNextMatch').onclick=()=>{
   for(let ri=0;ri<tourneyState.rounds.length;ri++){const mi=tourneyState.rounds[ri].findIndex(m=>!m.winner&&m.a!=='BYE'&&m.b!=='BYE');if(mi>=0){tourneyState.activeMatch={round:ri,match:mi};$('bracketSummary').textContent='Next match: Round '+(ri+1)+' · Match '+(mi+1)+' — '+tourneyState.rounds[ri][mi].a+' vs '+tourneyState.rounds[ri][mi].b;return;}}
   $('bracketSummary').textContent='No unplayed matches remain.';
@@ -1768,6 +1766,8 @@ try{
   savedTab=pages.some(p=>p.id===hashTab)?hashTab:(localStorage.getItem('danielus25_active_tab')||'home');
 }catch(e){savedTab='home';}
 showPage(savedTab);
+// Restore Kick only after all shared state and API constants are initialized.
+restoreKickSession();
 window.addEventListener('hashchange',()=>{
   const hashTab=location.hash.slice(1);
   if(pages.some(p=>p.id===hashTab)) showPage(hashTab);
