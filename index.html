@@ -1355,7 +1355,9 @@ $('revealBalance').onclick=async()=>{
     const result=await response.json();
     if(!response.ok)throw new Error(result.error||'Could not reveal results.');
     await loadBalanceGame();
-    $('balanceOrganizerStatus').textContent='Winner revealed using the ending balance from the latest completed Bonus Hunt.';
+    $('balanceOrganizerStatus').textContent=result.chatSent
+      ?'Winner revealed and announced in Kick chat: '+(result.winner_guesses||result.winner_names)
+      :'Winner revealed, but the Kick chat announcement could not be sent: '+(result.chatError||'Kick chat unavailable');
   }catch(error){$('balanceOrganizerStatus').textContent=error.message;}
 };
 renderBalanceGame();
