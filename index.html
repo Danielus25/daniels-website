@@ -978,7 +978,15 @@ function renderTournamentWinners(){
   const champion=finalRound.length===1&&finalRound[0].winner?finalRound[0].winner:'';
   if(champion){const c=document.createElement('div');c.className='round-block';const h=document.createElement('h4');h.textContent='🏆 TOURNAMENT CHAMPION';const p=document.createElement('p');p.className='tool-status';p.textContent=champion;c.append(h,p);list.append(c);}
   if(!tourneyState.results.length&&!champion){list.innerHTML='<p class="muted">Winners will appear here as matches are completed.</p>';return;}
-  tourneyState.results.forEach((r,i)=>{const row=document.createElement('div');row.className='player-row';const label=document.createElement('strong');label.textContent='Round '+r.round+' · Match '+r.match+' — '+r.winner;const payout=document.createElement('span');const playerName=String(r.winner||'').replace(/^Player \\d+ — @/,'').replace(/^@/,'');const player=tourneyState.players.find(p=>tournamentPlayerLabel(p).toLowerCase()===playerName.toLowerCase());payout.textContent='Buy-in: list.append(row);});
+  tourneyState.results.forEach(r=>{
+    const row=document.createElement('div');row.className='player-row';
+    const label=document.createElement('strong');label.textContent='Round '+r.round+' · Match '+r.match+' — '+r.winner;
+    const payout=document.createElement('span');
+    const playerName=String(r.winner||'').replace(/^Player \d+ — @/,'').replace(/^@/,'');
+    const player=tourneyState.players.find(p=>tournamentPlayerLabel(p).toLowerCase()===playerName.toLowerCase());
+    payout.textContent='Buy-in: $'+Number(player?tournamentPlayerBuyIn(player):r.buyIn||0).toFixed(2)+' · Payout: $'+Number(player?tournamentPlayerPayout(player):r.payout||0).toFixed(2);
+    row.append(label,payout);list.append(row);
+  });
 }
 function addTournamentPlayer(name,game,buyIn){
   name=String(name||'').trim().replace(/^@/,'');game=String(game||'').trim();buyIn=Number(buyIn||0);
