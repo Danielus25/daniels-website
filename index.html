@@ -438,28 +438,32 @@ body:has(#randomizer.active){
   </section>
   <section class="page" id="balance" role="tabpanel">
     <div class="panel">
-      <div class="bonus-head"><h2>🎰 CURRENT BONUS HUNT END BALANCE</h2><strong id="balanceCurrentEndBalance">$0.00</strong></div>
+      <div class="bonus-head"><h2>🎰 CURRENT BONUS HUNT END BALANCE</h2><strong id="balanceCurrentEndBalance">—</strong></div>
       <p id="balanceCurrentEndStatus" class="tool-status" aria-live="polite">Waiting for your next completed Bonus Hunt.</p>
     </div>
-    <div class="heading"><h2>GUESS THE BALANCE</h2><p>One guess. Lock it in.</p></div>
+    <div class="heading"><h2>GUESS THE BALANCE</h2><p>One guess per Kick account. Lock it in.</p></div>
     <div class="panel">
-      <span class="pill">LOCAL GUESSING GAME PREVIEW</span><h3>Who can get closest?</h3>
+      <h3>Who can get closest?</h3>
       <div class="tool-grid">
         <label class="tool-field">Your name<input id="balanceViewer" maxlength="30" placeholder="Type the name you want displayed"></label>
         <label class="tool-field">Your guess ($)<input id="balanceGuess" type="number" min="0" step="0.01" placeholder="0.00"></label>
       </div>
-      <div class="tool-actions"><button class="tool-btn primary" id="submitBalanceGuess">Lock in my guess</button><button class="tool-btn" id="toggleBalanceEntries">Close entries</button></div>
-      <p id="balanceStatus" class="tool-status" aria-live="polite">Entries are OPEN.</p>
+      <div class="tool-actions"><button class="tool-btn primary" id="submitBalanceGuess">Lock in my guess</button></div>
+      <p id="balanceStatus" class="tool-status" aria-live="polite">Entries are paused.</p>
       <div class="tool-divider"></div>
-      <h3>Organizer · Reveal result</h3>
-      <div class="tool-grid"><label class="tool-field">Final balance from latest completed hunt ($)<input id="balanceFinal" type="number" min="0" step="0.01" placeholder="Waiting for completed hunt" readonly></label><div class="tool-field tool-bottom"><button class="tool-btn primary" id="revealBalance">Reveal winner</button></div></div>
-      <p id="balanceWinner" class="tool-status" aria-live="polite"></p>
-      <div class="tool-divider"></div><h3>Entries <span id="balanceCount" class="pill">0</span></h3>
+      <h3>👑 Organizer controls</h3>
+      <div class="tool-actions">
+        <button class="tool-btn primary" id="toggleBalanceEntries">GTB ON</button>
+        <button class="tool-btn" id="revealBalance">REVEAL WINNER</button>
+      </div>
+      <p id="balanceOrganizerStatus" class="tool-status" aria-live="polite">The final bankroll will be pulled automatically from the most recently completed Bonus Hunt.</p>
+      <div class="tool-divider"></div>
+      <h3>Entries <span id="balanceCount" class="pill">0</span></h3>
       <div id="balanceList" class="tool-list"><p class="muted">No guesses yet.</p></div>
       <div class="tool-divider"></div>
       <div class="bonus-head"><h3>🏆 Final results</h3><button class="tool-btn danger" id="clearBalanceResults">CLEAR ALL</button></div>
+      <p id="balanceWinner" class="tool-status" aria-live="polite"></p>
       <p id="balanceFinalResultsMessage" class="tool-status" aria-live="polite">Final results will appear here after the balance is revealed.</p>
-      <p class="tool-note">Type the name you want displayed, even when signed in with Kick. Kick sign-in identifies your account; it does not fill in your display name.</p>
     </div>
   </section>
 
@@ -1201,7 +1205,7 @@ function renderBonusHunt(){
 function escapeBonus(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 $('refreshBonus').onclick=renderBonusHunt;
 $('startHunt').onclick=()=>{if(bonusState.hunt){alert('End the current hunt before starting another.');return;}const name=$('huntName').value.trim()||'Bonus Hunt',balance=Number($('startingBalanceInput').value);if($('startingBalanceInput').value.trim()===''||!Number.isFinite(balance)||balance<0){alert('Enter a valid starting balance.');return;}bonusState.hunt={name,startingBalance:balance,startedAt:new Date().toISOString()};bonusState.entries=[];$('finalBalanceInput').value='';saveBonusState();renderBonusHunt();};
-$('endHunt').onclick=()=>{if(!bonusState.hunt)return;const entered=$('finalBalanceInput').value.trim(),finalBalance=entered===''?bonusPayoutTotal():Number(entered);if(!Number.isFinite(finalBalance)||finalBalance<0){alert('Enter a valid final bankroll balance.');return;}bonusState.past.unshift({name:bonusState.hunt.name,startedAt:bonusState.hunt.startedAt,endedAt:new Date().toISOString(),startingBalance:bonusState.hunt.startingBalance,finalBalance,count:bonusState.entries.length,totalPayout:bonusPayoutTotal(),entries:JSON.parse(JSON.stringify(bonusState.entries))});bonusState.hunt=null;saveBonusState();renderBonusHunt();if(typeof renderBalanceGame==='function')renderBalanceGame();};
+$('endHunt').onclick=()=>{if(!bonusState.hunt)return;const entered=$('finalBalanceInput').value.trim(),finalBalance=entered===''?bonusPayoutTotal():Number(entered);if(!Number.isFinite(finalBalance)||finalBalance<0){alert('Enter a valid final bankroll balance.');return;}const completed={name:bonusState.hunt.name,startedAt:bonusState.hunt.startedAt,endedAt:new Date().toISOString(),startingBalance:bonusState.hunt.startingBalance,finalBalance,count:bonusState.entries.length,totalPayout:bonusPayoutTotal(),entries:JSON.parse(JSON.stringify(bonusState.entries))};bonusState.past.unshift(completed);bonusState.hunt=null;saveBonusState();renderBonusHunt();if(typeof renderBalanceGame==='function')renderBalanceGame();if(typeof syncCompletedBonusHunt==='function')syncCompletedBonusHunt(completed);};
 $('clearBonuses').onclick=()=>{if(!confirm('Clear all bonuses from the current hunt?'))return;bonusState.entries=[];saveBonusState();renderBonusHunt();};
 $('bonusDuplicateToggle').onclick=async()=>{const next=!bonusState.duplicateCalls;$('bonusQueueActionMessage').textContent='Saving duplicate-call setting…';try{await saveSharedBonusSettings({duplicate_calls:next});$('bonusQueueActionMessage').textContent='Duplicate calls '+(next?'enabled':'disabled')+'.';}catch(error){$('bonusQueueActionMessage').textContent=error.message;await loadSharedBonusState();}};
 $('bonusQueueToggle').onclick=async()=>{const next=!bonusState.queueOn;$('bonusQueueActionMessage').textContent='Saving Bonus Hunt slot-call setting…';try{await saveSharedBonusSettings({queue_enabled:next});if(next){cozyQueueState.queueOn=false;saveCozyQueueState();renderCozyQueue();}$('bonusQueueActionMessage').textContent='Bonus Hunt slot calls '+(next?'turned ON':'turned OFF')+'.';}catch(error){$('bonusQueueActionMessage').textContent=error.message;await loadSharedBonusState();}};
@@ -1222,66 +1226,132 @@ renderBonusHunt();
 loadSharedBonusState();
 setInterval(()=>{if(document.visibilityState==='visible')loadSharedBonusState();},5000);
 
-const balanceStoreKey='danielus25_balance_preview_v1';
-let balanceGame={open:true,entries:[],final:null};
-try{const saved=JSON.parse(localStorage.getItem(balanceStoreKey)||'null');if(saved&&Array.isArray(saved.entries))balanceGame={...balanceGame,...saved};}catch(e){}
-function saveBalanceGame(){try{localStorage.setItem(balanceStoreKey,JSON.stringify(balanceGame));}catch(e){}}
-function renderBalanceGame(){
-  const latestCompletedHunt=Array.isArray(bonusState.past)&&bonusState.past.length?bonusState.past[0]:null;
-  const latestEndingBalance=latestCompletedHunt&&Number.isFinite(Number(latestCompletedHunt.finalBalance))?Number(latestCompletedHunt.finalBalance):null;
-  $('balanceCurrentEndBalance').textContent=latestEndingBalance===null?'—':money(latestEndingBalance);
-  $('balanceCurrentEndStatus').textContent=latestCompletedHunt?'Latest completed hunt: '+(latestCompletedHunt.name||'Bonus Hunt')+' · '+new Date(latestCompletedHunt.endedAt).toLocaleString():'Waiting for your next completed Bonus Hunt.';
-  $('balanceFinal').value=latestEndingBalance===null?'':String(latestEndingBalance);
-  $('revealBalance').disabled=latestEndingBalance===null;
-  $('balanceStatus').textContent=balanceGame.open?'Entries are OPEN.':'Entries are CLOSED.';
-  $('toggleBalanceEntries').textContent=balanceGame.open?'Close entries':'Open entries';
-  $('submitBalanceGuess').disabled=!balanceGame.open;
-  $('balanceCount').textContent=String(balanceGame.entries.length);
-  $('balanceList').innerHTML='';
-  if(!balanceGame.entries.length)$('balanceList').innerHTML='<p class="muted">No guesses yet.</p>';
-  balanceGame.entries.forEach((entry,i)=>{
-    const row=document.createElement('div');row.className='player-row';
-    const name=document.createElement('strong');name.textContent=(i+1)+'. '+entry.viewer;
-    const amount=document.createElement('span');amount.textContent=money(entry.guess);
-    row.append(name,amount);$('balanceList').append(row);
-  });
-  if(balanceGame.final!==null){
-    $('balanceFinal').value=String(balanceGame.final);
-    const ranked=[...balanceGame.entries].sort((a,b)=>Math.abs(a.guess-balanceGame.final)-Math.abs(b.guess-balanceGame.final));
-    $('balanceWinner').textContent=ranked.length?'🏆 Closest guess: '+ranked[0].viewer+' · '+money(ranked[0].guess)+' (off by '+money(Math.abs(ranked[0].guess-balanceGame.final))+')':'No entries to score.';
-    $('balanceFinalResultsMessage').textContent='Final Bonus Hunt balance: '+money(balanceGame.final)+'.';
-  }else {
-    $('balanceWinner').textContent='';
-    if($('balanceFinalResultsMessage'))$('balanceFinalResultsMessage').textContent='Final results will appear here after the balance is revealed.';
+const GUESS_BALANCE_API_URL='https://kwvbfqqeubisunidtckx.supabase.co/functions/v1/guess-balance';
+let balanceGame={open:false,entries:[],entryCount:0,final:null,finalHuntName:null,completedAt:null,revealed:false};
+async function loadBalanceGame(){
+  try{
+    const response=await fetch(GUESS_BALANCE_API_URL+'/state',{cache:'no-store'});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'Could not load Guess the Balance.');
+    balanceGame.open=!!result.state.entries_open;
+    balanceGame.final=result.state.final_balance===null?null:Number(result.state.final_balance);
+    balanceGame.finalHuntName=result.state.final_hunt_name||null;
+    balanceGame.completedAt=result.state.completed_at||null;
+    balanceGame.revealed=!!result.state.revealed;
+    balanceGame.entryCount=Number(result.entry_count||0);
+    balanceGame.entries=Array.isArray(result.entries)?result.entries:[];
+    renderBalanceGame();
+  }catch(error){
+    $('balanceStatus').textContent=error.message||'Could not connect to Guess the Balance.';
   }
 }
-$('clearBalanceResults').onclick=()=>{
+async function syncCompletedBonusHunt(hunt){
+  if(!kickSession||!window.kickDashboardAuthorized){
+    $('balanceOrganizerStatus').textContent='This completed hunt is saved here, but sign in with an organizer Kick account to sync its ending balance for everyone.';
+    return;
+  }
+  try{
+    const response=await fetch(GUESS_BALANCE_API_URL+'/complete-hunt',{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},
+      body:JSON.stringify({final_balance:hunt.finalBalance,hunt_name:hunt.name,completed_at:hunt.endedAt})
+    });
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'Could not sync the ending balance.');
+    balanceGame.final=result.state.final_balance===null?null:Number(result.state.final_balance);
+    balanceGame.finalHuntName=result.state.final_hunt_name||hunt.name;
+    balanceGame.completedAt=result.state.completed_at||hunt.endedAt;
+    $('balanceOrganizerStatus').textContent='Ending balance synced automatically from '+(hunt.name||'the completed Bonus Hunt')+'.';
+    renderBalanceGame();
+  }catch(error){
+    $('balanceOrganizerStatus').textContent=error.message||'Could not sync the ending balance.';
+  }
+}
+function moneyGuess(v){return '$'+Number(v||0).toFixed(2);}
+function renderBalanceGame(){
+  $('balanceCurrentEndBalance').textContent=balanceGame.final===null?'—':moneyGuess(balanceGame.final);
+  $('balanceCurrentEndStatus').textContent=balanceGame.final===null?'Waiting for your next completed Bonus Hunt.':'Latest completed hunt: '+(balanceGame.finalHuntName||'Bonus Hunt')+(balanceGame.completedAt?' · '+new Date(balanceGame.completedAt).toLocaleString():'');
+  $('balanceStatus').textContent=balanceGame.open?'Entries are OPEN.':'Entries are paused. Your guesses are saved, and the organizer may reopen this round.';
+  $('toggleBalanceEntries').textContent=balanceGame.open?'GTB OFF':'GTB ON';
+  $('submitBalanceGuess').disabled=!balanceGame.open||!kickSession;
+  $('balanceCount').textContent=String(balanceGame.entryCount);
+  $('balanceList').innerHTML='';
+  if(!balanceGame.entryCount)$('balanceList').innerHTML='<p class="muted">No guesses yet.</p>';
+  else if(!balanceGame.revealed)$('balanceList').innerHTML='<p class="muted">Guesses are locked and hidden until the organizer reveals the winner.</p>';
+  if(balanceGame.revealed){
+    const ranked=[...balanceGame.entries].sort((a,b)=>Math.abs(Number(a.guess)-balanceGame.final)-Math.abs(Number(b.guess)-balanceGame.final));
+    ranked.forEach((entry,i)=>{
+      const row=document.createElement('div');row.className='player-row';
+      const name=document.createElement('strong');name.textContent=(i+1)+'. '+entry.display_name;
+      const amount=document.createElement('span');amount.textContent=moneyGuess(entry.guess);
+      row.append(name,amount);$('balanceList').append(row);
+    });
+    const winner=ranked[0];
+    $('balanceWinner').textContent=winner?'🏆 Closest guess: '+winner.display_name+' · '+moneyGuess(winner.guess)+' (off by '+moneyGuess(Math.abs(Number(winner.guess)-balanceGame.final))+')':'No entries to score.';
+    $('balanceFinalResultsMessage').textContent='Final Bonus Hunt balance: '+moneyGuess(balanceGame.final)+'.';
+  }else{
+    $('balanceWinner').textContent='';
+    $('balanceFinalResultsMessage').textContent='Final results will appear here after the balance is revealed.';
+  }
+  $('revealBalance').disabled=!window.kickDashboardAuthorized||balanceGame.final===null||balanceGame.open||balanceGame.entryCount===0||balanceGame.revealed;
+  $('toggleBalanceEntries').disabled=!window.kickDashboardAuthorized;
+  $('clearBalanceResults').disabled=!window.kickDashboardAuthorized;
+  if(!kickSession)$('balanceOrganizerStatus').textContent='Sign in with Kick to submit a guess. Type the name you want displayed.';
+}
+$('clearBalanceResults').onclick=async()=>{
+  if(!window.kickDashboardAuthorized){alert('Organizer sign-in required.');return;}
   if(!confirm('Clear all names, guesses, and the final Bonus Hunt balance?'))return;
-  balanceGame.entries=[];
-  balanceGame.final=null;
-  balanceGame.open=false;
-  $('balanceFinal').value='';
-  saveBalanceGame();
-  renderBalanceGame();
-  $('balanceFinalResultsMessage').textContent='All names and the final Bonus Hunt balance have been cleared. The results panel is ready for the next round.';
+  $('balanceOrganizerStatus').textContent='Clearing all results…';
+  try{
+    const response=await fetch(GUESS_BALANCE_API_URL+'/clear',{method:'POST',headers:{Authorization:'Bearer '+kickSession}});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'Could not clear results.');
+    await loadBalanceGame();
+    $('balanceOrganizerStatus').textContent='All names and the final Bonus Hunt balance have been cleared. The results panel is ready for the next round.';
+    $('balanceFinalResultsMessage').textContent='All names and the final Bonus Hunt balance have been cleared. The results panel is ready for the next round.';
+  }catch(error){$('balanceOrganizerStatus').textContent=error.message;}
 };
-$('submitBalanceGuess').onclick=()=>{
-  if(!balanceGame.open){alert('Entries are closed.');return;}
+$('submitBalanceGuess').onclick=async()=>{
+  if(!kickSession){alert('Sign in with Kick before submitting a guess.');return;}
+  if(!balanceGame.open){alert('Entries are paused.');return;}
   const viewer=$('balanceViewer').value.trim().replace(/^@/,'');
   const raw=$('balanceGuess').value,guess=Number(raw);
-  if(!viewer||raw.trim()===''||!Number.isFinite(guess)||guess<0){alert('Enter your username and a valid guess.');return;}
-  if(balanceGame.entries.some(e=>e.viewer.toLowerCase()===viewer.toLowerCase())){alert('That name already has a locked guess.');return;}
-  balanceGame.entries.push({viewer,guess});saveBalanceGame();$('balanceViewer').value='';$('balanceGuess').value='';renderBalanceGame();
+  if(!viewer||raw.trim()===''||!Number.isFinite(guess)||guess<0){alert('Enter the name you want displayed and a valid guess.');return;}
+  $('submitBalanceGuess').disabled=true;
+  try{
+    const response=await fetch(GUESS_BALANCE_API_URL+'/guess',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},body:JSON.stringify({display_name:viewer,guess})});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'Could not lock in your guess.');
+    $('balanceViewer').value='';$('balanceGuess').value='';
+    await loadBalanceGame();
+    $('balanceStatus').textContent='Your guess is locked in! You cannot change it.';
+  }catch(error){$('balanceStatus').textContent=error.message;renderBalanceGame();}
 };
-$('toggleBalanceEntries').onclick=()=>{balanceGame.open=!balanceGame.open;saveBalanceGame();renderBalanceGame();};
-$('revealBalance').onclick=()=>{
-  const latestCompletedHunt=Array.isArray(bonusState.past)&&bonusState.past.length?bonusState.past[0]:null;
-  const final=latestCompletedHunt?Number(latestCompletedHunt.finalBalance):NaN;
-  if(!Number.isFinite(final)||final<0){alert('End a Bonus Hunt first so its final balance can be pulled in automatically.');return;}
-  if(!balanceGame.entries.length){alert('There are no guesses to score.');return;}
-  balanceGame.open=false;balanceGame.final=final;saveBalanceGame();renderBalanceGame();
+$('toggleBalanceEntries').onclick=async()=>{
+  if(!window.kickDashboardAuthorized){alert('Organizer sign-in required.');return;}
+  const next=!balanceGame.open;
+  $('balanceOrganizerStatus').textContent=next?'Opening GTB entries…':'Pausing GTB entries…';
+  try{
+    const response=await fetch(GUESS_BALANCE_API_URL+'/settings',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},body:JSON.stringify({entries_open:next})});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'Could not update GTB status.');
+    await loadBalanceGame();
+    $('balanceOrganizerStatus').textContent=next?'GTB is ON. Viewers can sign in, type their display name, and lock in one guess.':'Entries are paused. Saved guesses will stay in this round if it reopens.';
+  }catch(error){$('balanceOrganizerStatus').textContent=error.message;}
+};
+$('revealBalance').onclick=async()=>{
+  if(!window.kickDashboardAuthorized){alert('Organizer sign-in required.');return;}
+  try{
+    const response=await fetch(GUESS_BALANCE_API_URL+'/reveal',{method:'POST',headers:{Authorization:'Bearer '+kickSession}});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'Could not reveal results.');
+    await loadBalanceGame();
+    $('balanceOrganizerStatus').textContent='Winner revealed using the ending balance from the latest completed Bonus Hunt.';
+  }catch(error){$('balanceOrganizerStatus').textContent=error.message;}
 };
 renderBalanceGame();
+loadBalanceGame();
+setInterval(()=>{if(document.visibilityState==='visible')loadBalanceGame();},10000);
 
 const wheelStoreKey='danielus25_wheel_preview_v1',gameWheelStoreKey='danielus25_game_wheel_preview_v1',wheelSettingsKey='danielus25_wheel_settings_v1';
 let wheelNames=[],wheelGames=[],wheelSettings={autoAdd:false,duplicates:false,perPerson:1};
