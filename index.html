@@ -1297,7 +1297,8 @@ function renderBalanceGame(){
     $('balanceWinner').textContent='';
     $('balanceFinalResultsMessage').textContent='Final results will appear here after the balance is revealed.';
   }
-  $('revealBalance').disabled=!window.kickDashboardAuthorized||balanceGame.final===null||balanceGame.open||balanceGame.entryCount===0||balanceGame.revealed;
+  $('revealBalance').disabled=!window.kickDashboardAuthorized;
+  $('revealBalance').title=!window.kickDashboardAuthorized?'Sign in with an organizer Kick account to reveal the winner.':balanceGame.open?'Pause entries before revealing the winner.':balanceGame.final===null?'Complete a Bonus Hunt to load its ending balance.':balanceGame.entryCount===0?'At least one guess is needed to reveal a winner.':balanceGame.revealed?'The winner has already been revealed. Clear all results to start a new round.':'Reveal the closest guess and announce the winner in Kick chat.';
   $('toggleBalanceEntries').disabled=!window.kickDashboardAuthorized;
   $('clearBalanceResults').disabled=!window.kickDashboardAuthorized;
   if(!kickSession)$('balanceOrganizerStatus').textContent='Sign in with Kick to submit a guess.';
