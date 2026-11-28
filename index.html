@@ -341,7 +341,6 @@ body:has(#randomizer.active){
       <p class="muted">Add players with a username and game. Each player appears in the bracket as soon as you press ADD TO BRACKET.</p>
       <div id="playerList" class="tool-list"><p class="muted">Waiting for player details.</p></div>
       <div class="tool-actions">
-        <button type="button" class="tool-btn" id="toggleCalls">🔕 SLOT CALLS OFF</button>
         <button type="button" class="tool-btn" id="restorePlayers">↩ RESTORE SAVED PLAYERS</button>
         <button type="button" class="tool-btn danger" id="removeSavedPlayers">🗑️ REMOVE SAVED PLAYERS</button>
         <button type="button" class="tool-btn danger" id="removeBracketPlayers">Remove players</button>
@@ -702,19 +701,13 @@ const $=id=>document.getElementById(id);
 /* Tournament control safety net: keep these controls operational even if a
    later page initializer fails before assigning their individual handlers. */
 document.addEventListener('click',async function(event){
-  const button=event.target&&event.target.closest?event.target.closest('#toggleCalls,#restorePlayers,#removeSavedPlayers,#removeBracketPlayers'):null;
+  const button=event.target&&event.target.closest?event.target.closest('#restorePlayers,#removeSavedPlayers,#removeBracketPlayers'):null;
   if(!button||typeof button.onclick==='function')return;
   event.preventDefault();
   event.stopImmediatePropagation();
   const status=$('queueImportStatus');
   try{
-    if(button.id==='toggleCalls'){
-      const next=!sharedQueueEnabled;
-      if(status)status.textContent='Updating slot calls…';
-      await saveSharedBonusSettings({queue_enabled:next});
-      tourneyState.callsOn=next;renderTourney();
-      if(status)status.textContent='Slot calls are now '+(next?'ON':'OFF')+'.';
-    }else if(button.id==='restorePlayers'){
+    if(button.id==='restorePlayers'){
       if(!tourneyState.savedPlayers.length){if(status)status.textContent='No saved player list is available yet.';return;}
       tourneyState.players=JSON.parse(JSON.stringify(tourneyState.savedPlayers));
       saveTourneyState();renderTourney();
@@ -900,7 +893,6 @@ function renderTourney(){
   $('entriesPerPerson').value=String(tourneyState.entriesPerPerson||1)+' '+((tourneyState.entriesPerPerson||1)===1?'Entry':'Entries');
   $('duplicateToggle').textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
   $('duplicateToggle').setAttribute('aria-pressed',String(!!tourneyState.duplicateGames));
-  $('toggleCalls').textContent='🔔 SLOT CALLS '+(sharedQueueEnabled?'ON':'OFF');
   $('toggleGuesses').textContent='🧠 GUESSES: '+(tourneyState.guessesOn?'ON':'OFF');
   $('entryStatus').textContent=tourneyState.open?'OPEN':'CLOSED';
   $('playerCount').textContent=tourneyState.players.length+' / '+tourneyState.limit+' players';
@@ -1019,7 +1011,6 @@ $('duplicateToggle').addEventListener('click',function(e){
   this.textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
   this.setAttribute('aria-pressed',String(tourneyState.duplicateGames));
 });
-$('toggleCalls').onclick=async()=>{const next=!sharedQueueEnabled;$('queueImportStatus').textContent='Updating slot calls…';try{await saveSharedBonusSettings({queue_enabled:next});tourneyState.callsOn=next;renderTourney();$('queueImportStatus').textContent='Slot calls are now '+(next?'ON':'OFF')+'.';}catch(error){$('queueImportStatus').textContent=error.message;await loadSharedBonusState();}};
 $('toggleGuesses').onclick=()=>{tourneyState.guessesOn=!tourneyState.guessesOn;saveTourneyState();renderTourney();};
 $('addPlayer').onclick=()=>{
   const ok=addTournamentPlayer($('playerName').value,$('playerGame').value,$('playerBuyIn').value);
@@ -1233,12 +1224,7 @@ function applySharedBonusState(state){
   bonusState.callLimit!==nextCallLimit||
   JSON.stringify(bonusState.queue)!==JSON.stringify(nextQueue);
  bonusState.queueOn=nextQueueOn;
- // Tournament and Bonus Hunt share one server-side queue switch. Keep the
- // Tournament button tied to the authoritative shared state, not stale local storage.
- tourneyState.callsOn=nextQueueOn;
- const tournamentCallsButton=$('toggleCalls');
- if(tournamentCallsButton)tournamentCallsButton.textContent='🔔 SLOT CALLS '+(nextQueueOn?'ON':'OFF');
- bonusState.duplicateCalls=nextDuplicateCalls;
+bonusState.duplicateCalls=nextDuplicateCalls;
  bonusState.callLimit=nextCallLimit;
  bonusState.queue=nextQueue;
  saveBonusState();
@@ -1838,7 +1824,6 @@ $('duplicateToggle').addEventListener('click',function(e){
   this.textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
   this.setAttribute('aria-pressed',String(tourneyState.duplicateGames));
 });
-$('toggleCalls').onclick=async()=>{const next=!sharedQueueEnabled;$('queueImportStatus').textContent='Updating slot calls…';try{await saveSharedBonusSettings({queue_enabled:next});tourneyState.callsOn=next;renderTourney();$('queueImportStatus').textContent='Slot calls are now '+(next?'ON':'OFF')+'.';}catch(error){$('queueImportStatus').textContent=error.message;await loadSharedBonusState();}};
 $('toggleGuesses').onclick=()=>{tourneyState.guessesOn=!tourneyState.guessesOn;saveTourneyState();renderTourney();};
 $('addPlayer').onclick=()=>{
   const ok=addTournamentPlayer($('playerName').value,$('playerGame').value,$('playerBuyIn').value);
@@ -2052,12 +2037,7 @@ function applySharedBonusState(state){
   bonusState.callLimit!==nextCallLimit||
   JSON.stringify(bonusState.queue)!==JSON.stringify(nextQueue);
  bonusState.queueOn=nextQueueOn;
- // Tournament and Bonus Hunt share one server-side queue switch. Keep the
- // Tournament button tied to the authoritative shared state, not stale local storage.
- tourneyState.callsOn=nextQueueOn;
- const tournamentCallsButton=$('toggleCalls');
- if(tournamentCallsButton)tournamentCallsButton.textContent='🔔 SLOT CALLS '+(nextQueueOn?'ON':'OFF');
- bonusState.duplicateCalls=nextDuplicateCalls;
+bonusState.duplicateCalls=nextDuplicateCalls;
  bonusState.callLimit=nextCallLimit;
  bonusState.queue=nextQueue;
  saveBonusState();
@@ -2657,7 +2637,6 @@ $('duplicateToggle').addEventListener('click',function(e){
   this.textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
   this.setAttribute('aria-pressed',String(tourneyState.duplicateGames));
 });
-$('toggleCalls').onclick=async()=>{const next=!sharedQueueEnabled;$('queueImportStatus').textContent='Updating slot calls…';try{await saveSharedBonusSettings({queue_enabled:next});tourneyState.callsOn=next;renderTourney();$('queueImportStatus').textContent='Slot calls are now '+(next?'ON':'OFF')+'.';}catch(error){$('queueImportStatus').textContent=error.message;await loadSharedBonusState();}};
 $('toggleGuesses').onclick=()=>{tourneyState.guessesOn=!tourneyState.guessesOn;saveTourneyState();renderTourney();};
 $('addPlayer').onclick=()=>{
   const ok=addTournamentPlayer($('playerName').value,$('playerGame').value,$('playerBuyIn').value);
@@ -2871,12 +2850,7 @@ function applySharedBonusState(state){
   bonusState.callLimit!==nextCallLimit||
   JSON.stringify(bonusState.queue)!==JSON.stringify(nextQueue);
  bonusState.queueOn=nextQueueOn;
- // Tournament and Bonus Hunt share one server-side queue switch. Keep the
- // Tournament button tied to the authoritative shared state, not stale local storage.
- tourneyState.callsOn=nextQueueOn;
- const tournamentCallsButton=$('toggleCalls');
- if(tournamentCallsButton)tournamentCallsButton.textContent='🔔 SLOT CALLS '+(nextQueueOn?'ON':'OFF');
- bonusState.duplicateCalls=nextDuplicateCalls;
+bonusState.duplicateCalls=nextDuplicateCalls;
  bonusState.callLimit=nextCallLimit;
  bonusState.queue=nextQueue;
  saveBonusState();
