@@ -892,8 +892,6 @@ function buildTournamentFirstRound(){
   return round;
 }
 function renderTourney(){
-  const hasLegacyBye=tourneyState.rounds.some(round=>round.some(match=>/\bBYE\b/i.test(String(match.a||''))||/\bBYE\b/i.test(String(match.b||''))||/\bBYE\b/i.test(String(match.winner||''))));
-  if(hasLegacyBye){tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];tourneyState.activeMatch=null;saveTourneyState(false);}
   $('tourneyName').value=tourneyState.name||'';
   $('tourneyLimit').value=String(tourneyState.limit);
   $('entriesPerPerson').value=String(tourneyState.entriesPerPerson||1)+' '+((tourneyState.entriesPerPerson||1)===1?'Entry':'Entries');
