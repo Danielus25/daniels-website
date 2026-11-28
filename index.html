@@ -445,7 +445,7 @@ body:has(#randomizer.active){
     <div class="panel">
       <span class="pill">LOCAL GUESSING GAME PREVIEW</span><h3>Who can get closest?</h3>
       <div class="tool-grid">
-        <label class="tool-field">Viewer / Kick username<input id="balanceViewer" maxlength="30" placeholder="Your Kick username"></label>
+        <label class="tool-field">Your name<input id="balanceViewer" maxlength="30" placeholder="Type the name you want displayed"></label>
         <label class="tool-field">Your guess ($)<input id="balanceGuess" type="number" min="0" step="0.01" placeholder="0.00"></label>
       </div>
       <div class="tool-actions"><button class="tool-btn primary" id="submitBalanceGuess">Lock in my guess</button><button class="tool-btn" id="toggleBalanceEntries">Close entries</button></div>
@@ -459,7 +459,7 @@ body:has(#randomizer.active){
       <div class="tool-divider"></div>
       <div class="bonus-head"><h3>🏆 Final results</h3><button class="tool-btn danger" id="clearBalanceResults">CLEAR ALL</button></div>
       <p id="balanceFinalResultsMessage" class="tool-status" aria-live="polite">Final results will appear here after the balance is revealed.</p>
-      <p class="tool-note">Preview limitation: names and guesses are stored only in this browser. One entry per typed name is enforced locally; Kick account verification and shared entries require Daniel's backend.</p>
+      <p class="tool-note">Type the name you want displayed, even when signed in with Kick. Kick sign-in identifies your account; it does not fill in your display name.</p>
     </div>
   </section>
 
