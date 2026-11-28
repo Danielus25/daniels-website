@@ -873,6 +873,24 @@ function tournamentPlayerLabel(p){return typeof p==='string'?p:(p.name||'Player'
 function tournamentPlayerGame(p){return typeof p==='string'?'':(p.game||'');}
 function tournamentPlayerBuyIn(p){return typeof p==='string'?0:Number(p.buyIn||0);}
 function tournamentNames(){return tourneyState.players.map(p=>tournamentPlayerLabel(p));}
+function tournamentBracketSlots(){
+  return Array.from({length:Math.max(2,Number(tourneyState.limit)||8)},(_,i)=>'Player '+(i+1));
+}
+function tournamentSlotPlayer(slot){
+  const match=String(slot||'').match(/^Player (\\d+)$/);
+  return match?tourneyState.players[Number(match[1])-1]||null:null;
+}
+function tournamentSlotDisplay(slot){
+  const match=String(slot||'').match(/^Player (\\d+)$/);
+  if(!match)return String(slot||'TBD');
+  const player=tournamentSlotPlayer(slot);
+  return player?'Player '+match[1]+' — @'+tournamentPlayerLabel(player):'Player '+match[1]+' — Waiting for player';
+}
+function buildTournamentFirstRound(){
+  const slots=tournamentBracketSlots(),round=[];
+  for(let i=0;i<slots.length;i+=2)round.push({a:slots[i],b:slots[i+1],winner:''});
+  return round;
+}
 function renderTourney(){
   $('tourneyName').value=tourneyState.name||'';
   $('tourneyLimit').value=String(tourneyState.limit);
@@ -918,8 +936,9 @@ function renderTourney(){
         const matchTitle=document.createElement('strong');matchTitle.textContent='Match '+(mi+1);row.append(matchTitle);
         [match.a,match.b].forEach((name,side)=>{
           const pick=document.createElement('button');pick.type='button';pick.className='tool-btn'+(match.winner===name?' primary':'');
-          pick.textContent=name||'TBD';pick.disabled=!name||name==='BYE';
-          pick.title='Click to advance '+name;
+          pick.textContent=tournamentSlotDisplay(name);
+          pick.disabled=!tournamentSlotPlayer(name);
+          pick.title=pick.disabled?'Waiting for this player to enter.':'Click to advance '+tournamentSlotDisplay(name);
           pick.onclick=()=>setTournamentWinner(ri,mi,name);
           row.append(pick);
         });
@@ -941,11 +960,11 @@ function setTournamentWinner(ri,mi,name){
     const winners=round.map(m=>m.winner),next=[];
     for(let i=0;i<winners.length;i+=2){
       if(winners[i+1])next.push({a:winners[i],b:winners[i+1],winner:''});
-      else next.push({a:winners[i],b:'BYE',winner:winners[i]});
     }
     if(next.length)tourneyState.rounds.push(next);
   }
-  tourneyState.results.push({round:ri+1,match:mi+1,winner:name,buyIn:tourneyState.players.find(p=>tournamentPlayerLabel(p)===name)?.buyIn||0});
+  const winnerPlayer=tournamentSlotPlayer(name);
+  tourneyState.results.push({round:ri+1,match:mi+1,winner:tournamentSlotDisplay(name),buyIn:tournamentPlayerBuyIn(winnerPlayer)});
   saveTourneyState();renderTourney();
 }
 function renderTournamentWinners(){
@@ -967,10 +986,7 @@ function addTournamentPlayer(name,game,buyIn){
   if(count>=cap){alert(name+' has reached the entries-per-person limit.');return false;}
   if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
   tourneyState.players.push({name,game,buyIn});
-  const names=tournamentNames(),size=2**Math.ceil(Math.log2(Math.max(2,names.length)));
-  while(names.length<size)names.push('BYE');
-  const firstRound=[];for(let i=0;i<names.length;i+=2)firstRound.push({a:names[i],b:names[i+1],winner:names[i+1]==='BYE'?names[i]:''});
-  tourneyState.rounds=[firstRound];tourneyState.results=[];saveTourneyState();renderTourney();return true;
+  tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();return true;
 }
 $('saveTourney').onclick=()=>{
   const limit=Number($('tourneyLimit').value);
@@ -1016,15 +1032,11 @@ $('shufflePlayers').onclick=()=>{
   if(tourneyState.players.length<2){alert('Add at least two players first.');return;}
   if(tourneyState.rounds.length&&!confirm('Replace the current bracket?'))return;
   tourneyState.savedPlayers=JSON.parse(JSON.stringify(tourneyState.players));
-  const names=tournamentNames(),shuffled=[...names];
-  for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
-  const size=2**Math.ceil(Math.log2(shuffled.length));
-  while(shuffled.length<size)shuffled.push('BYE');
-  const round=[];for(let i=0;i<shuffled.length;i+=2)round.push({a:shuffled[i],b:shuffled[i+1],winner:shuffled[i+1]==='BYE'?shuffled[i]:''});
-  tourneyState.rounds=[round];tourneyState.results=[];saveTourneyState();renderTourney();
+  for(let i=tourneyState.players.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[tourneyState.players[i],tourneyState.players[j]]=[tourneyState.players[j],tourneyState.players[i]];}
+  tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();
 };
 $('startNextMatch').onclick=()=>{
-  for(let ri=0;ri<tourneyState.rounds.length;ri++){const mi=tourneyState.rounds[ri].findIndex(m=>!m.winner&&m.a!=='BYE'&&m.b!=='BYE');if(mi>=0){tourneyState.activeMatch={round:ri,match:mi};$('bracketSummary').textContent='Next match: Round '+(ri+1)+' · Match '+(mi+1)+' — '+tourneyState.rounds[ri][mi].a+' vs '+tourneyState.rounds[ri][mi].b;return;}}
+  for(let ri=0;ri<tourneyState.rounds.length;ri++){const mi=tourneyState.rounds[ri].findIndex(m=>!m.winner&&tournamentSlotPlayer(m.a)&&tournamentSlotPlayer(m.b));if(mi>=0){tourneyState.activeMatch={round:ri,match:mi};$('bracketSummary').textContent='Next match: Round '+(ri+1)+' · Match '+(mi+1)+' — '+tournamentSlotDisplay(tourneyState.rounds[ri][mi].a)+' vs '+tournamentSlotDisplay(tourneyState.rounds[ri][mi].b);return;}}
   $('bracketSummary').textContent='No unplayed matches remain.';
 };
 $('printBracket').onclick=()=>window.print();
@@ -1190,7 +1202,7 @@ async function syncTournamentSlotEntries(){
       tourneyState.players.push({name,game,buyIn:0,slotType});
       importedIds.push(entry.id); added++;
     }
-    if(added){const names=tournamentNames(),size=2**Math.ceil(Math.log2(Math.max(2,names.length)));while(names.length<size)names.push('BYE');const firstRound=[];for(let i=0;i<names.length;i+=2)firstRound.push({a:names[i],b:names[i+1],winner:names[i+1]==='BYE'?names[i]:''});tourneyState.rounds=[firstRound];tourneyState.results=[];saveTourneyState();renderTourney();}
+    if(added){tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();}
     if(importedIds.length){
       const marked=await fetch(BONUS_HUNT_API_URL+'/tournament-slots/imported',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},body:JSON.stringify({ids:importedIds})});
       if(!marked.ok) throw new Error('Players were added, but the imported status could not be saved.');
