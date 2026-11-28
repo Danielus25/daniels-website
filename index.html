@@ -828,7 +828,7 @@ kickSignInButton?.addEventListener('click',async()=>{
   window.location.href=KICK_AUTH_URL+'/login';
 });
 restoreKickSession();
-function saveTourneyState(){try{localStorage.setItem(tourneyStoreKey,JSON.stringify(tourneyState));}catch(e){} if(typeof publishTournamentConfig==='function') publishTournamentConfig();}
+function saveTourneyState(sync=true){try{localStorage.setItem(tourneyStoreKey,JSON.stringify(tourneyState));}catch(e){} if(sync&&typeof publishTournamentConfig==='function') publishTournamentConfig();}
 function tournamentPlayerLabel(p){return typeof p==='string'?p:(p.name||'Player');}
 function tournamentPlayerGame(p){return typeof p==='string'?'':(p.game||'');}
 function tournamentPlayerBuyIn(p){return typeof p==='string'?0:Number(p.buyIn||0);}
@@ -966,7 +966,7 @@ $('restorePlayers').onclick=()=>{
 $('removeSavedPlayers').onclick=()=>{
   if(!confirm('Remove the saved player list?'))return;tourneyState.savedPlayers=[];saveTourneyState();$('queueImportStatus').textContent='Saved players removed.';
 };
-$('openTourneyEntries').onclick=()=>{tourneyState.open=true;saveTourneyState();renderTourney();syncTournamentSlotEntries();};
+$('openTourneyEntries').onclick=async()=>{tourneyState.open=true;saveTourneyState(false);renderTourney();$('queueImportStatus').textContent='Opening Tournament entries…';const saved=await publishTournamentConfig();if(!saved){tourneyState.open=false;saveTourneyState(false);renderTourney();$('queueImportStatus').textContent='Tournament was not opened on the server. Sign in as an authorized organizer and try again.';return;}$('queueImportStatus').textContent='Tournament entries are OPEN and synced. REG/SUPER games will now be added to the bracket.';await syncTournamentSlotEntries();};
 $('closeTourneyEntries').onclick=()=>{tourneyState.open=false;saveTourneyState();renderTourney();};
 $('makeBracket').onclick=()=>{
   if(tourneyState.players.length<2){alert('Add at least two players first.');return;}
@@ -1096,7 +1096,11 @@ try{const saved=JSON.parse(localStorage.getItem(bonusStoreKey)||'null');if(saved
 function saveBonusState(){try{localStorage.setItem(bonusStoreKey,JSON.stringify(bonusState));}catch(e){}}
 const BONUS_HUNT_API_URL='https://kwvbfqqeubisunidtckx.supabase.co/functions/v1/bonus-hunt';
 async function publishTournamentConfig(){
-  if(!window.kickDashboardAuthorized||!kickSession)return;
+  if(!window.kickDashboardAuthorized||!kickSession){
+    const status=$('organizerStatus');
+    if(status)status.textContent='Sign in with an authorized Kick organizer account before opening Tournament entries.';
+    return false;
+  }
   try{
     const response=await fetch(BONUS_HUNT_API_URL+'/tournament-config',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},body:JSON.stringify({bracket_limit:Number(tourneyState.limit)||8,player_count:tourneyState.players.length,entries_open:!!tourneyState.open})});
     const result=await response.json();
@@ -1108,7 +1112,13 @@ async function publishTournamentConfig(){
       const status=$('organizerStatus');
       if(status)status.textContent=tourneyState.open?'Tournament is OPEN and the announcement was sent to Kick chat.':'Tournament is CLOSED and the announcement was sent to Kick chat.';
     }
-  }catch(error){console.error('Tournament bracket status sync:',error);const status=$('organizerStatus');if(status)status.textContent=error.message;}
+    return true;
+  }catch(error){
+    console.error('Tournament bracket status sync:',error);
+    const status=$('organizerStatus');
+    if(status)status.textContent=error.message;
+    return false;
+  }
 }
 let tournamentSlotSyncBusy=false;
 async function syncTournamentSlotEntries(){
