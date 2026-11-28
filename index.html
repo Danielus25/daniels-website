@@ -1176,13 +1176,13 @@ function renderBonusHunt(){
   row.append(label,add);q.append(row);
  });
  const list=$('bonusList');list.innerHTML='';
- if(!entries.length)list.innerHTML='<p class="empty-state">No bonuses added yet. Use ADD BONUS beside a queued game to fill in the caller and game.</p>';
- entries.forEach((b,i)=>{
+ const pendingEntries=entries.map((b,index)=>({b,index})).filter(item=>!item.b.opened);
+ if(!pendingEntries.length)list.innerHTML=entries.length?'<p class="empty-state">All bonuses have been moved to Ending Payout.</p>':'<p class="empty-state">No bonuses added yet. Use ADD BONUS beside a queued game to fill in the caller and game.</p>';
+ pendingEntries.forEach(({b,index:i},displayIndex)=>{
   const row=document.createElement('div');row.className='bonus-entry-row';
-  const info=document.createElement('div');info.innerHTML='<strong>'+String(i+1)+'. '+escapeBonus(b.game)+'</strong><small>@'+escapeBonus(b.viewer)+' · '+escapeBonus(b.type)+' · Spin '+bonusMoney(b.spinCost)+' · Bonus '+bonusMoney(b.value)+'</small>';
+  const info=document.createElement('div');info.innerHTML='<strong>'+String(displayIndex+1)+'. '+escapeBonus(b.game)+'</strong><small>@'+escapeBonus(b.viewer)+' · '+escapeBonus(b.type)+' · Spin '+bonusMoney(b.spinCost)+' · Bonus '+bonusMoney(b.value)+'</small>';
   row.append(info);
-  if(!b.opened){const input=document.createElement('input');input.type='number';input.min='0';input.step='0.01';input.placeholder='Payout ($)';input.className='bonus-payout-input';input.value=b.payoutDraft??'';input.addEventListener('input',()=>{b.payoutDraft=input.value;saveBonusState();});const save=document.createElement('button');save.className='tool-btn primary';save.textContent='SAVE PAYOUT';save.onclick=()=>{if(input.value.trim()===''||!Number.isFinite(Number(input.value))||Number(input.value)<0){alert('Enter a valid payout amount.');return;}b.payout=Number(input.value);delete b.payoutDraft;b.opened=true;saveBonusState();renderBonusHunt();};row.append(input,save);}
-  else{const paid=document.createElement('strong');paid.textContent='Payout '+bonusMoney(b.payout)+' · '+bonusMultiplier(b).toFixed(2)+'x';row.append(paid);}
+  const input=document.createElement('input');input.type='number';input.min='0';input.step='0.01';input.placeholder='Payout ($)';input.className='bonus-payout-input';input.value=b.payoutDraft??'';input.addEventListener('input',()=>{b.payoutDraft=input.value;saveBonusState();});const save=document.createElement('button');save.className='tool-btn primary';save.textContent='SAVE PAYOUT';save.onclick=()=>{if(input.value.trim()===''||!Number.isFinite(Number(input.value))||Number(input.value)<0){alert('Enter a valid payout amount.');return;}b.payout=Number(input.value);delete b.payoutDraft;b.opened=true;saveBonusState();renderBonusHunt();};row.append(input,save);
   const remove=document.createElement('button');remove.className='tool-btn danger';remove.textContent='REMOVE';remove.onclick=()=>{bonusState.entries.splice(i,1);saveBonusState();renderBonusHunt();};row.append(remove);list.append(row);
  });
  const ranks={};entries.filter(b=>b.opened).forEach(b=>{const key=b.viewer||'Unknown';ranks[key]=(ranks[key]||0)+Number(b.payout||0);});
