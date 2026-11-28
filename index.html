@@ -56,7 +56,7 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 .kick-activity-content{padding:0 20px 18px;border-top:1px solid rgba(255,255,255,.1)}
 @media(max-width:540px){.kick-activity-summary{align-items:flex-start;flex-direction:column}.kick-activity-content{padding:0 14px 14px}}
 .tool-bottom{justify-content:end}
-.tournament-panel{max-width:980px}.tournament-panel .player-row{flex-wrap:wrap}.tournament-panel .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tournament-panel input{min-width:0}@media(max-width:540px){.tournament-panel .tool-grid{grid-template-columns:1fr}}
+.tournament-player-slot{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,.65fr) minmax(110px,.45fr) auto;align-items:center;gap:10px;padding:12px;border:1px solid #29445e;background:#0a1422;border-radius:12px}.tournament-player-slot .slot-title{font-weight:900;color:#e6f2ff}.tournament-player-slot .slot-details{color:#aabbd0;font-size:.85rem}.tournament-player-slot input{width:100%;min-width:0;background:#071321;border:1px solid #315674;border-radius:9px;color:#fff;padding:9px}.tournament-player-slot button{border:0;background:transparent;color:#ffad8b;font-weight:900;cursor:pointer}.tournament-player-slot button:disabled{opacity:.35;cursor:not-allowed}@media(max-width:700px){.tournament-player-slot{grid-template-columns:1fr 1fr}.tournament-player-slot .slot-title,.tournament-player-slot .slot-details{grid-column:1/-1}}.tournament-panel{max-width:980px}.tournament-panel .player-row{flex-wrap:wrap}.tournament-panel .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tournament-panel input{min-width:0}@media(max-width:540px){.tournament-panel .tool-grid{grid-template-columns:1fr}}
 @media(max-width:540px){.tool-grid{grid-template-columns:1fr}.tool-bottom{justify-content:start}.match-row{align-items:flex-start;flex-direction:column}}
 
 .bonus-panel{max-width:1000px;margin:16px auto;padding:22px;background:linear-gradient(145deg,#14243a,#0c1422);border:1px solid #315674;border-radius:18px}
@@ -308,20 +308,17 @@ body:has(#randomizer.active){
   <section class="page" id="tournaments" role="tabpanel">
     <div class="heading"><h2>TOURNAMENT</h2><p>Player entry, live bracket management, and tournament results.</p></div>
     <div class="panel tournament-panel">
-      <span class="pill">🏆 TOURNAMENT PLAYER ENTRY</span>
-      <p class="muted">When Tournament entries are open, !slot requests ending in REG or SUPER automatically add the Kick username and game here. Other !slot requests stay out of Tournament.</p>
+      <h3>🏆 Tournament player entry</h3>
+      <p class="muted">Players from the slot-call queue can be added straight into the bracket. Edit buy-ins on the player list when needed.</p>
       <div class="tool-grid">
         <label class="tool-field">Tournament name<input id="tourneyName" maxlength="60" placeholder="Danielus25 Tournament"></label>
         <label class="tool-field">Bracket size<select id="tourneyLimit"><option>4</option><option>8</option><option>12</option><option>16</option><option>32</option></select></label>
         <label class="tool-field">Entries per person<select id="entriesPerPerson"><option>1 Entry</option><option>2 Entries</option><option>3 Entries</option><option>4 Entries</option><option>5 Entries</option><option>6 Entries</option><option>7 Entries</option><option>8 Entries</option><option>9 Entries</option><option>10 Entries</option></select></label>
-        <div class="tool-field"><span class="tool-label">Duplicate games</span><button type="button" class="tool-btn" id="duplicateToggle" aria-pressed="false">DUP: OFF</button><small class="muted">ON = each game can only be entered once.</small></div>
+        <div class="tool-field"><span class="tool-label">Duplicate games</span><button type="button" class="tool-btn" id="duplicateToggle" aria-pressed="false">DUP: OFF</button><small class="muted">Each game can only be used once, whether it is Regular or Super.</small></div>
       </div>
-      <p class="muted">When duplicate games are ON, each game can only be used once, whether it is Regular or Super.</p>
       <div class="tool-actions">
         <button class="tool-btn primary" id="addAllQueue">＋ ADD ALL TO BRACKET</button>
-        <button class="tool-btn" id="toggleCalls">🔕 CALLS OFF</button>
-        <button class="tool-btn" id="restorePlayers">↩ RESTORE SAVED PLAYERS</button>
-        <button class="tool-btn danger" id="removeSavedPlayers">🗑️ REMOVE SAVED PLAYERS</button>
+        <button class="tool-btn" id="saveTourney">Save tournament settings</button>
       </div>
       <p id="queueImportStatus" class="tool-status" aria-live="polite"></p>
       <div class="tool-divider"></div>
@@ -341,36 +338,40 @@ body:has(#randomizer.active){
       <p class="muted">Add players with a username and game. Each player appears in the bracket as soon as you press ADD TO BRACKET.</p>
       <div id="playerList" class="tool-list"><p class="muted">Waiting for player details.</p></div>
       <div class="tool-actions">
-        <button class="tool-btn primary" id="makeBracket">🔀 CREATE / SHUFFLE BRACKET</button>
-        <button class="tool-btn" id="saveTourney">Save tournament settings</button>
+        <button class="tool-btn" id="toggleCalls">🔕 SLOT CALLS OFF</button>
+        <button class="tool-btn" id="restorePlayers">↩ RESTORE SAVED PLAYERS</button>
+        <button class="tool-btn danger" id="removeSavedPlayers">🗑️ REMOVE SAVED PLAYERS</button>
+        <button class="tool-btn danger" id="removeBracketPlayers">Remove players</button>
       </div>
       <div class="tool-divider"></div>
       <h3>👑 Organizer controls</h3>
       <div class="tool-actions">
+        <button class="tool-btn" id="saveTourneyOrganizer">Save tournament settings</button>
         <button class="tool-btn" id="closeTourneyEntries">Close entries</button>
         <button class="tool-btn" id="openTourneyEntries">Open entries</button>
         <button class="tool-btn danger" id="clearTourney">Clear players / new tournament</button>
       </div>
       <p id="organizerStatus" class="tool-status" aria-live="polite">Organizer controls are protected. Sign in with an authorized Kick account to manage the website.</p>
+      <p id="slotBuddyAuthStatus" class="tool-status" aria-live="polite"></p>
       <div class="tool-divider"></div>
-      <h3>Chaos Tournament</h3>
+      <h3>Chaos Queen Tournament</h3>
       <p class="muted" id="bracketSummary">8-player tournament · 0 entered. Click a name to advance them.</p>
       <div class="tool-actions">
         <button class="tool-btn" id="toggleGuesses">🧠 GUESSES: OFF</button>
         <button class="tool-btn primary" id="startNextMatch">▶️ START NEXT MATCH</button>
         <button class="tool-btn" id="shufflePlayers">🔀 Shuffle players</button>
         <button class="tool-btn" id="printBracket">Print bracket</button>
-        <button class="tool-btn danger" id="removeBracketPlayers">🗑️ REMOVE PLAYERS</button>
+        <button class="tool-btn danger" id="removeBracketPlayersSecondary">🗑️ REMOVE PLAYERS</button>
         <button class="tool-btn" id="saveBracket">Save bracket</button>
         <button class="tool-btn" id="newTournament">New tournament</button>
       </div>
       <div id="bracketView" class="bracket-view"><p class="muted">Your bracket will appear here after players are added.</p></div>
       <div class="tool-divider"></div>
+      <h3>Tournament results · Section 3</h3>
       <h3>🥇 WINNERS</h3>
       <div class="tool-actions"><button class="tool-btn danger" id="clearWinners">🧹 CLEAR ALL WINNERS</button></div>
       <p class="muted">Every completed match appears here, including its saved payout. The tournament champion is shown at the top.</p>
       <div id="winnerResults" class="tool-list"><p class="muted">Winners will appear here as matches are completed.</p></div>
-      <p class="tool-note">Preview limitation: tournament settings and results are saved in this browser only. Kick identity, live Slot Calls imports, BotRix announcements, shared viewer updates, and OBS overlay publishing will be connected after Daniel's own Kick and backend setup.</p>
     </div>
   </section>
 
@@ -846,23 +847,26 @@ function renderTourney(){
   $('openSpots').textContent=Math.max(0,tourneyState.limit-tourneyState.players.length)+' open spots';
   $('bracketSummary').textContent=(tourneyState.name||'Chaos Tournament')+' · '+tourneyState.limit+'-player tournament · '+tourneyState.players.length+' entered. Click a name to advance them.';
   $('playerList').innerHTML='';
-  if(!tourneyState.players.length)$('playerList').innerHTML='<p class="muted">Waiting for player details.</p>';
-  tourneyState.players.forEach((p,i)=>{
-    const row=document.createElement('div');row.className='round-block';
-    const top=document.createElement('div');top.className='player-row';
-    const label=document.createElement('strong');label.textContent='Player '+(i+1)+' · '+tournamentPlayerLabel(p);
-    const remove=document.createElement('button');remove.textContent='REMOVE';remove.onclick=()=>{tourneyState.players.splice(i,1);saveTourneyState();renderTourney();};
-    top.append(label,remove);row.append(top);
-    const fields=document.createElement('div');fields.className='tool-grid';
-    const game=document.createElement('label');game.className='tool-field';game.textContent='Game';
-    const gameInput=document.createElement('input');gameInput.value=tournamentPlayerGame(p);gameInput.placeholder='Game name';gameInput.maxLength=60;
-    gameInput.onchange=()=>{if(typeof p==='string')tourneyState.players[i]={name:p,game:gameInput.value,buyIn:0};else p.game=gameInput.value;saveTourneyState();};
-    game.append(gameInput);
-    const buy=document.createElement('label');buy.className='tool-field';buy.textContent='Buy-in ($)';
-    const buyInput=document.createElement('input');buyInput.type='number';buyInput.min='0';buyInput.step='0.01';buyInput.value=tournamentPlayerBuyIn(p);
-    buyInput.onchange=()=>{const n=Number(buyInput.value||0);if(typeof p==='string')tourneyState.players[i]={name:p,game:'',buyIn:n};else p.buyIn=n;saveTourneyState();};
-    buy.append(buyInput);fields.append(game,buy);row.append(fields);$('playerList').append(row);
-  });
+  for(let i=0;i<tourneyState.limit;i++){
+    const p=tourneyState.players[i]||null;
+    const row=document.createElement('div');row.className='tournament-player-slot';
+    const title=document.createElement('strong');title.className='slot-title';title.textContent='Player '+(i+1);
+    const details=document.createElement('span');details.className='slot-details';
+    details.textContent=p?'@'+tournamentPlayerLabel(p)+' · '+(tournamentPlayerGame(p)||'Game not set'):'Waiting for player details';
+    row.append(title,details);
+    if(p){
+      const gameInput=document.createElement('input');gameInput.value=tournamentPlayerGame(p);gameInput.placeholder='Game name';gameInput.maxLength=60;gameInput.setAttribute('aria-label','Player '+(i+1)+' game');
+      gameInput.onchange=()=>{if(typeof p==='string')tourneyState.players[i]={name:p,game:gameInput.value,buyIn:0};else p.game=gameInput.value;saveTourneyState();renderTourney();};
+      const buyInput=document.createElement('input');buyInput.type='number';buyInput.min='0';buyInput.step='0.01';buyInput.value=tournamentPlayerBuyIn(p);buyInput.placeholder='Buy-in ($)';buyInput.setAttribute('aria-label','Player '+(i+1)+' buy-in');
+      buyInput.onchange=()=>{const n=Number(buyInput.value||0);if(typeof p==='string')tourneyState.players[i]={name:p,game:'',buyIn:n};else p.buyIn=n;saveTourneyState();renderTourney();};
+      row.append(gameInput,buyInput);
+    }else{
+      const blank=document.createElement('span');blank.className='slot-details';blank.textContent='';row.append(blank);
+    }
+    const remove=document.createElement('button');remove.type='button';remove.textContent='REMOVE';remove.disabled=!p;
+    remove.onclick=()=>{tourneyState.players.splice(i,1);saveTourneyState();renderTourney();};
+    row.append(remove);$('playerList').append(row);
+  }
   $('bracketView').innerHTML='';
   if(!tourneyState.rounds.length){$('bracketView').innerHTML='<p class="muted">Add players, then create the bracket.</p>';}
   else{
@@ -1438,7 +1442,8 @@ try{const v=JSON.parse(localStorage.getItem(wheelStoreKey)||'[]');if(Array.isArr
 try{const v=JSON.parse(localStorage.getItem(gameWheelStoreKey)||'[]');if(Array.isArray(v))wheelGames=v;}catch(e){}
 try{wheelSettings={...wheelSettings,...JSON.parse(localStorage.getItem(wheelSettingsKey)||'{}')};}catch(e){}
 function saveWheelLists(){try{localStorage.setItem(wheelStoreKey,JSON.stringify(wheelNames));localStorage.setItem(gameWheelStoreKey,JSON.stringify(wheelGames));}catch(e){}}
-function wheelEntryCount(items,id){const field=$(id);const entries=field?field.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean):[];return Math.max(items.length,entries.length);}
+function wheelEntryCount(items,id){const field=$(id);const entries=field?field.value.split(/\r?
+$('removeBracketPlayersSecondary').onclick=()=>$('removeBracketPlayers').click();\n/).map(x=>x.trim()).filter(Boolean):[];return Math.max(items.length,entries.length);}
 function updateWheelDisc(items,discId,hubLabel){
  const disc=$(discId);disc.innerHTML='';
  const count=items.length;
