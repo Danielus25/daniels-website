@@ -26,6 +26,9 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 .tool-field{display:flex;flex-direction:column;gap:7px;color:#dcecff;font-size:.84rem;font-weight:800}
 .tool-field input,.tool-field select{width:100%;border:1px solid #315674;border-radius:11px;background:#071321;color:#fff;padding:12px;font:inherit;min-width:0}
 .tool-actions{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}
+/* Keep Tournament controls above decorative layers and reliably clickable on desktop/mobile. */
+.tournament-panel .tool-actions{position:relative;z-index:20;isolation:isolate;pointer-events:auto}
+.tournament-panel .tool-actions>button{position:relative;z-index:21;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .tool-btn{border:1px solid #315674;background:#10243a;color:#e8f5ff;border-radius:10px;padding:10px 14px;font-weight:850;cursor:pointer}
 .tool-btn.primary{background:linear-gradient(100deg,#a94718,#14577c);border-color:#4b91b9}
 .tool-btn.danger{border-color:#884b43;color:#ffc7b9}
@@ -338,10 +341,10 @@ body:has(#randomizer.active){
       <p class="muted">Add players with a username and game. Each player appears in the bracket as soon as you press ADD TO BRACKET.</p>
       <div id="playerList" class="tool-list"><p class="muted">Waiting for player details.</p></div>
       <div class="tool-actions">
-        <button class="tool-btn" id="toggleCalls">🔕 SLOT CALLS OFF</button>
-        <button class="tool-btn" id="restorePlayers">↩ RESTORE SAVED PLAYERS</button>
-        <button class="tool-btn danger" id="removeSavedPlayers">🗑️ REMOVE SAVED PLAYERS</button>
-        <button class="tool-btn danger" id="removeBracketPlayers">Remove players</button>
+        <button type="button" class="tool-btn" id="toggleCalls">🔕 SLOT CALLS OFF</button>
+        <button type="button" class="tool-btn" id="restorePlayers">↩ RESTORE SAVED PLAYERS</button>
+        <button type="button" class="tool-btn danger" id="removeSavedPlayers">🗑️ REMOVE SAVED PLAYERS</button>
+        <button type="button" class="tool-btn danger" id="removeBracketPlayers">Remove players</button>
       </div>
       <div class="tool-divider"></div>
       <h3>👑 Organizer controls</h3>
