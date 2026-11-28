@@ -828,7 +828,7 @@ kickSignInButton?.addEventListener('click',async()=>{
   window.location.href=KICK_AUTH_URL+'/login';
 });
 restoreKickSession();
-function saveTourneyState(){try{localStorage.setItem(tourneyStoreKey,JSON.stringify(tourneyState));}catch(e){}}
+function saveTourneyState(){try{localStorage.setItem(tourneyStoreKey,JSON.stringify(tourneyState));}catch(e){} if(typeof publishTournamentConfig==='function') publishTournamentConfig();}
 function tournamentPlayerLabel(p){return typeof p==='string'?p:(p.name||'Player');}
 function tournamentPlayerGame(p){return typeof p==='string'?'':(p.game||'');}
 function tournamentPlayerBuyIn(p){return typeof p==='string'?0:Number(p.buyIn||0);}
@@ -1095,6 +1095,13 @@ let bonusQueueItemToRemove=null;
 try{const saved=JSON.parse(localStorage.getItem(bonusStoreKey)||'null');if(saved&&typeof saved==='object')bonusState={...bonusState,...saved};}catch(e){}
 function saveBonusState(){try{localStorage.setItem(bonusStoreKey,JSON.stringify(bonusState));}catch(e){}}
 const BONUS_HUNT_API_URL='https://kwvbfqqeubisunidtckx.supabase.co/functions/v1/bonus-hunt';
+async function publishTournamentConfig(){
+  if(!window.kickDashboardAuthorized||!kickSession)return;
+  try{
+    const response=await fetch(BONUS_HUNT_API_URL+'/tournament-config',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},body:JSON.stringify({bracket_limit:Number(tourneyState.limit)||8,player_count:tourneyState.players.length,entries_open:!!tourneyState.open})});
+    if(!response.ok)throw new Error('Could not sync Tournament bracket status.');
+  }catch(error){console.error('Tournament bracket status sync:',error);}
+}
 let tournamentSlotSyncBusy=false;
 async function syncTournamentSlotEntries(){
   if(tournamentSlotSyncBusy || !window.kickDashboardAuthorized || !kickSession || !tourneyState.open) return;
