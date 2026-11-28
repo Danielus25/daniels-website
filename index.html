@@ -999,7 +999,7 @@ function addTournamentPlayer(name,game,buyIn){
   const cap=Number(tourneyState.entriesPerPerson||1);
   const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
   if(count>=cap){alert(name+' has reached the entries-per-person limit.');return false;}
-  if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
+  if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
   tourneyState.players.push({name,game,buyIn:Number(tourneyState.slotBuyIns?.[tourneyState.players.length]??buyIn)||0});
   tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();return true;
 }
@@ -1213,6 +1213,7 @@ async function syncTournamentSlotEntries(){
         if(!entry.imported_at) importedIds.push(entry.id);
         continue;
       }
+      if(!tourneyState.duplicateGames && tourneyState.players.some(p=>tournamentPlayerGame(p).trim().toLowerCase()===game.toLowerCase())) continue;
       if(tourneyState.players.length>=tourneyState.limit) break;
       tourneyState.players.push({
         name,game,buyIn:Number(tourneyState.slotBuyIns?.[tourneyState.players.length]||0),
@@ -1824,7 +1825,7 @@ function addTournamentPlayer(name,game,buyIn){
   const cap=Number(tourneyState.entriesPerPerson||1);
   const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
   if(count>=cap){alert(name+' has reached the entries-per-person limit.');return false;}
-  if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
+  if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
   tourneyState.players.push({name,game,buyIn:Number(tourneyState.slotBuyIns?.[tourneyState.players.length]??buyIn)||0});
   tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();return true;
 }
@@ -2030,7 +2031,7 @@ async function syncTournamentSlotEntries(){
       const cap=Number(tourneyState.entriesPerPerson||1);
       const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
       if(count>=cap) continue;
-      if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
+      if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
       if(tourneyState.players.some(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()&&(p.game||'').trim().toLowerCase()===game.toLowerCase())) {
         importedIds.push(entry.id); continue;
       }
@@ -2636,7 +2637,7 @@ function addTournamentPlayer(name,game,buyIn){
   const cap=Number(tourneyState.entriesPerPerson||1);
   const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
   if(count>=cap){alert(name+' has reached the entries-per-person limit.');return false;}
-  if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
+  if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
   tourneyState.players.push({name,game,buyIn:Number(tourneyState.slotBuyIns?.[tourneyState.players.length]??buyIn)||0});
   tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();return true;
 }
@@ -2842,7 +2843,7 @@ async function syncTournamentSlotEntries(){
       const cap=Number(tourneyState.entriesPerPerson||1);
       const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
       if(count>=cap) continue;
-      if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
+      if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
       if(tourneyState.players.some(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()&&(p.game||'').trim().toLowerCase()===game.toLowerCase())) {
         importedIds.push(entry.id); continue;
       }
@@ -3553,7 +3554,7 @@ function addTournamentPlayer(name,game,buyIn){
   const cap=Number(tourneyState.entriesPerPerson||1);
   const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
   if(count>=cap){alert(name+' has reached the entries-per-person limit.');return false;}
-  if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
+  if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
   tourneyState.players.push({name,game,buyIn:Number(tourneyState.slotBuyIns?.[tourneyState.players.length]??buyIn)||0});
   tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();return true;
 }
@@ -3759,7 +3760,7 @@ async function syncTournamentSlotEntries(){
       const cap=Number(tourneyState.entriesPerPerson||1);
       const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
       if(count>=cap) continue;
-      if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
+      if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
       if(tourneyState.players.some(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()&&(p.game||'').trim().toLowerCase()===game.toLowerCase())) {
         importedIds.push(entry.id); continue;
       }
@@ -4365,7 +4366,7 @@ function addTournamentPlayer(name,game,buyIn){
   const cap=Number(tourneyState.entriesPerPerson||1);
   const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
   if(count>=cap){alert(name+' has reached the entries-per-person limit.');return false;}
-  if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
+  if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
   tourneyState.players.push({name,game,buyIn:Number(tourneyState.slotBuyIns?.[tourneyState.players.length]??buyIn)||0});
   tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();return true;
 }
@@ -4571,7 +4572,7 @@ async function syncTournamentSlotEntries(){
       const cap=Number(tourneyState.entriesPerPerson||1);
       const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
       if(count>=cap) continue;
-      if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
+      if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
       if(tourneyState.players.some(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()&&(p.game||'').trim().toLowerCase()===game.toLowerCase())) {
         importedIds.push(entry.id); continue;
       }
@@ -5177,7 +5178,7 @@ function addTournamentPlayer(name,game,buyIn){
   const cap=Number(tourneyState.entriesPerPerson||1);
   const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
   if(count>=cap){alert(name+' has reached the entries-per-person limit.');return false;}
-  if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
+  if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())){alert('That game is already in use.');return false;}
   tourneyState.players.push({name,game,buyIn:Number(tourneyState.slotBuyIns?.[tourneyState.players.length]??buyIn)||0});
   tourneyState.rounds=[buildTournamentFirstRound()];tourneyState.results=[];saveTourneyState();renderTourney();return true;
 }
@@ -5383,7 +5384,7 @@ async function syncTournamentSlotEntries(){
       const cap=Number(tourneyState.entriesPerPerson||1);
       const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
       if(count>=cap) continue;
-      if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
+      if(!tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
       if(tourneyState.players.some(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()&&(p.game||'').trim().toLowerCase()===game.toLowerCase())) {
         importedIds.push(entry.id); continue;
       }
