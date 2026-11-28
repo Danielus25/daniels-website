@@ -309,7 +309,7 @@ body:has(#randomizer.active){
     <div class="heading"><h2>TOURNAMENT</h2><p>Player entry, live bracket management, and tournament results.</p></div>
     <div class="panel tournament-panel">
       <span class="pill">🏆 TOURNAMENT PLAYER ENTRY</span>
-      <p class="muted">Players from Daniel's Slot Calls queue will be importable here once the queue is connected. You can also add players manually and edit their game and buy-in details.</p>
+      <p class="muted">When Tournament entries are open, !slot requests ending in REG or SUPER automatically add the Kick username and game here. Other !slot requests stay out of Tournament.</p>
       <div class="tool-grid">
         <label class="tool-field">Tournament name<input id="tourneyName" maxlength="60" placeholder="Danielus25 Tournament"></label>
         <label class="tool-field">Bracket size<select id="tourneyLimit"><option>4</option><option>8</option><option>12</option><option>16</option><option>32</option></select></label>
@@ -725,6 +725,7 @@ function renderKickSignIn(user){
   if(status) status.textContent=user
     ? 'Signed in as '+String(user.name||'Kick user')+'. Organizer accounts can view the shared sign-in list below.'
     : 'Sign in with an organizer account to view the shared sign-in list.';
+  if(user && window.kickDashboardAuthorized && typeof syncTournamentSlotEntries==='function') syncTournamentSlotEntries();
   if(!user){
     const roster=$('dashboardKickRoster');
     if(roster) roster.innerHTML='<p class="muted">Sign in with an organizer account to view sign-in activity.</p>';
@@ -965,7 +966,7 @@ $('restorePlayers').onclick=()=>{
 $('removeSavedPlayers').onclick=()=>{
   if(!confirm('Remove the saved player list?'))return;tourneyState.savedPlayers=[];saveTourneyState();$('queueImportStatus').textContent='Saved players removed.';
 };
-$('openTourneyEntries').onclick=()=>{tourneyState.open=true;saveTourneyState();renderTourney();};
+$('openTourneyEntries').onclick=()=>{tourneyState.open=true;saveTourneyState();renderTourney();syncTournamentSlotEntries();};
 $('closeTourneyEntries').onclick=()=>{tourneyState.open=false;saveTourneyState();renderTourney();};
 $('makeBracket').onclick=()=>{
   if(tourneyState.players.length<2){alert('Add at least two players first.');return;}
@@ -988,9 +989,10 @@ $('saveBracket').onclick=()=>{tourneyState.savedPlayers=JSON.parse(JSON.stringif
 $('removeBracketPlayers').onclick=()=>{if(!confirm('Remove all current bracket players?'))return;tourneyState.players=[];tourneyState.rounds=[];tourneyState.results=[];saveTourneyState();renderTourney();};
 $('clearWinners').onclick=()=>{if(!confirm('Clear all saved tournament winners?'))return;tourneyState.results=[];tourneyState.rounds=tourneyState.rounds.map(r=>r.map(m=>({...m,winner:''}))).slice(0,1);saveTourneyState();renderTourney();};
 $('newTournament').onclick=()=>$('clearTourney').click();
-$('clearTourney').onclick=()=>{
+$('clearTourney').onclick=async()=>{
   if(!confirm('Clear players and start a new tournament?'))return;
   const keepLimit=tourneyState.limit;tourneyState={name:'',limit:keepLimit,entriesPerPerson:1,duplicateGames:false,callsOn:false,guessesOn:false,open:false,players:[],savedPlayers:[],rounds:[],results:[],activeMatch:null};saveTourneyState();renderTourney();
+  if(kickSession&&window.kickDashboardAuthorized){try{const response=await fetch(BONUS_HUNT_API_URL+'/tournament-slots/clear',{method:'POST',headers:{Authorization:'Bearer '+kickSession}});if(!response.ok)throw new Error('Could not clear pending Tournament slot requests.');$('queueImportStatus').textContent='Tournament reset. Pending REG/SUPER slot requests cleared.';}catch(error){$('queueImportStatus').textContent=error.message;}}
 };
 renderTourney();
 
@@ -1093,6 +1095,42 @@ let bonusQueueItemToRemove=null;
 try{const saved=JSON.parse(localStorage.getItem(bonusStoreKey)||'null');if(saved&&typeof saved==='object')bonusState={...bonusState,...saved};}catch(e){}
 function saveBonusState(){try{localStorage.setItem(bonusStoreKey,JSON.stringify(bonusState));}catch(e){}}
 const BONUS_HUNT_API_URL='https://kwvbfqqeubisunidtckx.supabase.co/functions/v1/bonus-hunt';
+let tournamentSlotSyncBusy=false;
+async function syncTournamentSlotEntries(){
+  if(tournamentSlotSyncBusy || !window.kickDashboardAuthorized || !kickSession || !tourneyState.open) return;
+  tournamentSlotSyncBusy=true;
+  try{
+    const response=await fetch(BONUS_HUNT_API_URL+'/tournament-slots',{cache:'no-store'});
+    const result=await response.json();
+    if(!response.ok) throw new Error(result.error||'Could not check Tournament slot entries.');
+    const importedIds=[];
+    let added=0;
+    for(const entry of (Array.isArray(result.entries)?result.entries:[])){
+      const name=String(entry.viewer||'').trim().replace(/^@/,'');
+      const game=String(entry.game||'').trim();
+      const slotType=String(entry.slot_type||'').toUpperCase();
+      if(!name||!game||!['REG','SUPER'].includes(slotType)) continue;
+      if(tourneyState.players.length>=tourneyState.limit) break;
+      const cap=Number(tourneyState.entriesPerPerson||1);
+      const count=tourneyState.players.filter(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()).length;
+      if(count>=cap) continue;
+      if(tourneyState.duplicateGames&&tourneyState.players.some(p=>(p.game||'').trim().toLowerCase()===game.toLowerCase())) continue;
+      if(tourneyState.players.some(p=>tournamentPlayerLabel(p).toLowerCase()===name.toLowerCase()&&(p.game||'').trim().toLowerCase()===game.toLowerCase())) {
+        importedIds.push(entry.id); continue;
+      }
+      tourneyState.players.push({name,game,buyIn:0,slotType});
+      importedIds.push(entry.id); added++;
+    }
+    if(added){const names=tournamentNames(),size=2**Math.ceil(Math.log2(Math.max(2,names.length)));while(names.length<size)names.push('BYE');const firstRound=[];for(let i=0;i<names.length;i+=2)firstRound.push({a:names[i],b:names[i+1],winner:names[i+1]==='BYE'?names[i]:''});tourneyState.rounds=[firstRound];tourneyState.results=[];saveTourneyState();renderTourney();}
+    if(importedIds.length){
+      const marked=await fetch(BONUS_HUNT_API_URL+'/tournament-slots/imported',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+kickSession},body:JSON.stringify({ids:importedIds})});
+      if(!marked.ok) throw new Error('Players were added, but the imported status could not be saved.');
+    }
+    if(added)$('queueImportStatus').textContent=added+' REG/SUPER player(s) automatically added from !slot.';
+  }catch(error){console.error('Tournament slot sync:',error);$('queueImportStatus').textContent=error.message||'Tournament slot sync is temporarily unavailable.';}
+  finally{tournamentSlotSyncBusy=false;}
+}
+setInterval(syncTournamentSlotEntries,10000);
 function applySharedBonusState(state){
  if(!state)return;
  const nextQueueOn=!!state.queue_enabled;
