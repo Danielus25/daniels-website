@@ -1335,7 +1335,13 @@ $('toggleBalanceEntries').onclick=async()=>{
     const result=await response.json();
     if(!response.ok)throw new Error(result.error||'Could not update GTB status.');
     await loadBalanceGame();
-    $('balanceOrganizerStatus').textContent=next?'GTB is ON. Viewers can sign in and lock in one guess.':'Entries are paused. Saved guesses will stay in this round if it reopens.';
+    if(next){
+      $('balanceOrganizerStatus').textContent=result.chatSent
+        ?'GTB is ON. The Kick chat announcement with the page link was sent!'
+        :(result.chatError?'GTB is ON, but the chat announcement could not be sent: '+result.chatError:'GTB is ON.');
+    }else{
+      $('balanceOrganizerStatus').textContent='Entries are paused. Saved guesses will stay in this round if it reopens.';
+    }
   }catch(error){$('balanceOrganizerStatus').textContent=error.message;}
 };
 $('revealBalance').onclick=async()=>{
