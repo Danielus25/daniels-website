@@ -1277,15 +1277,19 @@ function renderBalanceGame(){
   $('balanceCount').textContent=String(balanceGame.entryCount);
   $('balanceList').innerHTML='';
   if(!balanceGame.entryCount)$('balanceList').innerHTML='<p class="muted">No guesses yet.</p>';
-  else if(!balanceGame.revealed)$('balanceList').innerHTML='<p class="muted">Guesses are locked and hidden until the organizer reveals the winner.</p>';
-  if(balanceGame.revealed){
-    const ranked=[...balanceGame.entries].sort((a,b)=>Math.abs(Number(a.guess)-balanceGame.final)-Math.abs(Number(b.guess)-balanceGame.final));
-    ranked.forEach((entry,i)=>{
+  else{
+    const entries=balanceGame.revealed
+      ? [...balanceGame.entries].sort((a,b)=>Math.abs(Number(a.guess)-balanceGame.final)-Math.abs(Number(b.guess)-balanceGame.final))
+      : balanceGame.entries;
+    entries.forEach((entry,i)=>{
       const row=document.createElement('div');row.className='player-row';
       const name=document.createElement('strong');name.textContent=(i+1)+'. '+entry.display_name;
       const amount=document.createElement('span');amount.textContent=moneyGuess(entry.guess);
       row.append(name,amount);$('balanceList').append(row);
     });
+  }
+  if(balanceGame.revealed){
+    const ranked=[...balanceGame.entries].sort((a,b)=>Math.abs(Number(a.guess)-balanceGame.final)-Math.abs(Number(b.guess)-balanceGame.final));
     const winner=ranked[0];
     $('balanceWinner').textContent=winner?'🏆 Closest guess: '+winner.display_name+' · '+moneyGuess(winner.guess)+' (off by '+moneyGuess(Math.abs(Number(winner.guess)-balanceGame.final))+')':'No entries to score.';
     $('balanceFinalResultsMessage').textContent='Final Bonus Hunt balance: '+moneyGuess(balanceGame.final)+'.';
