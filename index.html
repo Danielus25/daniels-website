@@ -992,6 +992,7 @@ $('startNextMatch').onclick=()=>{
 $('printBracket').onclick=()=>window.print();
 $('saveBracket').onclick=()=>{tourneyState.savedPlayers=JSON.parse(JSON.stringify(tourneyState.players));saveTourneyState();$('organizerStatus').textContent='Tournament bracket saved in this browser.';};
 $('removeBracketPlayers').onclick=()=>{if(!confirm('Remove all current bracket players?'))return;tourneyState.players=[];tourneyState.rounds=[];tourneyState.results=[];saveTourneyState();renderTourney();};
+$('removeBracketPlayersSecondary').onclick=()=>$('removeBracketPlayers').click();
 $('clearWinners').onclick=()=>{if(!confirm('Clear all saved tournament winners?'))return;tourneyState.results=[];tourneyState.rounds=tourneyState.rounds.map(r=>r.map(m=>({...m,winner:''}))).slice(0,1);saveTourneyState();renderTourney();};
 $('newTournament').onclick=()=>$('clearTourney').click();
 $('clearTourney').onclick=async()=>{
@@ -1443,8 +1444,7 @@ try{const v=JSON.parse(localStorage.getItem(wheelStoreKey)||'[]');if(Array.isArr
 try{const v=JSON.parse(localStorage.getItem(gameWheelStoreKey)||'[]');if(Array.isArray(v))wheelGames=v;}catch(e){}
 try{wheelSettings={...wheelSettings,...JSON.parse(localStorage.getItem(wheelSettingsKey)||'{}')};}catch(e){}
 function saveWheelLists(){try{localStorage.setItem(wheelStoreKey,JSON.stringify(wheelNames));localStorage.setItem(gameWheelStoreKey,JSON.stringify(wheelGames));}catch(e){}}
-function wheelEntryCount(items,id){const field=$(id);const entries=field?field.value.split(/\r?
-$('removeBracketPlayersSecondary').onclick=()=>$('removeBracketPlayers').click();\n/).map(x=>x.trim()).filter(Boolean):[];return Math.max(items.length,entries.length);}
+function wheelEntryCount(items,id){const field=$(id);const entries=field?field.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean):[];return Math.max(items.length,entries.length);}
 function updateWheelDisc(items,discId,hubLabel){
  const disc=$(discId);disc.innerHTML='';
  const count=items.length;
