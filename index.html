@@ -27,7 +27,7 @@ header{position:sticky;top:0;z-index:1000;background:#070b14ed;backdrop-filter:b
 .tool-field input,.tool-field select{width:100%;border:1px solid #315674;border-radius:11px;background:#071321;color:#fff;padding:12px;font:inherit;min-width:0}
 .tool-actions{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}
 /* Keep Tournament controls above decorative layers and reliably clickable on desktop/mobile. */
-.tournament-panel .tool-actions{position:relative;z-index:20;isolation:isolate;pointer-events:auto}
+.tournament-panel .tool-actions{position:relative;z-index:99999;isolation:isolate;pointer-events:auto}
 .tournament-panel .tool-actions>button{position:relative;z-index:21;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .tool-btn{border:1px solid #315674;background:#10243a;color:#e8f5ff;border-radius:10px;padding:10px 14px;font-weight:850;cursor:pointer}
 .tool-btn.primary{background:linear-gradient(100deg,#a94718,#14577c);border-color:#4b91b9}
@@ -696,6 +696,41 @@ try{
 }catch(e){}
 
 const $=id=>document.getElementById(id);
+
+/* Tournament control safety net: keep these controls operational even if a
+   later page initializer fails before assigning their individual handlers. */
+document.addEventListener('click',async function(event){
+  const button=event.target&&event.target.closest?event.target.closest('#toggleCalls,#restorePlayers,#removeSavedPlayers,#removeBracketPlayers'):null;
+  if(!button||typeof button.onclick==='function')return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  const status=$('queueImportStatus');
+  try{
+    if(button.id==='toggleCalls'){
+      const next=!bonusState.queueOn;
+      if(status)status.textContent='Updating slot calls…';
+      await saveSharedBonusSettings({queue_enabled:next});
+      tourneyState.callsOn=next;renderTourney();
+      if(status)status.textContent='Slot calls are now '+(next?'ON':'OFF')+'.';
+    }else if(button.id==='restorePlayers'){
+      if(!tourneyState.savedPlayers.length){if(status)status.textContent='No saved player list is available yet.';return;}
+      tourneyState.players=JSON.parse(JSON.stringify(tourneyState.savedPlayers));
+      saveTourneyState();renderTourney();
+      if(status)status.textContent='Your saved tournament bracket has been restored.';
+    }else if(button.id==='removeSavedPlayers'){
+      if(!confirm('Remove the saved player list?'))return;
+      tourneyState.savedPlayers=[];saveTourneyState();
+      if(status)status.textContent='Saved players removed.';
+    }else if(button.id==='removeBracketPlayers'){
+      if(!confirm('Remove all current bracket players?'))return;
+      tourneyState.players=[];tourneyState.rounds=[];tourneyState.results=[];
+      saveTourneyState();renderTourney();
+    }
+  }catch(error){
+    if(status)status.textContent=error.message||'That Tournament action could not be completed.';
+  }
+},true);
+
 
 /* Kick OAuth sign-in for Daniel's website. The signed session is kept only
    in this browser tab; Kick access/refresh tokens stay on the Edge Function. */
