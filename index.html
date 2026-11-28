@@ -917,10 +917,6 @@ function renderTourney(){
     const buyInput=document.createElement('input');buyInput.type='number';buyInput.min='0';buyInput.step='0.01';buyInput.value=p?tournamentPlayerBuyIn(p):Number(tourneyState.slotBuyIns?.[i]||0);buyInput.placeholder='Enter amount';buyInput.setAttribute('aria-label','Player '+(i+1)+' buy-in');
     buyInput.onchange=()=>{const n=Number(buyInput.value||0);if(p){if(typeof p==='string')tourneyState.players[i]={name:p,game:gameInput.value,buyIn:n};else p.buyIn=n;}else{if(!Array.isArray(tourneyState.slotBuyIns))tourneyState.slotBuyIns=[];tourneyState.slotBuyIns[i]=n;}saveTourneyState();renderTourney();};
     buyLabel.append(buyInput);row.append(buyLabel);
-    const payoutLabel=document.createElement('label');payoutLabel.className='slot-field-label';payoutLabel.textContent='Payout ($)';
-    const payoutInput=document.createElement('input');payoutInput.type='number';payoutInput.min='0';payoutInput.step='0.01';payoutInput.value=p?tournamentPlayerPayout(p):'';payoutInput.placeholder='Enter payout';payoutInput.setAttribute('aria-label','Player '+(i+1)+' payout');payoutInput.disabled=!p;
-    payoutInput.onchange=()=>{const n=Number(payoutInput.value||0);if(p){if(typeof p==='string')tourneyState.players[i]={name:p,game:gameInput.value,buyIn:Number(tourneyState.slotBuyIns?.[i]||0),payout:n};else p.payout=n;}saveTourneyState();renderTourney();};
-    payoutLabel.append(payoutInput);row.append(payoutLabel);
     const remove=document.createElement('button');remove.type='button';remove.textContent='REMOVE';remove.disabled=!p;
     remove.onclick=()=>{tourneyState.players.splice(i,1);if(Array.isArray(tourneyState.slotBuyIns))tourneyState.slotBuyIns.splice(i,1);saveTourneyState();renderTourney();};
     row.append(remove);$('playerList').append(row);
