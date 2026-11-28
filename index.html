@@ -877,7 +877,7 @@ function renderTourney(){
   $('entriesPerPerson').value=String(tourneyState.entriesPerPerson||1)+' '+((tourneyState.entriesPerPerson||1)===1?'Entry':'Entries');
   $('duplicateToggle').textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
   $('duplicateToggle').setAttribute('aria-pressed',String(!!tourneyState.duplicateGames));
-  $('toggleCalls').textContent='🔔 SLOT CALLS '+(tourneyState.callsOn?'ON':'OFF');
+  $('toggleCalls').textContent='🔔 SLOT CALLS '+(bonusState.queueOn?'ON':'OFF');
   $('toggleGuesses').textContent='🧠 GUESSES: '+(tourneyState.guessesOn?'ON':'OFF');
   $('entryStatus').textContent=tourneyState.open?'OPEN':'CLOSED';
   $('playerCount').textContent=tourneyState.players.length+' / '+tourneyState.limit+' players';
@@ -1209,6 +1209,11 @@ function applySharedBonusState(state){
   bonusState.callLimit!==nextCallLimit||
   JSON.stringify(bonusState.queue)!==JSON.stringify(nextQueue);
  bonusState.queueOn=nextQueueOn;
+ // Tournament and Bonus Hunt share one server-side queue switch. Keep the
+ // Tournament button tied to the authoritative shared state, not stale local storage.
+ tourneyState.callsOn=nextQueueOn;
+ const tournamentCallsButton=$('toggleCalls');
+ if(tournamentCallsButton)tournamentCallsButton.textContent='🔔 SLOT CALLS '+(nextQueueOn?'ON':'OFF');
  bonusState.duplicateCalls=nextDuplicateCalls;
  bonusState.callLimit=nextCallLimit;
  bonusState.queue=nextQueue;
