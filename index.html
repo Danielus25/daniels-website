@@ -839,7 +839,7 @@ function renderTourney(){
   $('entriesPerPerson').value=String(tourneyState.entriesPerPerson||1)+' '+((tourneyState.entriesPerPerson||1)===1?'Entry':'Entries');
   $('duplicateToggle').textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
   $('duplicateToggle').setAttribute('aria-pressed',String(!!tourneyState.duplicateGames));
-  $('toggleCalls').textContent='🔔 BONUS HUNT CALLS '+(tourneyState.callsOn?'ON':'OFF');
+  $('toggleCalls').textContent='🔔 SLOT CALLS '+(tourneyState.callsOn?'ON':'OFF');
   $('toggleGuesses').textContent='🧠 GUESSES: '+(tourneyState.guessesOn?'ON':'OFF');
   $('entryStatus').textContent=tourneyState.open?'OPEN':'CLOSED';
   $('playerCount').textContent=tourneyState.players.length+' / '+tourneyState.limit+' players';
@@ -946,7 +946,7 @@ $('duplicateToggle').addEventListener('click',function(e){
   this.textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
   this.setAttribute('aria-pressed',String(tourneyState.duplicateGames));
 });
-$('toggleCalls').onclick=async()=>{const next=!bonusState.queueOn;$('queueImportStatus').textContent='Updating Bonus Hunt slot calls…';try{await saveSharedBonusSettings({queue_enabled:next});tourneyState.callsOn=next;renderTourney();$('queueImportStatus').textContent='Bonus Hunt slot calls are now '+(next?'ON':'OFF')+'.';}catch(error){$('queueImportStatus').textContent=error.message;await loadSharedBonusState();}};
+$('toggleCalls').onclick=async()=>{const next=!bonusState.queueOn;$('queueImportStatus').textContent='Updating slot calls…';try{await saveSharedBonusSettings({queue_enabled:next});tourneyState.callsOn=next;renderTourney();$('queueImportStatus').textContent='Slot calls are now '+(next?'ON':'OFF')+'.';}catch(error){$('queueImportStatus').textContent=error.message;await loadSharedBonusState();}};
 $('toggleGuesses').onclick=()=>{tourneyState.guessesOn=!tourneyState.guessesOn;saveTourneyState();renderTourney();};
 $('addPlayer').onclick=()=>{
   const ok=addTournamentPlayer($('playerName').value,$('playerGame').value,$('playerBuyIn').value);
@@ -1212,7 +1212,7 @@ function renderBonusHunt(){
  $('bonusCount').textContent=String(entries.length);
  $('totalPayout').textContent=bonusMoney(payout);
  $('bonusQueueStatus').textContent=bonusState.queueOn?'Bonus Hunt calls are ON. New !slot requests go to this queue.':'Bonus Hunt calls are OFF.';
- if($('toggleCalls'))$('toggleCalls').textContent='🔔 BONUS HUNT CALLS '+(bonusState.queueOn?'ON':'OFF');
+ if($('toggleCalls'))$('toggleCalls').textContent='🔔 SLOT CALLS '+(bonusState.queueOn?'ON':'OFF');
  $('bonusDuplicateToggle').textContent='DUPLICATE CALLS: '+(bonusState.duplicateCalls?'ON':'OFF');
  $('bonusQueueToggle').textContent='BONUS HUNT !SLOT: '+(bonusState.queueOn?'ON':'OFF');
  $('bonusCallLimit').value=String(bonusState.callLimit||1);
