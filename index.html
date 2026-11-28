@@ -878,7 +878,12 @@ function tournamentSlotDisplay(slot){
   const match=String(slot||'').match(/^Player (\d+)$/);
   if(!match)return String(slot||'TBD');
   const player=tournamentSlotPlayer(slot);
-  return player?'Player '+match[1]+' — @'+tournamentPlayerLabel(player):'Player '+match[1]+' — Waiting for player';
+  if(!player)return 'Player '+match[1]+' — Waiting for player';
+  const name='@'+tournamentPlayerLabel(player);
+  const game=String(tournamentPlayerGame(player)||'').trim();
+  const type=String(typeof player==='string'?'':(player.slotType||player.slot_type||'')).trim().toUpperCase();
+  const details=[game,type].filter(Boolean).join(' · ');
+  return 'Player '+match[1]+' — '+name+(details?' · '+details:'');
 }
 function buildTournamentFirstRound(){
   const slots=tournamentBracketSlots(),round=[];
