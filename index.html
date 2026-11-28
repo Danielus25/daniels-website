@@ -690,6 +690,8 @@ document.getElementById('year').textContent=new Date().getFullYear();
 
 const tourneyStoreKey='danielus25_tournament_preview_v2';
 let tourneyState={name:'',limit:8,entriesPerPerson:1,duplicateGames:false,callsOn:false,guessesOn:false,open:false,players:[],savedPlayers:[],rounds:[],results:[],activeMatch:null};
+// Initialized before Tournament rendering; synchronized from the shared API once loaded.
+let sharedQueueEnabled=false;
 try{
   const saved=JSON.parse(localStorage.getItem(tourneyStoreKey)||'null');
   if(saved&&Array.isArray(saved.players)&&Array.isArray(saved.rounds))tourneyState={...tourneyState,...saved};
@@ -707,7 +709,7 @@ document.addEventListener('click',async function(event){
   const status=$('queueImportStatus');
   try{
     if(button.id==='toggleCalls'){
-      const next=!bonusState.queueOn;
+      const next=!sharedQueueEnabled;
       if(status)status.textContent='Updating slot calls…';
       await saveSharedBonusSettings({queue_enabled:next});
       tourneyState.callsOn=next;renderTourney();
@@ -877,7 +879,7 @@ function renderTourney(){
   $('entriesPerPerson').value=String(tourneyState.entriesPerPerson||1)+' '+((tourneyState.entriesPerPerson||1)===1?'Entry':'Entries');
   $('duplicateToggle').textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
   $('duplicateToggle').setAttribute('aria-pressed',String(!!tourneyState.duplicateGames));
-  $('toggleCalls').textContent='🔔 SLOT CALLS '+(bonusState.queueOn?'ON':'OFF');
+  $('toggleCalls').textContent='🔔 SLOT CALLS '+(sharedQueueEnabled?'ON':'OFF');
   $('toggleGuesses').textContent='🧠 GUESSES: '+(tourneyState.guessesOn?'ON':'OFF');
   $('entryStatus').textContent=tourneyState.open?'OPEN':'CLOSED';
   $('playerCount').textContent=tourneyState.players.length+' / '+tourneyState.limit+' players';
@@ -988,7 +990,7 @@ $('duplicateToggle').addEventListener('click',function(e){
   this.textContent='DUP: '+(tourneyState.duplicateGames?'ON':'OFF');
   this.setAttribute('aria-pressed',String(tourneyState.duplicateGames));
 });
-$('toggleCalls').onclick=async()=>{const next=!bonusState.queueOn;$('queueImportStatus').textContent='Updating slot calls…';try{await saveSharedBonusSettings({queue_enabled:next});tourneyState.callsOn=next;renderTourney();$('queueImportStatus').textContent='Slot calls are now '+(next?'ON':'OFF')+'.';}catch(error){$('queueImportStatus').textContent=error.message;await loadSharedBonusState();}};
+$('toggleCalls').onclick=async()=>{const next=!sharedQueueEnabled;$('queueImportStatus').textContent='Updating slot calls…';try{await saveSharedBonusSettings({queue_enabled:next});tourneyState.callsOn=next;renderTourney();$('queueImportStatus').textContent='Slot calls are now '+(next?'ON':'OFF')+'.';}catch(error){$('queueImportStatus').textContent=error.message;await loadSharedBonusState();}};
 $('toggleGuesses').onclick=()=>{tourneyState.guessesOn=!tourneyState.guessesOn;saveTourneyState();renderTourney();};
 $('addPlayer').onclick=()=>{
   const ok=addTournamentPlayer($('playerName').value,$('playerGame').value,$('playerBuyIn').value);
@@ -1201,6 +1203,7 @@ setInterval(syncTournamentSlotEntries,10000);
 function applySharedBonusState(state){
  if(!state)return;
  const nextQueueOn=!!state.queue_enabled;
+ sharedQueueEnabled=nextQueueOn;
  const nextDuplicateCalls=!!state.duplicate_calls;
  const nextCallLimit=Math.max(1,Math.min(10,Number(state.max_pending_per_viewer)||1));
  const nextQueue=Array.isArray(state.queue)?state.queue:[];
